@@ -6,17 +6,28 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXFileReference section */
-		394B81182E94F581004CB2AB /* Plantar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plantar.app; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
+/* Begin PBXBuildFile section */
+		394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81542E96150E004CB2AB /* WelcomeView.swift */; };
+		394B81572E96150E004CB2AB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81502E96150E004CB2AB /* LoginView.swift */; };
+		394B81582E96150E004CB2AB /* TermsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81532E96150E004CB2AB /* TermsView.swift */; };
+		394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81512E96150E004CB2AB /* PlantarApp.swift */; };
+		394B815A2E96150E004CB2AB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B814F2E96150E004CB2AB /* ContentView.swift */; };
+		394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81522E96150E004CB2AB /* RegisterView.swift */; };
+		394B815C2E96150E004CB2AB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 394B814C2E96150E004CB2AB /* Preview Assets.xcassets */; };
+		394B815D2E96150E004CB2AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 394B814E2E96150E004CB2AB /* Assets.xcassets */; };
+/* End PBXBuildFile section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		394B811A2E94F581004CB2AB /* Plantar */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Plantar;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXFileReference section */
+		394B81392E96142F004CB2AB /* Plantar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Plantar.app; path = "/Users/jeerapanchirachanchai/Desktop/Plantar/build/Debug-iphoneos/Plantar.app"; sourceTree = "<absolute>"; };
+		394B814C2E96150E004CB2AB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		394B814E2E96150E004CB2AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		394B814F2E96150E004CB2AB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		394B81502E96150E004CB2AB /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		394B81512E96150E004CB2AB /* PlantarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlantarApp.swift; sourceTree = "<group>"; };
+		394B81522E96150E004CB2AB /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		394B81532E96150E004CB2AB /* TermsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsView.swift; sourceTree = "<group>"; };
+		394B81542E96150E004CB2AB /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		394B81152E94F581004CB2AB /* Frameworks */ = {
@@ -32,17 +43,47 @@
 		394B810F2E94F581004CB2AB = {
 			isa = PBXGroup;
 			children = (
-				394B811A2E94F581004CB2AB /* Plantar */,
-				394B81192E94F581004CB2AB /* Products */,
+				394B81552E96150E004CB2AB /* Plantar */,
 			);
 			sourceTree = "<group>";
 		};
-		394B81192E94F581004CB2AB /* Products */ = {
+		394B814D2E96150E004CB2AB /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				394B81182E94F581004CB2AB /* Plantar.app */,
+				394B814C2E96150E004CB2AB /* Preview Assets.xcassets */,
 			);
-			name = Products;
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		394B81552E96150E004CB2AB /* Plantar */ = {
+			isa = PBXGroup;
+			children = (
+				394B814D2E96150E004CB2AB /* Preview Content */,
+				394B814E2E96150E004CB2AB /* Assets.xcassets */,
+				394B81542E96150E004CB2AB /* WelcomeView.swift */,
+				394B814F2E96150E004CB2AB /* ContentView.swift */,
+				394B81512E96150E004CB2AB /* PlantarApp.swift */,
+				39A608542E961A7F0070B69C /* Auth */,
+				39A608562E961AD90070B69C /* policy */,
+			);
+			path = Plantar;
+			sourceTree = "<group>";
+		};
+		39A608542E961A7F0070B69C /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				394B81522E96150E004CB2AB /* RegisterView.swift */,
+				394B81502E96150E004CB2AB /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		39A608562E961AD90070B69C /* policy */ = {
+			isa = PBXGroup;
+			children = (
+				394B81532E96150E004CB2AB /* TermsView.swift */,
+			);
+			path = policy;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -60,14 +101,11 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				394B811A2E94F581004CB2AB /* Plantar */,
-			);
 			name = Plantar;
 			packageProductDependencies = (
 			);
 			productName = Plantar;
-			productReference = 394B81182E94F581004CB2AB /* Plantar.app */;
+			productReference = 394B81392E96142F004CB2AB /* Plantar.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -95,7 +133,7 @@
 			mainGroup = 394B810F2E94F581004CB2AB;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 394B81192E94F581004CB2AB /* Products */;
+			productRefGroup = 394B810F2E94F581004CB2AB;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -109,6 +147,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				394B815C2E96150E004CB2AB /* Preview Assets.xcassets in Resources */,
+				394B815D2E96150E004CB2AB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +159,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
+				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
+				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
+				394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */,
+				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
+				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

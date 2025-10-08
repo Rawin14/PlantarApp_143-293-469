@@ -1,0 +1,62 @@
+//
+//  welcome.swift
+//  Plantar
+//
+//  Created by Jeerapan Chirachanchai on 7/10/2568 BE.
+//
+
+import SwiftUI
+
+struct WelcomeView: View {
+    @State private var goToNext = false // ควบคุมว่าจะเปลี่ยนไปหน้าอื่นไหม
+    var body: some View {
+        if goToNext {
+            TermsView()
+        }
+        else {
+            ZStack {
+                // พื้นหลังเป็นรูปภาพ
+                Image("welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                
+                // Overlay เนื้อหา
+                VStack {
+                    Spacer()
+                    
+                    // ชื่อแผน
+                    Text("Stretching\nPlan")
+                        .font(.system(size: 36, weight: .semibold, design: .serif))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.black)
+                        .padding(.bottom, 40)
+                    
+                    Spacer()
+                    
+                    // ปุ่ม Get Started
+                    Button(action: {
+                        withAnimation(.easeInOut) {
+                            goToNext = true
+                        }
+                    }) {
+                        Text("Get Started")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: 250)
+                            .padding()
+                            .background(Color(red: 74/255, green: 59/255, blue: 49/255)) // น้ำตาลโทนอุ่น
+                            .cornerRadius(20)
+                            .padding(.horizontal, 40)
+                    }
+                    .padding(.bottom, 40)
+                    .transition(.opacity)
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    WelcomeView()
+}
