@@ -15,12 +15,11 @@
 		394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81522E96150E004CB2AB /* RegisterView.swift */; };
 		394B815C2E96150E004CB2AB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 394B814C2E96150E004CB2AB /* Preview Assets.xcassets */; };
 		394B815D2E96150E004CB2AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 394B814E2E96150E004CB2AB /* Assets.xcassets */; };
-		397624472EAA3D9E007C7D99 /* ObjectCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624462EAA3D9E007C7D99 /* ObjectCaptureManager.swift */; };
 		397624492EAA3DF8007C7D99 /* CameraCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */; };
 		3976244F2EAEB8DE007C7D99 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 3976244E2EAEB8DE007C7D99 /* FirebaseStorage */; };
 		397624522EAEB916007C7D99 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 397624512EAEB916007C7D99 /* Zip */; };
 		397624542EAEBB3C007C7D99 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */; };
-		397624592EAEC3CF007C7D99 /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624582EAEC3CF007C7D99 /* UploadManager.swift */; };
+		397624592EAEC3CF007C7D99 /* CaptureUploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624582EAEC3CF007C7D99 /* CaptureUploadManager.swift */; };
 		39A608622EA397780070B69C /* WeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608612EA397780070B69C /* WeightView.swift */; };
 		39A608642EA3A1B10070B69C /* HeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608632EA3A1B10070B69C /* HeightView.swift */; };
 		39A608662EA3A1C20070B69C /* AgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608652EA3A1C20070B69C /* AgeView.swift */; };
@@ -37,10 +36,9 @@
 		394B81522E96150E004CB2AB /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		394B81532E96150E004CB2AB /* TermsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsView.swift; sourceTree = "<group>"; };
 		394B81542E96150E004CB2AB /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
-		397624462EAA3D9E007C7D99 /* ObjectCaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectCaptureManager.swift; sourceTree = "<group>"; };
 		397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		397624582EAEC3CF007C7D99 /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
+		397624582EAEC3CF007C7D99 /* CaptureUploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureUploadManager.swift; sourceTree = "<group>"; };
 		39A608582EA1E5AF0070B69C /* Plantar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plantar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		39A608612EA397780070B69C /* WeightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightView.swift; sourceTree = "<group>"; };
 		39A608632EA3A1B10070B69C /* HeightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeightView.swift; sourceTree = "<group>"; };
@@ -67,19 +65,7 @@
 		394B810F2E94F581004CB2AB = {
 			isa = PBXGroup;
 			children = (
-				3976244C2EAA45A8007C7D99 /* CameraFunc */,
-				39A6086D2EAA28530070B69C /* Info.plist */,
-				397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */,
-				394B814D2E96150E004CB2AB /* Preview Content */,
-				394B814E2E96150E004CB2AB /* Assets.xcassets */,
-				394B81542E96150E004CB2AB /* WelcomeView.swift */,
-				39A608612EA397780070B69C /* WeightView.swift */,
-				39A608632EA3A1B10070B69C /* HeightView.swift */,
-				39A608652EA3A1C20070B69C /* AgeView.swift */,
-				394B814F2E96150E004CB2AB /* ContentView.swift */,
-				394B81512E96150E004CB2AB /* PlantarApp.swift */,
-				39A608542E961A7F0070B69C /* Auth */,
-				39A608562E961AD90070B69C /* policy */,
+				39D732D02EAECAEE00BDA8A5 /* Plantar */,
 				39A608582EA1E5AF0070B69C /* Plantar.app */,
 				39F4D0EF2EAA3918009FEBDD /* Frameworks */,
 			);
@@ -96,9 +82,8 @@
 		3976244C2EAA45A8007C7D99 /* CameraFunc */ = {
 			isa = PBXGroup;
 			children = (
-				397624582EAEC3CF007C7D99 /* UploadManager.swift */,
+				397624582EAEC3CF007C7D99 /* CaptureUploadManager.swift */,
 				397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */,
-				397624462EAA3D9E007C7D99 /* ObjectCaptureManager.swift */,
 				39A608692EAA1EE60070B69C /* ScanView.swift */,
 			);
 			path = CameraFunc;
@@ -119,6 +104,26 @@
 				394B81532E96150E004CB2AB /* TermsView.swift */,
 			);
 			path = policy;
+			sourceTree = "<group>";
+		};
+		39D732D02EAECAEE00BDA8A5 /* Plantar */ = {
+			isa = PBXGroup;
+			children = (
+				3976244C2EAA45A8007C7D99 /* CameraFunc */,
+				39A6086D2EAA28530070B69C /* Info.plist */,
+				397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */,
+				394B814D2E96150E004CB2AB /* Preview Content */,
+				394B814E2E96150E004CB2AB /* Assets.xcassets */,
+				394B81542E96150E004CB2AB /* WelcomeView.swift */,
+				39A608612EA397780070B69C /* WeightView.swift */,
+				39A608632EA3A1B10070B69C /* HeightView.swift */,
+				39A608652EA3A1C20070B69C /* AgeView.swift */,
+				394B814F2E96150E004CB2AB /* ContentView.swift */,
+				394B81512E96150E004CB2AB /* PlantarApp.swift */,
+				39A608542E961A7F0070B69C /* Auth */,
+				39A608562E961AD90070B69C /* policy */,
+			);
+			path = Plantar;
 			sourceTree = "<group>";
 		};
 		39F4D0EF2EAA3918009FEBDD /* Frameworks */ = {
@@ -212,12 +217,11 @@
 				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
-				397624472EAA3D9E007C7D99 /* ObjectCaptureManager.swift in Sources */,
 				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
 				394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */,
 				397624492EAA3DF8007C7D99 /* CameraCaptureView.swift in Sources */,
 				39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */,
-				397624592EAEC3CF007C7D99 /* UploadManager.swift in Sources */,
+				397624592EAEC3CF007C7D99 /* CaptureUploadManager.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
 				39A608662EA3A1C20070B69C /* AgeView.swift in Sources */,
