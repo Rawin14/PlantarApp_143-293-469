@@ -11,17 +11,15 @@ import AVFoundation
 // นี่คือ View ที่จะเด้งขึ้นมา (Sheet)
 struct CameraCaptureView: View {
     
-    // 👈 เปลี่ยนเป็น CaptureUploadManager
     @ObservedObject var manager: CaptureUploadManager
-    @Binding var footSide: ScanView.FootSide
     @Environment(\.dismiss) var dismiss
-
+    
     var body: some View {
         ZStack {
             // 1. กล้อง (เต็มจอ)
-            CameraPreview(manager: manager) // 👈 ส่งต่อ
+            CameraPreview(manager: manager)
                 .ignoresSafeArea()
-
+            
             // 2. UI ที่ลอยทับ
             VStack {
                 // 2.1. หัวข้อ (บอกว่าถ่ายกี่รูป)
@@ -61,13 +59,14 @@ struct CameraCaptureView: View {
                     Spacer()
                     
                     // ปุ่มเสร็จสิ้น (จะเรียก startUpload)
-                    Button("Process") {
-                        manager.startUpload(footSide: footSide) // 👈 เปลี่ยน
+                    Button("Upload") {
+                        // 👇 ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default
+                        manager.startUpload(footSide: .left)
                         dismiss() // ปิดหน้ากล้อง
                     }
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(manager.imageCount < 10 ? .gray : .blue)
+                    .foregroundColor(manager.imageCount < 10 ? .gray : .green)
                     .padding(40)
                     .disabled(manager.imageCount < 10) // ต้องถ่ายอย่างน้อย 10 รูป
                 }
@@ -75,7 +74,8 @@ struct CameraCaptureView: View {
             .padding(.bottom, 20)
         }
         .onAppear {
-            manager.setupFolders(footSide: footSide) // สร้างโฟลเดอร์เมื่อเปิดกล้อง
+            // 👇 ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default
+            manager.setupFolders(footSide: .left)
         }
     }
 }
@@ -86,9 +86,8 @@ extension Notification.Name {
 }
 
 // --- สะพานเชื่อม UIKit (AVFoundation) กับ SwiftUI ---
-
 struct CameraPreview: UIViewRepresentable {
-    // 👈 เปลี่ยนเป็น CaptureUploadManager
+    
     @ObservedObject var manager: CaptureUploadManager
     
     func makeUIView(context: Context) -> UIView {
@@ -113,28 +112,26 @@ struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self, manager: manager) // 👈 ส่งต่อ
+        Coordinator(parent: self, manager: manager)
     }
-
+    
     // --- Coordinator (สมองของกล้อง) ---
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
         var parent: CameraPreview
-        // 👈 เปลี่ยนเป็น CaptureUploadManager
         var manager: CaptureUploadManager
         var session: AVCaptureSession?
         var output = AVCapturePhotoOutput()
         var previewLayer: AVCaptureVideoPreviewLayer?
-
-        // 👈 เปลี่ยนเป็น CaptureUploadManager
+        
         init(parent: CameraPreview, manager: CaptureUploadManager) {
             self.parent = parent
             self.manager = manager
             super.init()
         }
-
+        
         func setupCaptureSession(completion: @escaping (AVCaptureVideoPreviewLayer) -> Void) {
             let session = AVCaptureSession()
-            session.sessionPreset = .photo // ถ่ายรูปคุณภาพสูง
+            session.sessionPreset = .photo
             
             guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
                   let input = try? AVCaptureDeviceInput(device: device) else { return }
@@ -153,9 +150,10 @@ struct CameraPreview: UIViewRepresentable {
                     }
                 }
             }
+            
             self.session = session
         }
-
+        
         func takePhoto() {
             let settings = AVCapturePhotoSettings()
             output.capturePhoto(with: settings, delegate: self)
@@ -166,11 +164,14 @@ struct CameraPreview: UIViewRepresentable {
                 print("Error ถ่ายรูป: \(error)")
                 return
             }
-            guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
+            
+            guard let data = photo.fileDataRepresentation(),
+                  let image = UIImage(data: data) else { return }
             
             // 2. ส่งรูปที่ถ่ายได้ไปให้ Manager
             Task { @MainActor in
                 manager.addImage(image)
             }
-        }    }
+        }
+    }
 }

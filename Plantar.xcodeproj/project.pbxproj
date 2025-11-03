@@ -7,6 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973A2EB356A8002C3E26 /* HighRisk.swift */; };
+		3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973C2EB3575A002C3E26 /* LowRisk.swift */; };
+		3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973E2EB35789002C3E26 /* MediumRisk.swift */; };
+		392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797422EB360E6002C3E26 /* EvaluateView.swift */; };
+		392797452EB3648B002C3E26 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797442EB3648B002C3E26 /* Profile.swift */; };
+		392797472EB366C3002C3E26 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797462EB366C3002C3E26 /* HomeView.swift */; };
+		392797492EB47873002C3E26 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797482EB47873002C3E26 /* NotificationView.swift */; };
+		3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */; };
+		3927974D2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */; };
+		3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */; };
+		392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797502EB4B363002C3E26 /* DiaryTodayView.swift */; };
+		392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */; };
+		392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797542EB4E5FC002C3E26 /* DashboardView.swift */; };
+		392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */; };
+		392797592EB50AE8002C3E26 /* BMIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797582EB50AE8002C3E26 /* BMIView.swift */; };
+		3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927975A2EB50D2F002C3E26 /* ProfileView.swift */; };
 		394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81542E96150E004CB2AB /* WelcomeView.swift */; };
 		394B81572E96150E004CB2AB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81502E96150E004CB2AB /* LoginView.swift */; };
 		394B81582E96150E004CB2AB /* TermsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81532E96150E004CB2AB /* TermsView.swift */; };
@@ -28,6 +44,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3927973A2EB356A8002C3E26 /* HighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRisk.swift; sourceTree = "<group>"; };
+		3927973C2EB3575A002C3E26 /* LowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowRisk.swift; sourceTree = "<group>"; };
+		3927973E2EB35789002C3E26 /* MediumRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediumRisk.swift; sourceTree = "<group>"; };
+		392797422EB360E6002C3E26 /* EvaluateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateView.swift; sourceTree = "<group>"; };
+		392797442EB3648B002C3E26 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		392797462EB366C3002C3E26 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		392797482EB47873002C3E26 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewLowRisk.swift; sourceTree = "<group>"; };
+		3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewMediumRisk.swift; sourceTree = "<group>"; };
+		3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewHighRisk.swift; sourceTree = "<group>"; };
+		392797502EB4B363002C3E26 /* DiaryTodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryTodayView.swift; sourceTree = "<group>"; };
+		392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryHistoryView.swift; sourceTree = "<group>"; };
+		392797542EB4E5FC002C3E26 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicsNearMeView.swift; sourceTree = "<group>"; };
+		392797582EB50AE8002C3E26 /* BMIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIView.swift; sourceTree = "<group>"; };
+		3927975A2EB50D2F002C3E26 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		394B814C2E96150E004CB2AB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		394B814E2E96150E004CB2AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		394B814F2E96150E004CB2AB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -62,6 +94,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3927975D2EB7C46A002C3E26 /* StartView */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = StartView;
+			sourceTree = "<group>";
+		};
 		394B810F2E94F581004CB2AB = {
 			isa = PBXGroup;
 			children = (
@@ -109,14 +148,31 @@
 		39D732D02EAECAEE00BDA8A5 /* Plantar */ = {
 			isa = PBXGroup;
 			children = (
+				3927975D2EB7C46A002C3E26 /* StartView */,
 				3976244C2EAA45A8007C7D99 /* CameraFunc */,
 				39A6086D2EAA28530070B69C /* Info.plist */,
 				397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */,
 				394B814D2E96150E004CB2AB /* Preview Content */,
 				394B814E2E96150E004CB2AB /* Assets.xcassets */,
 				394B81542E96150E004CB2AB /* WelcomeView.swift */,
+				3927973A2EB356A8002C3E26 /* HighRisk.swift */,
+				392797582EB50AE8002C3E26 /* BMIView.swift */,
+				392797442EB3648B002C3E26 /* Profile.swift */,
+				3927973C2EB3575A002C3E26 /* LowRisk.swift */,
+				392797422EB360E6002C3E26 /* EvaluateView.swift */,
+				3927973E2EB35789002C3E26 /* MediumRisk.swift */,
 				39A608612EA397780070B69C /* WeightView.swift */,
 				39A608632EA3A1B10070B69C /* HeightView.swift */,
+				392797462EB366C3002C3E26 /* HomeView.swift */,
+				3927975A2EB50D2F002C3E26 /* ProfileView.swift */,
+				392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */,
+				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
+				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
+				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
+				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
+				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
+				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
+				392797482EB47873002C3E26 /* NotificationView.swift */,
 				39A608652EA3A1C20070B69C /* AgeView.swift */,
 				394B814F2E96150E004CB2AB /* ContentView.swift */,
 				394B81512E96150E004CB2AB /* PlantarApp.swift */,
@@ -214,18 +270,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				392797452EB3648B002C3E26 /* Profile.swift in Sources */,
 				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
+				3927974D2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift in Sources */,
+				392797592EB50AE8002C3E26 /* BMIView.swift in Sources */,
+				3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */,
+				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
+				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
+				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
+				3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */,
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
 				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
+				3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */,
+				3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */,
+				392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */,
 				394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */,
 				397624492EAA3DF8007C7D99 /* CameraCaptureView.swift in Sources */,
+				392797472EB366C3002C3E26 /* HomeView.swift in Sources */,
 				39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */,
+				392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */,
 				397624592EAEC3CF007C7D99 /* CaptureUploadManager.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
+				3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */,
 				39A608662EA3A1C20070B69C /* AgeView.swift in Sources */,
 				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
+				392797492EB47873002C3E26 /* NotificationView.swift in Sources */,
+				392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

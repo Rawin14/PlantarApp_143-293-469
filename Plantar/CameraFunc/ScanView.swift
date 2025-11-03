@@ -1,8 +1,8 @@
 //
-//  ScanView.swift
-//  Plantar
+// ScanView.swift
+// Plantar
 //
-//  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
+// Created by Jeerapan Chirachanchai on 23/10/2568 BE.
 //
 
 import SwiftUI
@@ -12,8 +12,6 @@ enum ScanState {
     case idle       // ยังไม่เริ่ม
     case saving     // กำลังอัปโหลด
     case finished   // อัปโหลดเสร็จ
-    
-    // (เราไม่ต้องการ .analyzing หรือ .scanning แล้วในตอนนี้)
 }
 
 struct ScanView: View {
@@ -22,28 +20,20 @@ struct ScanView: View {
     @Environment(\.dismiss) private var dismiss
     
     // --- State Variables ---
-    @State private var selectedFoot: FootSide = .left
     @State private var currentPageIndex = 4
     
     // --- State ควบคุม Capture/Upload ---
-    @StateObject private var captureManager = CaptureUploadManager() // 👈 เปลี่ยนเป็น Manager ตัวใหม่
-    @State private var isShowingCameraSheet = false
+    @StateObject private var captureManager = CaptureUploadManager()
+    @State private var navigateToCamera = false
     
     // --- State สำหรับแสดง Alert ---
     @State private var isShowingErrorAlert = false
     @State private var alertMessage = ""
     
-    // Enum สำหรับเลือกข้าง
-    enum FootSide {
-        case left, right
-    }
-    
-    // --- Custom Colors --- (เหมือนเดิม)
+    // --- Custom Colors ---
     let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255)
     let selectedDotColor = Color(red: 188/255, green: 204/255, blue: 112/255)
-    let unselectedSegmentColor = Color(red: 220/255, green: 220/255, blue: 220/255)
     let unselectedDotColor = Color(red: 220/255, green: 220/255, blue: 220/255)
-    
     
     var body: some View {
         ZStack {
@@ -52,21 +42,6 @@ struct ScanView: View {
             
             // 2. UI หลัก
             VStack(alignment: .leading, spacing: 16) {
-                
-                // 2. ปุ่ม Back Arrow
-                if captureManager.scanState == .idle || captureManager.scanState == .finished {
-                    Button(action: {
-                        dismiss() // ย้อนกลับ
-                    }) {
-                        Image(systemName: "arrow.left")
-                            .font(.title2.weight(.medium))
-                            .foregroundColor(.black)
-                            .padding(8)
-                            .background(.white.opacity(0.5))
-                            .clipShape(Circle())
-                    }
-                    .padding(.bottom, 16)
-                }
                 
                 // --- สลับ UI ตามสถานะ ---
                 
@@ -122,23 +97,32 @@ struct ScanView: View {
                 // --- สถานะ: เริ่มต้น (idle) ---
                 } else {
                     
+                    // 2. ปุ่ม Back Arrow
+                    Button(action: {
+                        dismiss() // ย้อนกลับ
+                    }) {
+                        Image(systemName: "arrow.left")
+                            .font(.title2.weight(.medium))
+                            .foregroundColor(.black)
+                            .padding(8)
+                            .background(.white.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                    .padding(.bottom, 16)
+                    
                     // 3. ส่วนหัวข้อ
                     Text("Scan your feet")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.black)
                     
-                    Text("เลือกเท้าที่ต้องการสแกน และเตรียมถ่ายรูปอย่างน้อย 10-40 รูป")
+                    Text("เตรียมถ่ายรูปเท้าของคุณอย่างน้อย 10-40 รูป")
                         .font(.callout)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
+                        .padding(.bottom, 24)
                     
-                    // 4. ปุ่มเลือก Left/Right
-                    FootSegmentedControl(selectedSide: $selectedFoot,
-                                         unselectedColor: unselectedSegmentColor)
-                        .padding(.vertical, 24)
-                    
-                    // 5. รูป Placeholder (เปลี่ยนเป็นรูปกล้อง)
+                    // 4. รูป Placeholder (เปลี่ยนเป็นรูปกล้อง)
                     HStack {
                         Spacer()
                         Image(systemName: "camera.fill.badge.ellipsis")
@@ -151,9 +135,9 @@ struct ScanView: View {
                     
                     Spacer()
                     
-                    // 6. ปุ่ม "Start Capture"
+                    // 5. ปุ่ม "Start Capture" - นำทางไปหน้าถ่ายภาพ
                     Button(action: {
-                        isShowingCameraSheet = true // เปิดหน้ากล้อง
+                        navigateToCamera = true
                     }) {
                         Text("Start Capture")
                             .font(.headline)
@@ -165,7 +149,7 @@ struct ScanView: View {
                             .clipShape(Capsule())
                     }
                     
-                    // 7. Page Indicator
+                    // 6. Page Indicator
                     HStack(spacing: 8) {
                         ForEach(0..<6, id: \.self) { index in
                             Circle()
@@ -175,21 +159,18 @@ struct ScanView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 8)
-                } // End if-else
+                }
             }
             .padding(.horizontal, 24)
         }
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $isShowingCameraSheet) {
-            // 3. แสดงหน้ากล้อง (CameraCaptureView)
-            CameraCaptureView(manager: captureManager, footSide: $selectedFoot)
+        .navigationDestination(isPresented: $navigateToCamera) {
+            // 👇 ใช้ CameraCaptureView แทน CameraView
+            CameraCaptureView(manager: captureManager)
         }
         .onChange(of: captureManager.scanState) { newState in
-            // 4. เมื่อประมวลผลแล้ว Error
-            if newState == .idle && captureManager.exportedURL != nil {
-                // นี่คือการรีเซ็ตหลังจากทำงานเสร็จ
-            } else if newState == .idle {
-                // นี่คือการรีเซ็ตจาก Error
+            // เมื่อมี Error
+            if newState == .idle && captureManager.exportedURL == nil && captureManager.imageCount > 0 {
                 alertMessage = "การอัปโหลดถูกยกเลิก หรือล้มเหลว"
                 isShowingErrorAlert = true
             }
@@ -200,46 +181,57 @@ struct ScanView: View {
             Text(alertMessage)
         }
     }
-}
+} 
 
-// --- Component ย่อย (เหมือนเดิม) ---
-struct FootSegmentedControl: View {
-    @Binding var selectedSide: ScanView.FootSide
-    let unselectedColor: Color
+// MARK: - CameraView (ตัวอย่างหน้าถ่ายภาพ)
+struct CameraView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var manager: CaptureUploadManager
     
     var body: some View {
-        HStack(spacing: 4) {
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedSide = .left
-                }
-            }) {
-                Text("Left")
-                    .fontWeight(.medium)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(selectedSide == .left ? .white : .clear)
-                    .foregroundColor(selectedSide == .left ? .black : .secondary)
-                    .clipShape(Capsule())
-            }
+        ZStack {
+            Color.black.ignoresSafeArea()
             
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedSide = .right
+            VStack {
+                // แสดงจำนวนภาพที่ถ่ายแล้ว
+                Text("Photos Captured: \(manager.imageCount)")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                // ใส่ UI สำหรับกล้องตรงนี้
+                Text("Camera Interface")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                HStack(spacing: 40) {
+                    // ปุ่มปิด
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    
+                    // ปุ่มอัปโหลด (ถ้ามีภาพมากกว่า 10 ภาพ)
+                    if manager.imageCount >= 10 {
+                        Button("Upload (\(manager.imageCount) photos)") {
+                            // เริ่มอัปโหลด (ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default)
+                            manager.startUpload(footSide: .left) // หรือ .right ตามที่ต้องการ
+                            dismiss()
+                        }
+                        .foregroundColor(.green)
+                        .padding()
+                    }
                 }
-            }) {
-                Text("Right")
-                    .fontWeight(.medium)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(selectedSide == .right ? .white : .clear)
-                    .foregroundColor(selectedSide == .right ? .black : .secondary)
-                    .clipShape(Capsule())
             }
         }
-        .padding(4)
-        .background(unselectedColor)
-        .clipShape(Capsule())
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // Setup folders เมื่อเข้าหน้ากล้อง (ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default)
+            manager.setupFolders(footSide: .left) // หรือ .right ตามที่ต้องการ
+        }
     }
 }
 

@@ -1,11 +1,4 @@
 //
-//  AgeView.swift
-//  Plantar
-//
-//  Created by Jeerapan Chirachanchai on 18/10/2568 BE.
-//
-
-//
 // AgeView.swift
 // Plantar
 //
@@ -24,13 +17,17 @@ extension Color {
     static let Age_InfoBox = Color(red: 220/255, green: 220/255, blue: 220/255) // Info box background color
     static let Age_PageIndicatorActive = Color.black // Active Page Indicator dot color
     static let Age_PageIndicatorInactive = Color(red: 200/255, green: 200/255, blue: 200/255) // Inactive Page Indicator dot color
+    static let Age_ButtonBackground = Color.white // สีพื้นหลังปุ่ม +/-
+    static let Age_NextButton = Color(red: 94/255, green: 84/255, blue: 68/255) // สีปุ่ม Next (น้ำตาลเทา)
 }
 
 struct AgeView: View {
     // 👤 Initial Age
-    @State private var currentAge: Double = 55.0 // Changed initial value
+    @State private var currentAge: Double = 25.0 // Changed initial value
     // 📍 For Page Indicator at the bottom
     @State private var currentPage: Int = 2 // Adjusted for a typical starting page
+    // 🔄 Navigation
+    @State private var navigateToHeight = false
 
     // **Constants for Age Range**
     let minAge: Double = 1.0
@@ -51,13 +48,14 @@ struct AgeView: View {
                         .onTapGesture {
                             print("Back button tapped")
                         }
+                    
                     Spacer()
+                    
                     // Status Bar (Placeholder)
                     Spacer()
+                    
                     HStack(spacing: 4) {
-                        // Status Bar content placeholder (removed to simplify)
                     }
-                    // Fixed: Used system font parameters correctly
                     .font(.system(size: 15, weight: .medium))
                     .padding(.trailing, 10)
                 }
@@ -68,7 +66,6 @@ struct AgeView: View {
                 Text("What's your Age?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    // เปลี่ยน .frame(maxWidth: .infinity, alignment: .leading) เป็น .frame(maxWidth: .infinity, alignment: .center)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
@@ -77,12 +74,11 @@ struct AgeView: View {
                 
                 // MARK: - Current Age Display
                 HStack(alignment: .bottom, spacing: 5) {
-                    Text("\(Int(currentAge.rounded()))") // Display rounded age
+                    Text("\(Int(currentAge.rounded()))")
                         .font(.system(size: 80, weight: .bold))
                         .foregroundColor(Color.Age_Primary)
                     
-                    // Removed the unit text (e.g., "kg")
-                    Text("")
+                    Text("Years")
                         .font(.system(size: 30, weight: .semibold))
                         .foregroundColor(Color.Age_Primary.opacity(0.8))
                         .offset(y: -10)
@@ -93,6 +89,48 @@ struct AgeView: View {
                 AgeRuler(currentValue: $currentAge, min: minAge, max: maxAge, step: ageStep)
                     .frame(height: 100)
                     .padding(.vertical, 20)
+                
+                // MARK: - Plus/Minus Buttons
+                HStack(spacing: 40) {
+                    // ปุ่มลด (-)
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if currentAge > minAge {
+                                currentAge -= ageStep
+                            }
+                        }
+                    }) {
+                        Image(systemName: "minus")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(currentAge <= minAge ? Color.Age_SecondaryText.opacity(0.3) : Color.Age_Primary)
+                            .frame(width: 60, height: 60)
+                            .background(Color.Age_ButtonBackground)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    }
+                    .disabled(currentAge <= minAge)
+                    
+                    // ปุ่มเพิ่ม (+)
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if currentAge < maxAge {
+                                currentAge += ageStep
+                            }
+                        }
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(currentAge >= maxAge ? Color.Age_SecondaryText.opacity(0.3) : Color.Age_Primary)
+                            .frame(width: 60, height: 60)
+                            .background(Color.Age_ButtonBackground)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    }
+                    .disabled(currentAge >= maxAge)
+                }
+                .padding(.top, 10)
 
                 Spacer()
                 
@@ -111,6 +149,7 @@ struct AgeView: View {
                 // MARK: - Next Button
                 Button(action: {
                     print("Next button tapped. Final Age: \(Int(currentAge.rounded()))")
+                    navigateToHeight = true
                 }) {
                     Text("Next")
                         .font(.title3)
@@ -118,7 +157,7 @@ struct AgeView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.black)
+                        .background(Color.Age_NextButton)
                         .cornerRadius(15)
                 }
                 .padding(.horizontal, 25)
@@ -133,13 +172,20 @@ struct AgeView: View {
                     }
                 }
                 .padding(.bottom, 20)
+                
+                NavigationLink(
+                    destination: HeightView(),
+                    isActive: $navigateToHeight
+                ) {
+                    EmptyView()
+                }
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 // MARK: - Custom Views for AgeView
-
 // Custom Ruler/Slider
 struct AgeRuler: View {
     @Binding var currentValue: Double
@@ -149,10 +195,10 @@ struct AgeRuler: View {
 
     // State for dragging
     @State private var dragOffset: CGFloat = 0
-    @State private var cumulativeOffset: CGFloat = 0 // Cumulative Offset
     
     // Constant values
-    let pixelsPerUnit: CGFloat = 8 // Set length as 8 pixels per 1 unit (1 step)
+    let pixelsPerUnit: CGFloat = 20 // เพิ่มจาก 8 เป็น 20 (ยิ่งมากยิ่งช้า)
+    let dragSensitivity: CGFloat = 0.5 // ค่า 0.5 = ช้าลง 50%
 
     var body: some View {
         GeometryReader { geometry in
@@ -175,19 +221,19 @@ struct AgeRuler: View {
                     .fill(Color.Age_Primary.opacity(0.3))
                     .frame(height: 2)
                     .padding(.horizontal, 20)
-                    .offset(y: 10) // Move down so numbers are above the line
+                    .offset(y: 10)
 
                 // Markings
                 HStack(spacing: 0) {
-                    // Changed: Max range is now Int(max) for age (e.g., 100)
                     ForEach(Int(min)...Int(max), id: \.self) { value in
-                        let isMajor = value % 5 == 0 // Every 5 units is a long mark
+                        let isMajor = value % 10 == 0 // ทุก 10 ปีเป็นขีดยาว
+                        let isMedium = value % 5 == 0 && value % 10 != 0 // ทุก 5 ปีเป็นขีดกลาง
                         
                         VStack(spacing: 0) {
-                            // Major mark (long)
+                            // Major mark (long/medium)
                             Rectangle()
                                 .fill(Color.Age_Primary.opacity(0.8))
-                                .frame(width: 2, height: isMajor ? 25 : 15)
+                                .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15))
                             
                             // Number
                             if isMajor {
@@ -197,59 +243,31 @@ struct AgeRuler: View {
                                     .offset(y: 5)
                             }
                         }
-                        .padding(.trailing, isMajor ? 0 : pixelsPerUnit - 2) // Spacing between marks
-                        
-                        // Minor marks (between major marks)
-                        if !isMajor && value < Int(max) {
-                            ForEach(1..<Int(1/step), id: \.self) { _ in
-                                Rectangle()
-                                    .fill(Color.Age_Primary.opacity(0.4))
-                                    .frame(width: 1, height: 15)
-                                    .padding(.trailing, pixelsPerUnit - 1)
-                            }
-                        }
+                        .frame(width: pixelsPerUnit)
                     }
                 }
-                // Move the ruler
-                .offset(x: offsetForValue(rulerWidth, centerOffset) + dragOffset)
+                .offset(x: centerOffset - ((currentValue - min) * pixelsPerUnit) + dragOffset)
                 .gesture(
                     DragGesture()
                         .onChanged { gesture in
-                            // Calculate new offset
-                            dragOffset = cumulativeOffset + gesture.translation.width
+                            // ใช้ dragSensitivity เพื่อลดความไวในการลาก
+                            dragOffset = gesture.translation.width * dragSensitivity
+                            let deltaValue = -dragOffset / pixelsPerUnit
+                            let newValue = currentValue + deltaValue
                             
-                            // Convert offset to Age value
-                            let deltaX = dragOffset - centerOffset
-                            let newValue = -(deltaX / pixelsPerUnit) + min
-                            
-                            // Snap to step and limit the value
+                            // ปัดเศษให้ตรงกับ step และจำกัดค่า
                             let snappedValue = (newValue / step).rounded() * step
-                            // **Fixed max/min error**
                             currentValue = Swift.max(min, Swift.min(max, snappedValue))
                         }
                         .onEnded { _ in
-                            // Calculate final offset based on the snapped currentValue
-                            let finalOffset = centerOffset - (currentValue - min) * pixelsPerUnit
-                            
-                            withAnimation(.spring()) {
-                                dragOffset = finalOffset
-                                cumulativeOffset = finalOffset
-                            }
-                            
-                            // Check and limit boundaries (though the `onChanged` does most of the work)
-                            if currentValue == min || currentValue == max {
-                                cumulativeOffset = dragOffset
+                            // รีเซ็ต dragOffset พร้อมแอนิเมชั่นแบบ smooth
+                            withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
+                                dragOffset = 0
                             }
                         }
                 )
             }
         }
-    }
-    
-    // Calculate initial offset to center the starting value
-    private func offsetForValue(_ rulerWidth: CGFloat, _ centerOffset: CGFloat) -> CGFloat {
-        let initialValueOffset = (currentValue - min) * pixelsPerUnit
-        return centerOffset - initialValueOffset
     }
 }
 
@@ -265,10 +283,11 @@ struct ATriangle: Shape {
     }
 }
 
-
 // MARK: - Preview
 struct AgeView_Previews: PreviewProvider {
     static var previews: some View {
-        AgeView()
+        NavigationView {
+            AgeView()
+        }
     }
 }

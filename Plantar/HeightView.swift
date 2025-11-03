@@ -17,6 +17,8 @@ extension Color {
     static let Height_InfoBox = Color(red: 220/255, green: 220/255, blue: 220/255) // สีพื้นหลังกล่องข้อความ
     static let Height_PageIndicatorActive = Color.black // สีจุด Page Indicator ที่ใช้งานอยู่
     static let Height_PageIndicatorInactive = Color(red: 200/255, green: 200/255, blue: 200/255) // สีจุด Page Indicator ที่ไม่ใช้งาน
+    static let Height_ButtonBackground = Color.white // สีพื้นหลังปุ่ม +/-
+    static let Height_NextButton = Color(red: 94/255, green: 84/255, blue: 68/255) // สีปุ่ม Next (น้ำตาลเทา)
 }
 
 // MARK: - HeightView Main View
@@ -25,6 +27,8 @@ struct HeightView: View {
     @State private var currentHeight: Double = 170.0 // ตั้งค่าเริ่มต้นให้เหมาะสมกับส่วนสูง
     // 📍 สำหรับ Page Indicator ด้านล่าง
     @State private var currentPage: Int = 1 // ปรับ Page Indicator
+    // 🔄 Navigation
+    @State private var navigateToWeight = false
 
     // **Constants for Height Range**
     let minHeight: Double = 40.0 // Min Height in CM
@@ -33,7 +37,6 @@ struct HeightView: View {
 
     var body: some View {
         ZStack {
-            // Fixed: ใช้ Height_Background
             Color.Height_Background.ignoresSafeArea()
             
             VStack {
@@ -46,11 +49,13 @@ struct HeightView: View {
                         .onTapGesture {
                             print("Back button tapped")
                         }
+                    
                     Spacer()
+                    
                     // Status Bar (จำลอง)
                     Spacer()
-                    HStack(spacing: 4) {
                     
+                    HStack(spacing: 4) {
                     }
                     .font(.system(size: 15, weight: .medium))
                     .padding(.trailing, 10)
@@ -59,10 +64,10 @@ struct HeightView: View {
                 .padding(.top, 10)
                 
                 // MARK: - Title
-                Text("What's your Height?") // เปลี่ยน Title
+                Text("What's your Height?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .center) // จัด Title ให้อยู่ตรงกลาง
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
 
@@ -70,37 +75,73 @@ struct HeightView: View {
                 
                 // MARK: - Current Height Display
                 HStack(alignment: .bottom, spacing: 5) {
-                    // Fixed: ใช้ currentHeight
-                    Text("\(Int(currentHeight.rounded()))") // แสดงตัวเลขที่ถูกปัดเศษแล้ว
+                    Text("\(Int(currentHeight.rounded()))")
                         .font(.system(size: 80, weight: .bold))
-                        // Fixed: ใช้ Height_Primary
                         .foregroundColor(Color.Height_Primary)
-                    // Fixed: เปลี่ยนหน่วยเป็น CM
+                    
                     Text("CM")
                         .font(.system(size: 30, weight: .semibold))
-                        // Fixed: ใช้ Height_Primary
                         .foregroundColor(Color.Height_Primary.opacity(0.8))
                         .offset(y: -10)
                 }
                 .padding(.vertical, 30)
 
                 // MARK: - Ruler/Slider (แถบไม้บรรทัดที่เลื่อนได้)
-                // Fixed: ใช้ Height_Ruler และกำหนด min/max/step ที่เหมาะสม
                 HeightRuler(currentValue: $currentHeight, min: minHeight, max: maxHeight, step: heightStep)
                     .frame(height: 100)
                     .padding(.vertical, 20)
+                
+                // MARK: - Plus/Minus Buttons
+                HStack(spacing: 40) {
+                    // ปุ่มลด (-)
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if currentHeight > minHeight {
+                                currentHeight -= heightStep
+                            }
+                        }
+                    }) {
+                        Image(systemName: "minus")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(currentHeight <= minHeight ? Color.Height_SecondaryText.opacity(0.3) : Color.Height_Primary)
+                            .frame(width: 60, height: 60)
+                            .background(Color.Height_ButtonBackground)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    }
+                    .disabled(currentHeight <= minHeight)
+                    
+                    // ปุ่มเพิ่ม (+)
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if currentHeight < maxHeight {
+                                currentHeight += heightStep
+                            }
+                        }
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(currentHeight >= maxHeight ? Color.Height_SecondaryText.opacity(0.3) : Color.Height_Primary)
+                            .frame(width: 60, height: 60)
+                            .background(Color.Height_ButtonBackground)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    }
+                    .disabled(currentHeight >= maxHeight)
+                }
+                .padding(.top, 10)
 
                 Spacer()
                 
                 // MARK: - Info Box
                 Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare .")
                     .font(.body)
-                    // Fixed: ใช้ Height_SecondaryText
                     .foregroundColor(Color.Height_SecondaryText)
                     .multilineTextAlignment(.center)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    // Fixed: ใช้ Height_InfoBox
                     .background(Color.Height_InfoBox)
                     .cornerRadius(15)
                     .padding(.horizontal, 25)
@@ -108,8 +149,8 @@ struct HeightView: View {
 
                 // MARK: - Next Button
                 Button(action: {
-                    // Fixed: เปลี่ยนข้อความใน print
                     print("Next button tapped. Final Height: \(Int(currentHeight.rounded())) CM")
+                    navigateToWeight = true
                 }) {
                     Text("Next")
                         .font(.title3)
@@ -117,7 +158,7 @@ struct HeightView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.black)
+                        .background(Color.Height_NextButton)
                         .cornerRadius(15)
                 }
                 .padding(.horizontal, 25)
@@ -127,21 +168,26 @@ struct HeightView: View {
                 HStack(spacing: 8) {
                     ForEach(0..<6) { index in
                         Circle()
-                            // Fixed: ใช้ Height_PageIndicator
                             .fill(index == currentPage ? Color.Height_PageIndicatorActive : Color.Height_PageIndicatorInactive)
                             .frame(width: 8, height: 8)
                     }
                 }
                 .padding(.bottom, 20)
+                
+                NavigationLink(
+                    destination: WeightView(),
+                    isActive: $navigateToWeight
+                ) {
+                    EmptyView()
+                }
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 // MARK: - Custom Views for HeightView
-
 // Custom Ruler/Slider
-// Fixed: เปลี่ยนชื่อ struct จาก Height_Ruler เป็น HeightRuler
 struct HeightRuler: View {
     @Binding var currentValue: Double
     let min: Double
@@ -150,10 +196,10 @@ struct HeightRuler: View {
 
     // State สำหรับการลาก
     @State private var dragOffset: CGFloat = 0
-    @State private var cumulativeOffset: CGFloat = 0 // Offset สะสม
     
     // ค่าคงที่
-    let pixelsPerUnit: CGFloat = 8 // กำหนดความยาวเป็น 8 พิกเซลต่อ 1 หน่วย (1 step)
+    let pixelsPerUnit: CGFloat = 20 // เพิ่มจาก 8 เป็น 20 (ยิ่งมากยิ่งช้า)
+    let dragSensitivity: CGFloat = 0.5 // ค่า 0.5 = ช้าลง 50%
 
     var body: some View {
         GeometryReader { geometry in
@@ -163,9 +209,7 @@ struct HeightRuler: View {
             ZStack(alignment: .leading) {
                 // Current Value Indicator (Triangle) - วางไว้กึ่งกลางเสมอ
                 VStack {
-                    // Fixed: ใช้ HTriangle (ที่ถูกกำหนดไว้ด้านล่าง)
                     HTriangle()
-                        // Fixed: ใช้ Height_Primary
                         .fill(Color.Height_Primary)
                         .frame(width: 15, height: 10)
                         .rotationEffect(.degrees(180))
@@ -175,11 +219,10 @@ struct HeightRuler: View {
                 
                 // Ruler Line
                 Rectangle()
-                    // Fixed: ใช้ Height_Primary
                     .fill(Color.Height_Primary.opacity(0.3))
                     .frame(height: 2)
                     .padding(.horizontal, 20)
-                    .offset(y: 10) // เลื่อนลงเพื่อให้ตัวเลขอยู่เหนือเส้น
+                    .offset(y: 10)
 
                 // Markings
                 HStack(spacing: 0) {
@@ -190,72 +233,46 @@ struct HeightRuler: View {
                         VStack(spacing: 0) {
                             // ขีดหลัก (ยาว/กลาง)
                             Rectangle()
-                                // Fixed: ใช้ Height_Primary
                                 .fill(Color.Height_Primary.opacity(0.8))
-                                .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15)) // ปรับความยาวขีด
+                                .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15))
                             
                             // ตัวเลข
                             if isMajor {
                                 Text("\(value)")
                                     .font(.caption)
-                                    // Fixed: ใช้ Height_SecondaryText
                                     .foregroundColor(.Height_SecondaryText)
                                     .offset(y: 5)
                             }
                         }
-                        .padding(.trailing, isMajor ? 0 : pixelsPerUnit - 2) // เว้นระยะห่างขีด
-                        
-                        // ขีดเล็ก (ระหว่างขีดใหญ่) - โค้ดนี้ถูกออกแบบสำหรับ step < 1 ซึ่งในกรณีนี้คือ step=1.0 จึงไม่มีขีดเล็กระหว่าง 1 หน่วย
-                        if value < Int(max) {
-                            ForEach(1..<Int(1/step), id: \.self) { _ in
-                                Rectangle()
-                                    // Fixed: ใช้ Height_Primary
-                                    .fill(Color.Height_Primary.opacity(0.4))
-                                    .frame(width: 1, height: 15)
-                                    .padding(.trailing, pixelsPerUnit - 1)
-                            }
-                        }
+                        .frame(width: pixelsPerUnit)
                     }
                 }
-                // เลื่อนไม้บรรทัด
-                .offset(x: offsetForValue(rulerWidth, centerOffset) + dragOffset)
+                .offset(x: centerOffset - ((currentValue - min) * pixelsPerUnit) + dragOffset)
                 .gesture(
                     DragGesture()
                         .onChanged { gesture in
-                            // คำนวณ offset ใหม่
-                            dragOffset = cumulativeOffset + gesture.translation.width
-                            
-                            // แปลง offset เป็นค่า Height
-                            let deltaX = dragOffset - centerOffset
-                            let newValue = -(deltaX / pixelsPerUnit) + min
+                            // ใช้ dragSensitivity เพื่อลดความไวในการลาก
+                            dragOffset = gesture.translation.width * dragSensitivity
+                            let deltaValue = -dragOffset / pixelsPerUnit
+                            let newValue = currentValue + deltaValue
                             
                             // ปัดเศษให้ตรงกับ step และจำกัดค่า
                             let snappedValue = (newValue / step).rounded() * step
                             currentValue = Swift.max(min, Swift.min(max, snappedValue))
                         }
                         .onEnded { _ in
-                            // คำนวณ offset สุดท้ายตามค่า currentValue ที่ถูก Snap
-                            let finalOffset = centerOffset - (currentValue - min) * pixelsPerUnit
-                            
-                            withAnimation(.spring()) {
-                                dragOffset = finalOffset
-                                cumulativeOffset = finalOffset
+                            // รีเซ็ต dragOffset พร้อมแอนิเมชั่นแบบ smooth
+                            withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
+                                dragOffset = 0
                             }
                         }
                 )
             }
         }
     }
-    
-    // คำนวณ offset เริ่มต้นเพื่อให้ค่าเริ่มต้นอยู่ตรงกลาง
-    private func offsetForValue(_ rulerWidth: CGFloat, _ centerOffset: CGFloat) -> CGFloat {
-        let initialValueOffset = (currentValue - min) * pixelsPerUnit
-        return centerOffset - initialValueOffset
-    }
 }
 
 // Custom Shape for Triangle (Indicator)
-// Fixed: เปลี่ยนชื่อ struct จาก HTriangle ให้เป็นชื่อที่ใช้ใน Ruler
 struct HTriangle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -267,10 +284,11 @@ struct HTriangle: Shape {
     }
 }
 
-
 // MARK: - Preview
 struct HeightView_Previews: PreviewProvider {
     static var previews: some View {
-        HeightView() // Fixed: เปลี่ยนเป็น HeightView()
+        NavigationView {
+            HeightView()
+        }
     }
 }

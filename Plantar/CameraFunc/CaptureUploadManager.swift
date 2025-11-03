@@ -6,23 +6,28 @@
 //
 
 import SwiftUI
-import FirebaseStorage // 👈 ต้อง import
-import Zip              // 👈 ต้อง import
+import FirebaseStorage
+import Zip
 
 @MainActor
 class CaptureUploadManager: ObservableObject {
     
     // สถานะ
-    @Published var scanState: ScanState = .idle // (ใช้ enum 'ScanState' จาก ScanView)
+    @Published var scanState: ScanState = .idle
     @Published var exportedURL: URL? = nil
-    @Published var processingProgress: Double = 0.0 // (จะใช้เป็น Upload Progress)
+    @Published var processingProgress: Double = 0.0
     
     // ที่เก็บรูป
     @Published var imageCount = 0
     private var tempImageFolder: URL?
     
+    // เปลี่ยนเป็น FootSide แบบไม่ต้องพึ่ง ScanView
+    enum FootSide {
+        case left, right
+    }
+    
     // 1. สร้างโฟลเดอร์ชั่วคราวสำหรับเก็บรูป
-    func setupFolders(footSide: ScanView.FootSide) {
+    func setupFolders(footSide: FootSide) {
         self.scanState = .idle
         self.imageCount = 0
         self.exportedURL = nil
@@ -50,31 +55,30 @@ class CaptureUploadManager: ObservableObject {
         }
     }
     
-    // 3. เริ่มการ "อัปโหลด" (แทน "ประมวลผล")
-    func startUpload(footSide: ScanView.FootSide) {
+    // 3. เริ่มการ "อัปโหลด"
+    func startUpload(footSide: FootSide) {
         guard let inputFolder = tempImageFolder, imageCount > 10 else {
             print("รูปน้อยเกินไป (ต้องการอย่างน้อย 10 รูป)")
             self.scanState = .idle
             return
         }
         
-        self.scanState = .saving // เปลี่ยนสถานะเป็น "กำลังบันทึก/อัปโหลด"
+        self.scanState = .saving
         self.processingProgress = 0.0
-
-        Task { // ทำงานใน Background Thread
+        
+        Task {
             do {
                 // 3.1: บีบอัดไฟล์ (Zip)
                 print("กำลังบีบอัดไฟล์...")
                 let zipURL = try await zipPhotos(inputFolder: inputFolder)
                 print("บีบอัดไฟล์สำเร็จที่: \(zipURL)")
-
+                
                 // 3.2: อัปโหลด (Upload to Firebase)
                 print("กำลังอัปโหลด...")
                 let storageRef = Storage.storage().reference()
                 let fileName = "\(UUID().uuidString)_\(footSide == .left ? "L" : "R").zip"
-                // 📍 นี่คือ Path ที่ไฟล์จะไปอยู่บน Firebase Storage
                 let footScanRef = storageRef.child("foot_scans/\(fileName)")
-
+                
                 // อัปโหลดไฟล์และติดตาม Progress
                 let uploadTask = footScanRef.putFile(from: zipURL, metadata: nil) { metadata, error in
                     if let error = error {
@@ -86,7 +90,6 @@ class CaptureUploadManager: ObservableObject {
                     // อัปโหลดสำเร็จ!
                     print("✅ อัปโหลดสำเร็จ!")
                     Task { await MainActor.run {
-                        // เราไม่จำเป็นต้องใช้ URL นี้แล้ว แต่เก็บไว้เผื่อ
                         self.exportedURL = zipURL
                         self.scanState = .finished
                     }}
@@ -99,7 +102,7 @@ class CaptureUploadManager: ObservableObject {
                         self.processingProgress = percentComplete
                     }}
                 }
-
+                
             } catch {
                 print("❌ Error ระหว่าง Zip หรือ Upload: \(error)")
                 await MainActor.run { self.scanState = .idle }
@@ -109,8 +112,8 @@ class CaptureUploadManager: ObservableObject {
             try? FileManager.default.removeItem(at: inputFolder.deletingLastPathComponent())
         }
     }
-
-    // 4. (ใหม่) ฟังก์ชันสำหรับบีบอัดไฟล์
+    
+    // 4. ฟังก์ชันสำหรับบีบอัดไฟล์
     private func zipPhotos(inputFolder: URL) async throws -> URL {
         let zipFilePath = FileManager.default.temporaryDirectory.appendingPathComponent("\(inputFolder.lastPathComponent).zip")
         
