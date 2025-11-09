@@ -8,87 +8,132 @@
 import SwiftUI
 import AVFoundation
 
-// นี่คือ View ที่จะเด้งขึ้นมา (Sheet)
 struct CameraCaptureView: View {
     
     @ObservedObject var manager: CaptureUploadManager
     @Environment(\.dismiss) var dismiss
     
+    @State private var capturedImage: UIImage? = nil // เก็บรูปที่ถ่าย
+    @State private var showPreview = false // แสดงหน้า Preview
+    
     var body: some View {
         ZStack {
-            // 1. กล้อง (เต็มจอ)
-            CameraPreview(manager: manager)
-                .ignoresSafeArea()
-            
-            // 2. UI ที่ลอยทับ
-            VStack {
-                // 2.1. หัวข้อ (บอกว่าถ่ายกี่รูป)
-                Text("\(manager.imageCount) รูป")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(.black.opacity(0.5))
-                    .clipShape(Capsule())
-                
-                Spacer()
-                
-                // 2.2. ปุ่ม
-                HStack(alignment: .bottom) {
-                    // ปุ่มยกเลิก
-                    Button("Cancel") {
+            if showPreview, let image = capturedImage {
+                // แสดง Preview ของรูปที่ถ่าย
+                ImagePreviewView(
+                    image: image,
+                    onRetake: {
+                        // ถ่ายใหม่
+                        capturedImage = nil
+                        showPreview = false
+                    },
+                    onConfirm: {
+                        // ยืนยันและอัปโหลด
+                        manager.addImage(image)
+                        manager.startUpload(footSide: .left)
                         dismiss()
                     }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(40)
-                    
+                )
+            } else {
+                // แสดงกล้อง
+                CameraPreview(capturedImage: $capturedImage, showPreview: $showPreview)
+                    .ignoresSafeArea()
+                
+                // UI ที่ลอยทับ
+                VStack {
                     Spacer()
                     
-                    // ปุ่มถ่ายรูป
-                    Button(action: {
-                        // ส่งสัญญาณให้ CameraPreview ถ่ายรูป
-                        NotificationCenter.default.post(name: .takePhoto, object: nil)
-                    }) {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 70, height: 70)
-                            .overlay(Circle().stroke(.black, lineWidth: 3))
+                    HStack(alignment: .bottom) {
+                        // ปุ่มยกเลิก
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(40)
+                        
+                        Spacer()
+                        
+                        // ปุ่มถ่ายรูป
+                        Button(action: {
+                            NotificationCenter.default.post(name: .takePhoto, object: nil)
+                        }) {
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 70, height: 70)
+                                .overlay(Circle().stroke(.black, lineWidth: 3))
+                        }
+                        
+                        Spacer()
+                        
+                        // ช่องว่าง (เพื่อความสมดุล)
+                        Color.clear
+                            .frame(width: 80)
+                            .padding(40)
                     }
-                    
-                    Spacer()
-                    
-                    // ปุ่มเสร็จสิ้น (จะเรียก startUpload)
-                    Button("Upload") {
-                        // 👇 ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default
-                        manager.startUpload(footSide: .left)
-                        dismiss() // ปิดหน้ากล้อง
-                    }
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(manager.imageCount < 10 ? .gray : .green)
-                    .padding(40)
-                    .disabled(manager.imageCount < 10) // ต้องถ่ายอย่างน้อย 10 รูป
                 }
+                .padding(.bottom, 20)
             }
-            .padding(.bottom, 20)
         }
         .onAppear {
-            // 👇 ไม่ต้องใช้ footSide แล้ว หรือใช้ค่า default
             manager.setupFolders(footSide: .left)
         }
     }
 }
 
-// สร้าง Notification Name
+// MARK: - Image Preview View
+struct ImagePreviewView: View {
+    let image: UIImage
+    let onRetake: () -> Void
+    let onConfirm: () -> Void
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack {
+                // แสดงรูป
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                // ปุ่ม
+                HStack(spacing: 40) {
+                    Button("Retake") {
+                        onRetake()
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(.red.opacity(0.8))
+                    .clipShape(Capsule())
+                    
+                    Button("Use Photo") {
+                        onConfirm()
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(.green.opacity(0.8))
+                    .clipShape(Capsule())
+                }
+                .padding(.bottom, 40)
+            }
+        }
+    }
+}
+
+// MARK: - Notification
 extension Notification.Name {
     static let takePhoto = Notification.Name("takePhotoNotification")
 }
 
-// --- สะพานเชื่อม UIKit (AVFoundation) กับ SwiftUI ---
+// MARK: - Camera Preview
 struct CameraPreview: UIViewRepresentable {
     
-    @ObservedObject var manager: CaptureUploadManager
+    @Binding var capturedImage: UIImage?
+    @Binding var showPreview: Bool
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: UIScreen.main.bounds)
@@ -98,7 +143,6 @@ struct CameraPreview: UIViewRepresentable {
             view.layer.addSublayer(previewLayer)
         }
         
-        // 1. ฟัง Notification "takePhoto"
         NotificationCenter.default.addObserver(
             forName: .takePhoto,
             object: nil,
@@ -112,20 +156,20 @@ struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self, manager: manager)
+        Coordinator(capturedImage: $capturedImage, showPreview: $showPreview)
     }
     
-    // --- Coordinator (สมองของกล้อง) ---
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
-        var parent: CameraPreview
-        var manager: CaptureUploadManager
+        @Binding var capturedImage: UIImage?
+        @Binding var showPreview: Bool
+        
         var session: AVCaptureSession?
         var output = AVCapturePhotoOutput()
         var previewLayer: AVCaptureVideoPreviewLayer?
         
-        init(parent: CameraPreview, manager: CaptureUploadManager) {
-            self.parent = parent
-            self.manager = manager
+        init(capturedImage: Binding<UIImage?>, showPreview: Binding<Bool>) {
+            _capturedImage = capturedImage
+            _showPreview = showPreview
             super.init()
         }
         
@@ -168,9 +212,9 @@ struct CameraPreview: UIViewRepresentable {
             guard let data = photo.fileDataRepresentation(),
                   let image = UIImage(data: data) else { return }
             
-            // 2. ส่งรูปที่ถ่ายได้ไปให้ Manager
-            Task { @MainActor in
-                manager.addImage(image)
+            DispatchQueue.main.async {
+                self.capturedImage = image
+                self.showPreview = true
             }
         }
     }

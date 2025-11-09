@@ -57,8 +57,8 @@ class CaptureUploadManager: ObservableObject {
     
     // 3. เริ่มการ "อัปโหลด"
     func startUpload(footSide: FootSide) {
-        guard let inputFolder = tempImageFolder, imageCount > 10 else {
-            print("รูปน้อยเกินไป (ต้องการอย่างน้อย 10 รูป)")
+        guard let inputFolder = tempImageFolder, imageCount > 0 else { // 👈 เปลี่ยนจาก > 10 เป็น > 0
+            print("ไม่มีรูปภาพ")
             self.scanState = .idle
             return
         }

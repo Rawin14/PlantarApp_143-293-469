@@ -23,6 +23,10 @@
 		392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */; };
 		392797592EB50AE8002C3E26 /* BMIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797582EB50AE8002C3E26 /* BMIView.swift */; };
 		3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927975A2EB50D2F002C3E26 /* ProfileView.swift */; };
+		394689612EB8AA78005BC4E7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 394689602EB8AA78005BC4E7 /* GoogleService-Info.plist */; };
+		394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394689632EB8AE08005BC4E7 /* UserProfile.swift */; };
+		394689662EB8AF82005BC4E7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 394689652EB8AF82005BC4E7 /* FirebaseFirestore */; };
+		394689682EB8AFBF005BC4E7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 394689672EB8AFBF005BC4E7 /* FirebaseAuth */; };
 		394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81542E96150E004CB2AB /* WelcomeView.swift */; };
 		394B81572E96150E004CB2AB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81502E96150E004CB2AB /* LoginView.swift */; };
 		394B81582E96150E004CB2AB /* TermsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81532E96150E004CB2AB /* TermsView.swift */; };
@@ -34,7 +38,6 @@
 		397624492EAA3DF8007C7D99 /* CameraCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */; };
 		3976244F2EAEB8DE007C7D99 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 3976244E2EAEB8DE007C7D99 /* FirebaseStorage */; };
 		397624522EAEB916007C7D99 /* Zip in Frameworks */ = {isa = PBXBuildFile; productRef = 397624512EAEB916007C7D99 /* Zip */; };
-		397624542EAEBB3C007C7D99 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */; };
 		397624592EAEC3CF007C7D99 /* CaptureUploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397624582EAEC3CF007C7D99 /* CaptureUploadManager.swift */; };
 		39A608622EA397780070B69C /* WeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608612EA397780070B69C /* WeightView.swift */; };
 		39A608642EA3A1B10070B69C /* HeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608632EA3A1B10070B69C /* HeightView.swift */; };
@@ -60,6 +63,8 @@
 		392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicsNearMeView.swift; sourceTree = "<group>"; };
 		392797582EB50AE8002C3E26 /* BMIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIView.swift; sourceTree = "<group>"; };
 		3927975A2EB50D2F002C3E26 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		394689602EB8AA78005BC4E7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		394689632EB8AE08005BC4E7 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		394B814C2E96150E004CB2AB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		394B814E2E96150E004CB2AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		394B814F2E96150E004CB2AB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -69,7 +74,6 @@
 		394B81532E96150E004CB2AB /* TermsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsView.swift; sourceTree = "<group>"; };
 		394B81542E96150E004CB2AB /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
-		397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		397624582EAEC3CF007C7D99 /* CaptureUploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureUploadManager.swift; sourceTree = "<group>"; };
 		39A608582EA1E5AF0070B69C /* Plantar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Plantar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		39A608612EA397780070B69C /* WeightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightView.swift; sourceTree = "<group>"; };
@@ -86,6 +90,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				397624522EAEB916007C7D99 /* Zip in Frameworks */,
+				394689682EB8AFBF005BC4E7 /* FirebaseAuth in Frameworks */,
+				394689662EB8AF82005BC4E7 /* FirebaseFirestore in Frameworks */,
 				39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */,
 				3976244F2EAEB8DE007C7D99 /* FirebaseStorage in Frameworks */,
 			);
@@ -97,8 +103,43 @@
 		3927975D2EB7C46A002C3E26 /* StartView */ = {
 			isa = PBXGroup;
 			children = (
+				394B81542E96150E004CB2AB /* WelcomeView.swift */,
+				392797442EB3648B002C3E26 /* Profile.swift */,
+				39A608612EA397780070B69C /* WeightView.swift */,
+				39A608632EA3A1B10070B69C /* HeightView.swift */,
+				392797462EB366C3002C3E26 /* HomeView.swift */,
+				3927973A2EB356A8002C3E26 /* HighRisk.swift */,
+				392797582EB50AE8002C3E26 /* BMIView.swift */,
+				3927973E2EB35789002C3E26 /* MediumRisk.swift */,
+				3927973C2EB3575A002C3E26 /* LowRisk.swift */,
+				39A608652EA3A1C20070B69C /* AgeView.swift */,
+				392797422EB360E6002C3E26 /* EvaluateView.swift */,
 			);
 			path = StartView;
+			sourceTree = "<group>";
+		};
+		3927975E2EB88F37002C3E26 /* MainView */ = {
+			isa = PBXGroup;
+			children = (
+				3927975A2EB50D2F002C3E26 /* ProfileView.swift */,
+				392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */,
+				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
+				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
+				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
+				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
+				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
+				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
+				392797482EB47873002C3E26 /* NotificationView.swift */,
+			);
+			path = MainView;
+			sourceTree = "<group>";
+		};
+		394689622EB8ADC8005BC4E7 /* User */ = {
+			isa = PBXGroup;
+			children = (
+				394689632EB8AE08005BC4E7 /* UserProfile.swift */,
+			);
+			path = User;
 			sourceTree = "<group>";
 		};
 		394B810F2E94F581004CB2AB = {
@@ -148,32 +189,14 @@
 		39D732D02EAECAEE00BDA8A5 /* Plantar */ = {
 			isa = PBXGroup;
 			children = (
+				394689622EB8ADC8005BC4E7 /* User */,
+				3927975E2EB88F37002C3E26 /* MainView */,
 				3927975D2EB7C46A002C3E26 /* StartView */,
 				3976244C2EAA45A8007C7D99 /* CameraFunc */,
 				39A6086D2EAA28530070B69C /* Info.plist */,
-				397624532EAEBB3C007C7D99 /* GoogleService-Info.plist */,
+				394689602EB8AA78005BC4E7 /* GoogleService-Info.plist */,
 				394B814D2E96150E004CB2AB /* Preview Content */,
 				394B814E2E96150E004CB2AB /* Assets.xcassets */,
-				394B81542E96150E004CB2AB /* WelcomeView.swift */,
-				3927973A2EB356A8002C3E26 /* HighRisk.swift */,
-				392797582EB50AE8002C3E26 /* BMIView.swift */,
-				392797442EB3648B002C3E26 /* Profile.swift */,
-				3927973C2EB3575A002C3E26 /* LowRisk.swift */,
-				392797422EB360E6002C3E26 /* EvaluateView.swift */,
-				3927973E2EB35789002C3E26 /* MediumRisk.swift */,
-				39A608612EA397780070B69C /* WeightView.swift */,
-				39A608632EA3A1B10070B69C /* HeightView.swift */,
-				392797462EB366C3002C3E26 /* HomeView.swift */,
-				3927975A2EB50D2F002C3E26 /* ProfileView.swift */,
-				392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */,
-				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
-				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
-				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
-				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
-				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
-				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
-				392797482EB47873002C3E26 /* NotificationView.swift */,
-				39A608652EA3A1C20070B69C /* AgeView.swift */,
 				394B814F2E96150E004CB2AB /* ContentView.swift */,
 				394B81512E96150E004CB2AB /* PlantarApp.swift */,
 				39A608542E961A7F0070B69C /* Auth */,
@@ -209,6 +232,8 @@
 			packageProductDependencies = (
 				3976244E2EAEB8DE007C7D99 /* FirebaseStorage */,
 				397624512EAEB916007C7D99 /* Zip */,
+				394689652EB8AF82005BC4E7 /* FirebaseFirestore */,
+				394689672EB8AFBF005BC4E7 /* FirebaseAuth */,
 			);
 			productName = Plantar;
 			productReference = 39A608582EA1E5AF0070B69C /* Plantar.app */;
@@ -258,7 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				394B815C2E96150E004CB2AB /* Preview Assets.xcassets in Resources */,
-				397624542EAEBB3C007C7D99 /* GoogleService-Info.plist in Resources */,
+				394689612EB8AA78005BC4E7 /* GoogleService-Info.plist in Resources */,
 				394B815D2E96150E004CB2AB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +303,7 @@
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
 				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
+				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
 				3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */,
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
@@ -528,6 +554,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		394689652EB8AF82005BC4E7 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		394689672EB8AFBF005BC4E7 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		3976244E2EAEB8DE007C7D99 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

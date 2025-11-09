@@ -13,7 +13,7 @@ struct TermsView: View {
     
     var body: some View {
         if goNext {
-            Profile() //หน้าถัดไป
+            LoginView() //หน้าถัดไป
         } else {
             VStack(alignment: .leading, spacing: 20) {
                 Text("ข้อจำกัดการใช้งาน")

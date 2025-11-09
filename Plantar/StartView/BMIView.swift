@@ -47,13 +47,13 @@ enum BMICategory {
 }
 
 struct BMIView: View {
-    // MARK: - Properties (รับค่าจากหน้าก่อนหน้า)
-    let age: Double
-    let height: Double // in CM
-    let weight: Double // in KG
+    // MARK: - Properties
+    @EnvironmentObject var userProfile: UserProfile
+    @Environment(\.dismiss) private var dismiss
     
     // MARK: - State
     @State private var navigateToNext = false
+    @State private var showSaveAnimation = false
     
     // MARK: - Custom Colors
     let backgroundColor = Color(red: 247/255, green: 246/255, blue: 236/255)
@@ -65,8 +65,7 @@ struct BMIView: View {
     
     // MARK: - Computed Properties
     var bmiValue: Double {
-        let heightInMeters = height / 100
-        return weight / (heightInMeters * heightInMeters)
+        userProfile.calculateBMI()
     }
     
     var bmiCategory: BMICategory {
@@ -142,7 +141,7 @@ struct BMIView: View {
                         HStack(spacing: 30) {
                             // Age
                             VStack(spacing: 8) {
-                                Text("\(Int(age))")
+                                Text("\(userProfile.age)")
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(primaryColor)
                                 Text("Years")
@@ -159,7 +158,7 @@ struct BMIView: View {
                             
                             // Height
                             VStack(spacing: 8) {
-                                Text("\(Int(height))")
+                                Text("\(Int(userProfile.height))")
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(primaryColor)
                                 Text("CM")
@@ -176,7 +175,7 @@ struct BMIView: View {
                             
                             // Weight
                             VStack(spacing: 8) {
-                                Text("\(Int(weight))")
+                                Text("\(Int(userProfile.weight))")
                                     .font(.system(size: 32, weight: .bold))
                                     .foregroundColor(primaryColor)
                                 Text("KG")
@@ -264,20 +263,37 @@ struct BMIView: View {
                     
                     // MARK: - Next Button
                     Button(action: {
-                        navigateToNext = true
-                        print("BMI: \(String(format: "%.1f", bmiValue))")
-                        print("Category: \(bmiCategory.title)")
+                        showSaveAnimation = true
+                        
+                        Task {
+                            await userProfile.saveToFirebase()
+                            
+                            print("BMI: \(String(format: "%.1f", bmiValue))")
+                            print("Category: \(bmiCategory.title)")
+                            
+                            try? await Task.sleep(nanoseconds: 1_000_000_000)
+                            navigateToNext = true
+                        }
                     }) {
-                        Text("Continue")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                            .background(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .fill(buttonColor)
-                            )
+                        HStack {
+                            if showSaveAnimation {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .padding(.trailing, 8)
+                            }
+                            
+                            Text(showSaveAnimation ? "Saving..." : "Continue")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(buttonColor)
+                        )
                     }
+                    .disabled(showSaveAnimation)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)
                     
@@ -294,6 +310,14 @@ struct BMIView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToNext) {
+            ScanView()
+        }
+        .onAppear {
+            Task {
+                await userProfile.loadFromFirebase()
+            }
+        }
     }
 }
 
@@ -345,7 +369,15 @@ struct BMIRangeRow: View {
 
 // MARK: - Preview
 #Preview {
-    NavigationView {
-        BMIView(age: 25, height: 170, weight: 65)
+    NavigationStack {
+        BMIView()
+            .environmentObject({
+                let profile = UserProfile()
+                profile.nickname = "John Doe"
+                profile.age = 25
+                profile.height = 170
+                profile.weight = 65
+                return profile
+            }())
     }
 }

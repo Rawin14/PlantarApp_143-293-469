@@ -1,5 +1,5 @@
 //
-// HeightView.swift
+// AgeView.swift
 // Plantar
 //
 // Created by Jeerapan Chirachanchai on 18/10/2568 BE.
@@ -7,52 +7,57 @@
 
 import SwiftUI
 
-// MARK: - HeightView Colors
+// MARK: - AgeView Colors
 extension Color {
-    // 🎨 **Height-Specific Colors** (ตัวแปรสีห้ามซ้ำ)
-    static let Height_Background = Color(red: 247/255, green: 246/255, blue: 236/255) // สีพื้นหลังหลัก (ครีมอ่อน)
-    static let Height_Primary = Color(red: 139/255, green: 122/255, blue: 184/255)  // สีม่วงหลัก (สำหรับตัวเลข, ขีดบน Ruler)
-    static let Height_Accent = Color(red: 172/255, green: 187/255, blue: 98/255)    // สีเขียวอ่อน (สำหรับวงกลมด้านบน)
-    static let Height_SecondaryText = Color(red: 100/255, green: 100/255, blue: 100/255) // สีเทาสำหรับข้อความ
-    static let Height_InfoBox = Color(red: 220/255, green: 220/255, blue: 220/255) // สีพื้นหลังกล่องข้อความ
-    static let Height_PageIndicatorActive = Color.black // สีจุด Page Indicator ที่ใช้งานอยู่
-    static let Height_PageIndicatorInactive = Color(red: 200/255, green: 200/255, blue: 200/255) // สีจุด Page Indicator ที่ไม่ใช้งาน
-    static let Height_ButtonBackground = Color.white // สีพื้นหลังปุ่ม +/-
-    static let Height_NextButton = Color(red: 94/255, green: 84/255, blue: 68/255) // สีปุ่ม Next (น้ำตาลเทา)
+    // 🎨 **Age-Specific Colors** (Must be unique)
+    static let Age_Background = Color(red: 247/255, green: 246/255, blue: 236/255) // Main Background (Light Cream)
+    static let Age_Primary = Color(red: 139/255, green: 122/255, blue: 184/255)  // Main Purple (for numbers, ruler marks)
+    static let Age_Accent = Color(red: 172/255, green: 187/255, blue: 98/255)    // Light Green (for top circle, if used)
+    static let Age_SecondaryText = Color(red: 100/255, green: 100/255, blue: 100/255) // Grey for text
+    static let Age_InfoBox = Color(red: 220/255, green: 220/255, blue: 220/255) // Info box background color
+    static let Age_PageIndicatorActive = Color.black // Active Page Indicator dot color
+    static let Age_PageIndicatorInactive = Color(red: 200/255, green: 200/255, blue: 200/255) // Inactive Page Indicator dot color
+    static let Age_ButtonBackground = Color.white // สีพื้นหลังปุ่ม +/-
+    static let Age_NextButton = Color(red: 94/255, green: 84/255, blue: 68/255) // สีปุ่ม Next (น้ำตาลเทา)
 }
 
-// MARK: - HeightView Main View
-struct HeightView: View {
-    // 📏 ส่วนสูงเริ่มต้น
-    @State private var currentHeight: Double = 170.0 // ตั้งค่าเริ่มต้นให้เหมาะสมกับส่วนสูง
-    // 📍 สำหรับ Page Indicator ด้านล่าง
-    @State private var currentPage: Int = 1 // ปรับ Page Indicator
+struct AgeView: View {
+    // 👤 Initial Age
+    @State private var currentAge: Double = 25.0 // Changed initial value
+    // 📍 For Page Indicator at the bottom
+    @State private var currentPage: Int = 2 // Adjusted for a typical starting page
     // 🔄 Navigation
-    @State private var navigateToWeight = false
-
-    // **Constants for Height Range**
-    let minHeight: Double = 40.0 // Min Height in CM
-    let maxHeight: Double = 250.0 // Max Height in CM
-    let heightStep: Double = 1.0 // Step 1 cm
-
+    @State private var navigateToHeight = false
+    @EnvironmentObject var userProfile: UserProfile
+    @Environment(\.dismiss) private var dismiss
+    
+    // **Constants for Age Range**
+    let minAge: Double = 1.0
+    let maxAge: Double = 100.0
+    let ageStep: Double = 1.0
+    
     var body: some View {
         ZStack {
-            Color.Height_Background.ignoresSafeArea()
+            Color.Age_Background.ignoresSafeArea()
             
             VStack {
-                // MARK: - Header (Back Button + Title + Status Bar)
+                // MARK: - Header (Back Button + Title)
                 HStack {
                     // Back Button
-                    Image(systemName: "arrow.left")
-                        .font(.title2)
-                        .padding(.leading, 10)
-                        .onTapGesture {
-                            print("Back button tapped")
-                        }
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "arrow.left")
+                            .font(.title2)
+                    }
+                    .padding(.leading, 10)
+                    .onTapGesture {
+                        print("Back button tapped")
+                    }
                     
                     Spacer()
                     
-                    // Status Bar (จำลอง)
+                    // Status Bar (Placeholder)
                     Spacer()
                     
                     HStack(spacing: 4) {
@@ -63,31 +68,31 @@ struct HeightView: View {
                 .padding(.horizontal)
                 .padding(.top, 10)
                 
-                // MARK: - Title
-                Text("What's your Height?")
+                // MARK: - Title (Centered)
+                Text("What's your Age?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
-
+                
                 Spacer()
                 
-                // MARK: - Current Height Display
+                // MARK: - Current Age Display
                 HStack(alignment: .bottom, spacing: 5) {
-                    Text("\(Int(currentHeight.rounded()))")
+                    Text("\(Int(currentAge.rounded()))")
                         .font(.system(size: 80, weight: .bold))
-                        .foregroundColor(Color.Height_Primary)
+                        .foregroundColor(Color.Age_Primary)
                     
-                    Text("CM")
+                    Text("Years")
                         .font(.system(size: 30, weight: .semibold))
-                        .foregroundColor(Color.Height_Primary.opacity(0.8))
+                        .foregroundColor(Color.Age_Primary.opacity(0.8))
                         .offset(y: -10)
                 }
                 .padding(.vertical, 30)
-
-                // MARK: - Ruler/Slider (แถบไม้บรรทัดที่เลื่อนได้)
-                HeightRuler(currentValue: $currentHeight, min: minHeight, max: maxHeight, step: heightStep)
+                
+                // MARK: - Ruler/Slider
+                AgeRuler(currentValue: $currentAge, min: minAge, max: maxAge, step: ageStep)
                     .frame(height: 100)
                     .padding(.vertical, 20)
                 
@@ -96,61 +101,65 @@ struct HeightView: View {
                     // ปุ่มลด (-)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if currentHeight > minHeight {
-                                currentHeight -= heightStep
+                            if currentAge > minAge {
+                                currentAge -= ageStep
                             }
                         }
                     }) {
                         Image(systemName: "minus")
                             .font(.title2)
                             .fontWeight(.semibold)
-                            .foregroundColor(currentHeight <= minHeight ? Color.Height_SecondaryText.opacity(0.3) : Color.Height_Primary)
+                            .foregroundColor(currentAge <= minAge ? Color.Age_SecondaryText.opacity(0.3) : Color.Age_Primary)
                             .frame(width: 60, height: 60)
-                            .background(Color.Height_ButtonBackground)
+                            .background(Color.Age_ButtonBackground)
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
-                    .disabled(currentHeight <= minHeight)
+                    .disabled(currentAge <= minAge)
                     
                     // ปุ่มเพิ่ม (+)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if currentHeight < maxHeight {
-                                currentHeight += heightStep
+                            if currentAge < maxAge {
+                                currentAge += ageStep
                             }
                         }
                     }) {
                         Image(systemName: "plus")
                             .font(.title2)
                             .fontWeight(.semibold)
-                            .foregroundColor(currentHeight >= maxHeight ? Color.Height_SecondaryText.opacity(0.3) : Color.Height_Primary)
+                            .foregroundColor(currentAge >= maxAge ? Color.Age_SecondaryText.opacity(0.3) : Color.Age_Primary)
                             .frame(width: 60, height: 60)
-                            .background(Color.Height_ButtonBackground)
+                            .background(Color.Age_ButtonBackground)
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
-                    .disabled(currentHeight >= maxHeight)
+                    .disabled(currentAge >= maxAge)
                 }
                 .padding(.top, 10)
-
+                
                 Spacer()
                 
                 // MARK: - Info Box
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare .")
+                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare.")
                     .font(.body)
-                    .foregroundColor(Color.Height_SecondaryText)
+                    .foregroundColor(Color.Age_SecondaryText)
                     .multilineTextAlignment(.center)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.Height_InfoBox)
+                    .background(Color.Age_InfoBox)
                     .cornerRadius(15)
                     .padding(.horizontal, 25)
                     .padding(.bottom, 20)
-
+                
                 // MARK: - Next Button
                 Button(action: {
-                    print("Next button tapped. Final Height: \(Int(currentHeight.rounded())) CM")
-                    navigateToWeight = true
+                    print("Next button tapped. Final Age: \(Int(currentAge.rounded()))")
+                    userProfile.age = Int(currentAge.rounded())
+                    Task {
+                        await userProfile.saveToFirebase()
+                    }
+                    navigateToHeight = true
                 }) {
                     Text("Next")
                         .font(.title3)
@@ -158,89 +167,91 @@ struct HeightView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.Height_NextButton)
+                        .background(Color.Age_NextButton)
                         .cornerRadius(15)
                 }
                 .padding(.horizontal, 25)
                 .padding(.bottom, 20)
-
+                
                 // MARK: - Page Indicator
                 HStack(spacing: 8) {
                     ForEach(0..<6) { index in
                         Circle()
-                            .fill(index == currentPage ? Color.Height_PageIndicatorActive : Color.Height_PageIndicatorInactive)
+                            .fill(index == currentPage ? Color.Age_PageIndicatorActive : Color.Age_PageIndicatorInactive)
                             .frame(width: 8, height: 8)
                     }
                 }
                 .padding(.bottom, 20)
-                
-                NavigationLink(
-                    destination: WeightView(),
-                    isActive: $navigateToWeight
-                ) {
-                    EmptyView()
-                }
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToHeight) {
+            HeightView()
+        }
+        .onAppear {
+            // โหลดค่าจาก UserProfile (ถ้ามี)
+            if userProfile.age > 0 {
+                currentAge = Double(userProfile.age)
+            }
+        }
     }
 }
 
-// MARK: - Custom Views for HeightView
+// MARK: - Custom Views for AgeView
 // Custom Ruler/Slider
-struct HeightRuler: View {
+struct AgeRuler: View {
     @Binding var currentValue: Double
     let min: Double
     let max: Double
     let step: Double
-
-    // State สำหรับการลาก
+    
+    // State for dragging
     @State private var dragOffset: CGFloat = 0
     
-    // ค่าคงที่
+    // Constant values
     let pixelsPerUnit: CGFloat = 20 // เพิ่มจาก 8 เป็น 20 (ยิ่งมากยิ่งช้า)
     let dragSensitivity: CGFloat = 0.5 // ค่า 0.5 = ช้าลง 50%
-
+    
     var body: some View {
         GeometryReader { geometry in
             let rulerWidth = geometry.size.width
             let centerOffset = rulerWidth / 2
             
             ZStack(alignment: .leading) {
-                // Current Value Indicator (Triangle) - วางไว้กึ่งกลางเสมอ
+                // Current Value Indicator (Triangle) - Always centered
                 VStack {
-                    HTriangle()
-                        .fill(Color.Height_Primary)
+                    ATriangle()
+                        .fill(Color.Age_Primary)
                         .frame(width: 15, height: 10)
                         .rotationEffect(.degrees(180))
-                        .offset(y: -5)
+                        .offset(y: 40)
                 }
                 .frame(width: rulerWidth)
                 
                 // Ruler Line
                 Rectangle()
-                    .fill(Color.Height_Primary.opacity(0.3))
+                    .fill(Color.Age_Primary.opacity(0.3))
                     .frame(height: 2)
                     .padding(.horizontal, 20)
                     .offset(y: 10)
-
+                
                 // Markings
                 HStack(spacing: 0) {
                     ForEach(Int(min)...Int(max), id: \.self) { value in
-                        let isMajor = value % 10 == 0 // ทุก 10 CM เป็นขีดยาว
-                        let isMedium = value % 5 == 0 && value % 10 != 0 // ทุก 5 CM เป็นขีดกลาง
+                        let isMajor = value % 10 == 0 // ทุก 10 ปีเป็นขีดยาว
+                        let isMedium = value % 5 == 0 && value % 10 != 0 // ทุก 5 ปีเป็นขีดกลาง
                         
                         VStack(spacing: 0) {
-                            // ขีดหลัก (ยาว/กลาง)
+                            // Major mark (long/medium)
                             Rectangle()
-                                .fill(Color.Height_Primary.opacity(0.8))
+                                .fill(Color.Age_Primary.opacity(0.8))
                                 .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15))
                             
-                            // ตัวเลข
+                            // Number
                             if isMajor {
                                 Text("\(value)")
                                     .font(.caption)
-                                    .foregroundColor(.Height_SecondaryText)
+                                    .foregroundColor(.Age_SecondaryText)
                                     .offset(y: 5)
                             }
                         }
@@ -273,7 +284,7 @@ struct HeightRuler: View {
 }
 
 // Custom Shape for Triangle (Indicator)
-struct HTriangle: Shape {
+struct ATriangle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
@@ -285,10 +296,9 @@ struct HTriangle: Shape {
 }
 
 // MARK: - Preview
-struct HeightView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            HeightView()
-        }
+#Preview {
+    NavigationStack {
+        AgeView()
+            .environmentObject(UserProfile()) // 👈 เพิ่ม UserProfile ใน Preview
     }
 }

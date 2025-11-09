@@ -12,12 +12,16 @@ struct LoginView: View {
     @State private var password = ""
     @State private var acceptTerms = false
     
-    @State private var isShowingScanView = false
+    @State private var isgotoProfile = false
+    @State private var isgotoRegister = false
     
     var body: some View {
         
-        if isShowingScanView {
-            ScanView()
+        if isgotoProfile {
+            Profile()
+        }
+        else if isgotoRegister {
+            RegisterView()
         }
         else {
             ZStack {
@@ -88,7 +92,7 @@ struct LoginView: View {
                         // ปุ่ม Sign Up
                         Button(action: {
                             withAnimation(.easeInOut) {
-                                isShowingScanView = true
+                                isgotoProfile = true
                             }
                         }) {
                             Text("Sign up")
@@ -119,22 +123,23 @@ struct LoginView: View {
                         }
                         
                         // Footer
-                        HStack {
-                            Text("Already have an account?")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
-                            Button(action: {
-                                print("Go to resgister")
-                            }) {
-                                Text("Sign in")
+                            HStack {
+                                Text("Already have an account?")
                                     .font(.footnote)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                    .underline()
+                                    .foregroundColor(.gray)
+                                Button(action: {
+                                    isgotoRegister = true
+                                    print("Go to Register")
+                                }) {
+                                    Text("Sign in")
+                                        .font(.footnote)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.black)
+                                        .underline()
+                                }
                             }
-                        }
-                        .padding(.bottom, 15)
-                        
+                            
+                            .padding(.bottom, 15)
                     }
                     .padding()
                     .background(Color(white: 0.9))
@@ -143,35 +148,36 @@ struct LoginView: View {
                     .padding(.horizontal)
                     Spacer()
                 }
+                
             }
         }
     }
-            
-            // ปุ่มโซเชียล
-            private func socialButton(image: String, color: Color) -> some View {
-                Button(action: {}) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(color)
-                            .frame(width: 80, height: 50)
-                            .shadow(radius: 1)
-                        if image == "facebook" {
-                            Image("facebook_logo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                        } else if image == "google" {
-                            Image("google_logo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                        } else {
-                            Image(systemName: "applelogo")
-                                .foregroundColor(.white)
-                                .font(.system(size: 28))
-                        }
-                    }
+    
+    // ปุ่มโซเชียล
+    private func socialButton(image: String, color: Color) -> some View {
+        Button(action: {}) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(color)
+                    .frame(width: 80, height: 50)
+                    .shadow(radius: 1)
+                if image == "facebook" {
+                    Image("facebook_logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else if image == "google" {
+                    Image("google_logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else {
+                    Image(systemName: "applelogo")
+                        .foregroundColor(.white)
+                        .font(.system(size: 28))
                 }
+            }
+        }
     }
 }
 

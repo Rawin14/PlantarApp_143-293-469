@@ -13,7 +13,7 @@ struct Profile: View {
     
     // --- State Variables ---
     @State private var selectedGender: Gender = .female
-    @State private var nickname: String = ""
+    @EnvironmentObject var userProfile: UserProfile
     @State private var birthdate: Date = Date()
     @State private var navigateToAge = false
     
@@ -25,11 +25,11 @@ struct Profile: View {
     // --- Custom Colors ---
     let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255)
     let cardBackground = Color.white
-    let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255) // สีม่วง
-    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255) // สีเขียว
-    let buttonColor = Color(red: 94/255, green: 84/255, blue: 68/255) // สีน้ำตาล
-    let femaleColor = Color(red: 255/255, green: 182/255, blue: 193/255) // สีชมพู
-    let maleColor = Color(red: 173/255, green: 216/255, blue: 230/255) // สีฟ้า
+    let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255)
+    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)
+    let buttonColor = Color(red: 94/255, green: 84/255, blue: 68/255)
+    let femaleColor = Color(red: 255/255, green: 182/255, blue: 193/255)
+    let maleColor = Color(red: 173/255, green: 216/255, blue: 230/255)
     
     var body: some View {
         ZStack {
@@ -61,7 +61,6 @@ struct Profile: View {
                                 }
                             }) {
                                 ZStack {
-                                    // รูปภาพ - ตัดเป็นวงกลมและซูมให้เต็มกรอบ
                                     Image("Female")
                                         .resizable()
                                         .scaledToFill()
@@ -95,7 +94,6 @@ struct Profile: View {
                                 }
                             }) {
                                 ZStack {
-                                    // รูปภาพ - ตัดเป็นวงกลมและซูมให้เต็มกรอบ
                                     Image("Male")
                                         .resizable()
                                         .scaledToFill()
@@ -125,7 +123,7 @@ struct Profile: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        TextField("", text: $nickname)
+                        TextField("", text: $userProfile.nickname)
                             .font(.system(size: 16))
                             .padding()
                             .background(
@@ -172,12 +170,14 @@ struct Profile: View {
                 
                 // MARK: - Next Button
                 Button(action: {
-                    if !nickname.isEmpty {
-                        // Action: Save profile and continue
-                        print("Gender: \(selectedGender)")
-                        print("Nickname: \(nickname)")
-                        print("Birthday: \(birthdate)")
-                        navigateToAge = true
+                    if !userProfile.nickname.isEmpty {
+                        Task {
+                            print("Gender: \(selectedGender)")
+                            print("Nickname: \(userProfile.nickname)")
+                            print("Birthday: \(birthdate)")
+                            await userProfile.saveToFirebase()
+                            navigateToAge = true // 👈 Trigger navigation
+                        }
                     }
                 }) {
                     Text("Next")
@@ -188,33 +188,31 @@ struct Profile: View {
                         .background(
                             RoundedRectangle(cornerRadius: 25)
                                 .fill(
-                                    !nickname.isEmpty ?
+                                    !userProfile.nickname.isEmpty ?
                                     buttonColor :
                                     buttonColor.opacity(0.5)
                                 )
                         )
                 }
-                .disabled(nickname.isEmpty)
+                .disabled(userProfile.nickname.isEmpty)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
-                
-                // NavigationLink - ย้ายมาอยู่ใน VStack
-                NavigationLink(
-                    destination: AgeView(),
-                    isActive: $navigateToAge
-                ) {
-                    EmptyView()
+                .onAppear {
+                    Task {
+                        await userProfile.loadFromFirebase()
+                    }
                 }
-                .frame(width: 0, height: 0)
-                .hidden()
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $navigateToAge) { // 👈 ใช้ตัวนี้แทน
+            AgeView()
+        }
     }
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack { // 👈 เปลี่ยนจาก NavigationView เป็น NavigationStack
         Profile()
     }
 }

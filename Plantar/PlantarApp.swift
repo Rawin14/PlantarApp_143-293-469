@@ -19,10 +19,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct PlantarApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var Delegate
-    
+    @StateObject var userProfile = UserProfile()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack{
+                ContentView()
+            }
+            .environmentObject(userProfile)
         }
     }
 }

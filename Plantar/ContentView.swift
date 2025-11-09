@@ -12,26 +12,29 @@ struct ContentView: View {
     @State private var opacity = 0.0 // ใช้ทำ effect จางๆ
     
     var body: some View {
-        if isActive {
-            WelcomeView() // ✅ ไปหน้า welcome หลังจากโหลดเสร็จ
-        } else {
-            VStack {
-                Image(systemName: "circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .foregroundColor(.green)
-                    .opacity(opacity)
-            }
-            .onAppear {
-                withAnimation(.easeIn(duration: 1.5)) {
-                    opacity = 1.0
+        NavigationStack {
+            
+            if isActive {
+                WelcomeView() // ✅ ไปหน้า welcome หลังจากโหลดเสร็จ
+            } else {
+                VStack {
+                    Image(systemName: "circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                        .foregroundColor(.green)
+                        .opacity(opacity)
                 }
-                
-                // ⏱ ตั้งเวลาให้เปลี่ยนหน้า
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                    withAnimation {
-                        isActive = true
+                .onAppear {
+                    withAnimation(.easeIn(duration: 1.5)) {
+                        opacity = 1.0
+                    }
+                    
+                    // ⏱ ตั้งเวลาให้เปลี่ยนหน้า
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        withAnimation {
+                            isActive = true
+                        }
                     }
                 }
             }
