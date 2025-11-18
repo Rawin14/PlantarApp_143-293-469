@@ -158,7 +158,7 @@ struct WeightView: View {
                                         
                                         // บันทึกลง Firebase (Optional)
                                         Task {
-                                            await userProfile.saveToFirebase()
+                                            await userProfile.saveToSupabase()
                                         }
                     print("Next button tapped. Final Weight: \(Int(currentWeight.rounded())) KG")
                     isgotoBMIView = true

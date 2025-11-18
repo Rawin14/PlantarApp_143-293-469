@@ -266,7 +266,7 @@ struct BMIView: View {
                         showSaveAnimation = true
                         
                         Task {
-                            await userProfile.saveToFirebase()
+                            await userProfile.saveToSupabase()
                             
                             print("BMI: \(String(format: "%.1f", bmiValue))")
                             print("Category: \(bmiCategory.title)")
@@ -311,11 +311,11 @@ struct BMIView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $navigateToNext) {
-            ScanView()
+//            ScanView()
         }
         .onAppear {
             Task {
-                await userProfile.loadFromFirebase()
+                await userProfile.loadFromSupabase()
             }
         }
     }

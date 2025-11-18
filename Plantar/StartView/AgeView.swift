@@ -157,7 +157,7 @@ struct AgeView: View {
                     print("Next button tapped. Final Age: \(Int(currentAge.rounded()))")
                     userProfile.age = Int(currentAge.rounded())
                     Task {
-                        await userProfile.saveToFirebase()
+                        await userProfile.saveToSupabase()
                     }
                     navigateToHeight = true
                 }) {

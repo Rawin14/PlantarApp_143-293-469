@@ -158,7 +158,7 @@ struct HeightView: View {
                     print("Next button tapped. Final Height: \(Int(currentHeight.rounded())) CM")
                     userProfile.height = currentHeight
                     Task {
-                        await userProfile.saveToFirebase()
+                        await userProfile.saveToSupabase()
                     }
                     navigateToWeight = true
                 }) {

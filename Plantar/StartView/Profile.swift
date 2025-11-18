@@ -175,7 +175,7 @@ struct Profile: View {
                             print("Gender: \(selectedGender)")
                             print("Nickname: \(userProfile.nickname)")
                             print("Birthday: \(birthdate)")
-                            await userProfile.saveToFirebase()
+                            await userProfile.loadFromSupabase()
                             navigateToAge = true // 👈 Trigger navigation
                         }
                     }
@@ -199,7 +199,7 @@ struct Profile: View {
                 .padding(.bottom, 40)
                 .onAppear {
                     Task {
-                        await userProfile.loadFromFirebase()
+                        await userProfile.loadFromSupabase()
                     }
                 }
             }

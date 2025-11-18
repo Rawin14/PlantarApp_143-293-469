@@ -4,136 +4,94 @@
 //
 //  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
 //
+//
+//  CameraCaptureView.swift
+//  Plantar
+//
 
 import SwiftUI
 import AVFoundation
 
 struct CameraCaptureView: View {
-    
-    @ObservedObject var manager: CaptureUploadManager
     @Environment(\.dismiss) var dismiss
     
-    @State private var capturedImage: UIImage? = nil // เก็บรูปที่ถ่าย
-    @State private var showPreview = false // แสดงหน้า Preview
+    let onComplete: ([UIImage]) -> Void
+    
+    @State private var capturedImages: [UIImage] = []
+    @State private var showImageCount = true
     
     var body: some View {
         ZStack {
-            if showPreview, let image = capturedImage {
-                // แสดง Preview ของรูปที่ถ่าย
-                ImagePreviewView(
-                    image: image,
-                    onRetake: {
-                        // ถ่ายใหม่
-                        capturedImage = nil
-                        showPreview = false
-                    },
-                    onConfirm: {
-                        // ยืนยันและอัปโหลด
-                        manager.addImage(image)
-                        manager.startUpload(footSide: .left)
+            // Camera Preview
+            CameraPreview(capturedImages: $capturedImages)
+                .ignoresSafeArea()
+            
+            // UI Overlay
+            VStack {
+                // Image Count
+                if showImageCount {
+                    Text("\(capturedImages.count) รูป")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(.black.opacity(0.5))
+                        .clipShape(Capsule())
+                }
+                
+                Spacer()
+                
+                // Buttons
+                HStack(alignment: .bottom) {
+                    // Cancel
+                    Button("Cancel") {
                         dismiss()
                     }
-                )
-            } else {
-                // แสดงกล้อง
-                CameraPreview(capturedImage: $capturedImage, showPreview: $showPreview)
-                    .ignoresSafeArea()
-                
-                // UI ที่ลอยทับ
-                VStack {
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(40)
+                    
                     Spacer()
                     
-                    HStack(alignment: .bottom) {
-                        // ปุ่มยกเลิก
-                        Button("Cancel") {
+                    // Capture Button
+                    Button(action: {
+                        NotificationCenter.default.post(name: .takePhoto, object: nil)
+                    }) {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 70, height: 70)
+                            .overlay(Circle().stroke(.black, lineWidth: 3))
+                    }
+                    
+                    Spacer()
+                    
+                    // Done Button
+                    Button("Done") {
+                        if capturedImages.count >= 3 {
+                            onComplete(capturedImages)
                             dismiss()
                         }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(40)
-                        
-                        Spacer()
-                        
-                        // ปุ่มถ่ายรูป
-                        Button(action: {
-                            NotificationCenter.default.post(name: .takePhoto, object: nil)
-                        }) {
-                            Circle()
-                                .fill(.white)
-                                .frame(width: 70, height: 70)
-                                .overlay(Circle().stroke(.black, lineWidth: 3))
-                        }
-                        
-                        Spacer()
-                        
-                        // ช่องว่าง (เพื่อความสมดุล)
-                        Color.clear
-                            .frame(width: 80)
-                            .padding(40)
                     }
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(capturedImages.count < 3 ? .gray : .green)
+                    .padding(40)
+                    .disabled(capturedImages.count < 3)
                 }
-                .padding(.bottom, 20)
             }
-        }
-        .onAppear {
-            manager.setupFolders(footSide: .left)
+            .padding(.bottom, 20)
         }
     }
 }
 
-// MARK: - Image Preview View
-struct ImagePreviewView: View {
-    let image: UIImage
-    let onRetake: () -> Void
-    let onConfirm: () -> Void
-    
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack {
-                // แสดงรูป
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                // ปุ่ม
-                HStack(spacing: 40) {
-                    Button("Retake") {
-                        onRetake()
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(.red.opacity(0.8))
-                    .clipShape(Capsule())
-                    
-                    Button("Use Photo") {
-                        onConfirm()
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(.green.opacity(0.8))
-                    .clipShape(Capsule())
-                }
-                .padding(.bottom, 40)
-            }
-        }
-    }
-}
-
-// MARK: - Notification
+// Notification Name
 extension Notification.Name {
     static let takePhoto = Notification.Name("takePhotoNotification")
 }
 
-// MARK: - Camera Preview
+// Camera Preview
 struct CameraPreview: UIViewRepresentable {
-    
-    @Binding var capturedImage: UIImage?
-    @Binding var showPreview: Bool
+    @Binding var capturedImages: [UIImage]
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: UIScreen.main.bounds)
@@ -146,9 +104,10 @@ struct CameraPreview: UIViewRepresentable {
         NotificationCenter.default.addObserver(
             forName: .takePhoto,
             object: nil,
-            queue: .main) { _ in
-                context.coordinator.takePhoto()
-            }
+            queue: .main
+        ) { _ in
+            context.coordinator.takePhoto()
+        }
         
         return view
     }
@@ -156,21 +115,17 @@ struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(capturedImage: $capturedImage, showPreview: $showPreview)
+        Coordinator(capturedImages: $capturedImages)
     }
     
     class Coordinator: NSObject, AVCapturePhotoCaptureDelegate {
-        @Binding var capturedImage: UIImage?
-        @Binding var showPreview: Bool
+        @Binding var capturedImages: [UIImage]
         
         var session: AVCaptureSession?
         var output = AVCapturePhotoOutput()
-        var previewLayer: AVCaptureVideoPreviewLayer?
         
-        init(capturedImage: Binding<UIImage?>, showPreview: Binding<Bool>) {
-            _capturedImage = capturedImage
-            _showPreview = showPreview
-            super.init()
+        init(capturedImages: Binding<[UIImage]>) {
+            _capturedImages = capturedImages
         }
         
         func setupCaptureSession(completion: @escaping (AVCaptureVideoPreviewLayer) -> Void) {
@@ -183,15 +138,13 @@ struct CameraPreview: UIViewRepresentable {
             if session.canAddInput(input) { session.addInput(input) }
             if session.canAddOutput(output) { session.addOutput(output) }
             
-            previewLayer = AVCaptureVideoPreviewLayer(session: session)
-            previewLayer?.videoGravity = .resizeAspectFill
+            let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            previewLayer.videoGravity = .resizeAspectFill
             
             DispatchQueue.global(qos: .userInitiated).async {
                 session.startRunning()
                 DispatchQueue.main.async {
-                    if let layer = self.previewLayer {
-                        completion(layer)
-                    }
+                    completion(previewLayer)
                 }
             }
             
@@ -205,7 +158,7 @@ struct CameraPreview: UIViewRepresentable {
         
         func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
             if let error = error {
-                print("Error ถ่ายรูป: \(error)")
+                print("Error: \(error)")
                 return
             }
             
@@ -213,8 +166,7 @@ struct CameraPreview: UIViewRepresentable {
                   let image = UIImage(data: data) else { return }
             
             DispatchQueue.main.async {
-                self.capturedImage = image
-                self.showPreview = true
+                self.capturedImages.append(image)
             }
         }
     }

@@ -6,27 +6,25 @@
 //
 
 import SwiftUI
-import FirebaseCore
-
-class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
-}
 
 @main
 struct PlantarApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var Delegate
     @StateObject var userProfile = UserProfile()
-
-    var body: some Scene {
-        WindowGroup {
-            NavigationStack{
-                ContentView()
+        @StateObject var authManager = AuthManager()
+        
+        var body: some Scene {
+            WindowGroup {
+                NavigationStack {
+                    if authManager.isAuthenticated {
+                        // แสดงหน้าหลัก
+                        ContentView()
+                    } else {
+                        // แสดงหน้า Login
+                        ContentView()
+                    }
+                }
+                .environmentObject(userProfile)
+                .environmentObject(authManager)
             }
-            .environmentObject(userProfile)
         }
-    }
 }
