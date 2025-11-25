@@ -17,11 +17,11 @@ struct PlantarApp: App {
                 NavigationStack {
                     if authManager.isAuthenticated {
                         // แสดงหน้าหลัก
-                        ProfileView()
-                            .onAppear {
-                                // 🔴 ใส่โค้ดนี้ชั่วคราว เพื่อบังคับ Logout ทันทีที่หน้านี้แสดง
-                                    Task { await authManager.signOut() }
-                            }
+                        Profile()
+//                            .onAppear {
+//                                // 🔴 ใส่โค้ดนี้ชั่วคราว เพื่อบังคับ Logout ทันทีที่หน้านี้แสดง
+//                                    Task { await authManager.signOut() }
+//                                }
                     } else {
                         // แสดงหน้า Login
                         ContentView()
@@ -32,3 +32,4 @@ struct PlantarApp: App {
             }
         }
 }
+

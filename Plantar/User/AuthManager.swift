@@ -40,84 +40,66 @@ class AuthManager: ObservableObject {
     
     // MARK: - Sign Up
     
-    //  Plantar/User/AuthManager.swift
-
+    // ฟังก์ชันสมัครสมาชิก
         func signUp(email: String, password: String, nickname: String) async {
-            print("🚀 Start SignUp Process...")
+            await MainActor.run { self.isLoading = true; self.errorMessage = nil }
             
-            // รีเซ็ตค่า Error
-            await MainActor.run {
-                self.errorMessage = nil
+            defer {
+                Task { await MainActor.run { self.isLoading = false } }
             }
             
             do {
-                // 1. สั่งสมัครสมาชิก และรับค่า response โดยตรง
+                // 1. ยิง API สมัคร
                 let response = try await supabase.auth.signUp(
                     email: email,
                     password: password
                 )
-                print("✅ SignUp API Response Received")
                 
-                // 2. เช็คว่าได้ Session มาจาก response หรือไม่
+                // 2. เช็คว่าได้ Session มาเลยไหม (ถ้าปิด Confirm Email จะได้มาเลย)
                 if let session = response.session {
-                    print("✅ Session Found! Creating Profile...")
-                    
-                    // 3. สร้าง Profile
+                    // บันทึก Profile ลงฐานข้อมูล
                     let profileData: [String: String] = [
                         "id": session.user.id.uuidString,
                         "nickname": nickname
                     ]
+                    try await supabase.from("profiles").insert(profileData).execute()
                     
-                    try await supabase
-                        .from("profiles")
-                        .insert(profileData)
-                        .execute()
-                    
-                    print("✅ Profile Created")
-                    
-                    // 4. อัปเดตสถานะ (สำคัญ: ต้องทำบน Main Actor)
+                    // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้เพื่อให้ PlantarApp สลับหน้า
                     await MainActor.run {
                         self.currentUser = session.user
                         self.isAuthenticated = true
                     }
-                    
-                } else {
-                    // กรณีไม่ได้ Session (ต้องยืนยันอีเมล)
-                    print("⚠️ No Session in response. Email confirmation might be ON.")
-                    await MainActor.run {
-                        self.errorMessage = "สมัครสำเร็จ! แต่ต้องยืนยันอีเมลก่อน (กรุณาเช็คการตั้งค่า Supabase)"
-                    }
+                    print("✅ Sign up successful -> Switching View")
                 }
-                
             } catch {
-                print("❌ Sign Up Error: \(error)")
-                await MainActor.run {
-                    self.errorMessage = "เกิดข้อผิดพลาด: \(error.localizedDescription)"
-                }
+                print("❌ Error: \(error)")
+                await MainActor.run { self.errorMessage = error.localizedDescription }
             }
         }
     
     // MARK: - Sign In
     
     func signIn(email: String, password: String) async {
-        errorMessage = nil
-        
-        do {
-            let session = try await supabase.auth.signIn(
-                email: email,
-                password: password
-            )
+            await MainActor.run { self.isLoading = true; self.errorMessage = nil }
             
-            self.currentUser = session.user
-            self.isAuthenticated = true
+            defer {
+                Task { await MainActor.run { self.isLoading = false } }
+            }
             
-            print("✅ Sign in successful")
-            
-        } catch {
-            errorMessage = "เข้าสู่ระบบล้มเหลว: \(error.localizedDescription)"
-            print("❌ Sign in error: \(error)")
+            do {
+                let session = try await supabase.auth.signIn(email: email, password: password)
+                
+                // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้
+                await MainActor.run {
+                    self.currentUser = session.user
+                    self.isAuthenticated = true
+                }
+                print("✅ Login successful -> Switching View")
+            } catch {
+                print("❌ Error: \(error)")
+                await MainActor.run { self.errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง" }
+            }
         }
-    }
     
     // MARK: - Sign In with Google
     

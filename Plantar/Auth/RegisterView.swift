@@ -20,9 +20,6 @@ struct RegisterView: View {
     
     // UI States
     @State private var isLoading = false
-    @State private var navigateToProfile = false
-    
-    // Validation
     var isFormValid: Bool {
         !firstName.isEmpty &&
         !lastName.isEmpty &&
@@ -193,41 +190,40 @@ struct RegisterView: View {
                 }
             }
         }
-        .navigationDestination(isPresented: $navigateToProfile) {
-            Profile()
-        }
     }
     
     // MARK: - Functions
     
-    //  Plantar/Auth/RegisterView.swift
 
-        private func handleSignUp() {
-            Task {
-                // เริ่มหมุน
-                isLoading = true
-                
-                // ✅ defer: สั่งให้หยุดหมุนเสมอเมื่อจบการทำงานของ Task นี้ (ไม่ว่าจะ Error หรือไม่)
-                defer {
-                    isLoading = false
-                }
-                
-                let combinedNickname = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
-                let finalNickname = combinedNickname.isEmpty ? firstName : combinedNickname
-                
-                // เรียกใช้ AuthManager
-                await authManager.signUp(
-                    email: email,
-                    password: password,
-                    nickname: finalNickname
-                )
-                
-                // ถ้าสำเร็จ ให้เปลี่ยนหน้า
-                if authManager.isAuthenticated {
-                    navigateToProfile = true
-                }
+    // ใน RegisterView.swift
+
+    private func handleSignUp() {
+        Task {
+            // 1. เริ่มหมุน
+            isLoading = true
+            
+            // ✅ defer: คำสั่งนี้จะทำงานเสมอเมื่อจบฟังก์ชันนี้ (ไม่ว่าจะจบด้วยดี หรือ Error)
+            // ช่วยแก้ปัญหา isLoading ค้าง
+            defer {
+                isLoading = false
+            }
+            
+            let combinedNickname = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
+            let finalNickname = combinedNickname.isEmpty ? firstName : combinedNickname
+            
+            // 2. เรียกใช้ AuthManager เพื่อสมัครสมาชิก
+            await authManager.signUp(
+                email: email,
+                password: password,
+                nickname: finalNickname
+            )
+            
+            // 3. ตรวจสอบสถานะการล็อกอิน
+            if authManager.errorMessage == nil {
+                dismiss() // คำสั่งนี้จะพากลับไปหน้า LoginView
             }
         }
+    }
     
     // MARK: - Subviews
     
