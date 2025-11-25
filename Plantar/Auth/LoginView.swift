@@ -186,7 +186,7 @@ struct LoginView: View {
         .navigationDestination(isPresented: $navigateToProfile) {
             Profile() // ไปหน้า Profile
         }
-        .sheet(isPresented: $showRegister) {
+        .navigationDestination(isPresented: $showRegister) {
             RegisterView() // เปิดหน้า Register
         }
     }

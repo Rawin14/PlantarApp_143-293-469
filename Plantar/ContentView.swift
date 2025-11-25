@@ -12,7 +12,7 @@ struct ContentView: View {
     @State private var opacity = 0.0 // ใช้ทำ effect จางๆ
     
     var body: some View {
-        NavigationStack {
+
             
             if isActive {
                 WelcomeView() // ✅ ไปหน้า welcome หลังจากโหลดเสร็จ
@@ -38,7 +38,6 @@ struct ContentView: View {
                     }
                 }
             }
-        }
     }
 }
 

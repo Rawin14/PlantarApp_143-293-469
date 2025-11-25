@@ -45,8 +45,8 @@ struct WeightView: View {
             VStack {
                 // MARK: - Header
                     HStack {
-                                   Button(action: {
-                                       dismiss() // 👈 ย้อนกลับ
+                            Button(action: {
+                            dismiss() // 👈 ย้อนกลับ
                                    }) {
                                        Image(systemName: "arrow.left")
                                            .font(.title2)
@@ -153,15 +153,21 @@ struct WeightView: View {
 
                 // MARK: - Next Button (สีเปลี่ยนเป็นน้ำตาลเทา)
                 Button(action: {
-                    // 👇 บันทึกน้ำหนักลง UserProfile
-                                        userProfile.weight = currentWeight
-                                        
-                                        // บันทึกลง Firebase (Optional)
-                                        Task {
-                                            await userProfile.saveToSupabase()
-                                        }
-                    print("Next button tapped. Final Weight: \(Int(currentWeight.rounded())) KG")
-                    isgotoBMIView = true
+                    Task {
+                        // 1. อัปเดตค่า local
+                        userProfile.weight = currentWeight
+                            
+                        // 2. สั่งบันทึกและ "รอ" จนกว่าจะเสร็จ (await)
+                        await userProfile.saveToSupabase()
+                            
+                        print("Saved weight: \(currentWeight)")
+                            
+                        // 3. เมื่อเสร็จแล้วค่อยเปลี่ยนหน้า
+                        // ต้องสั่ง UI update บน Main Thread
+                        await MainActor.run {
+                            isgotoBMIView = true
+                            }
+                        }
                 }) {
                     Text("Next")
                         .font(.title3)

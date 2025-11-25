@@ -13,6 +13,7 @@ class AuthManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var errorMessage: String?
+    @State private var isLoading = false
     
     private let supabase = UserProfile.supabase
     
@@ -39,40 +40,62 @@ class AuthManager: ObservableObject {
     
     // MARK: - Sign Up
     
-    func signUp(email: String, password: String, nickname: String) async {
-        errorMessage = nil
-        
-        do {
-            // 1. Sign up with Supabase
-            try await supabase.auth.signUp(
-                email: email,
-                password: password
-            )
+    //  Plantar/User/AuthManager.swift
+
+        func signUp(email: String, password: String, nickname: String) async {
+            print("🚀 Start SignUp Process...")
             
-            // 2. Get current user
-            let session = try await supabase.auth.session
+            // รีเซ็ตค่า Error
+            await MainActor.run {
+                self.errorMessage = nil
+            }
             
-            // 3. Create profile
-            let profileData: [String: String] = [
-                "id": session.user.id.uuidString,
-                "nickname": nickname
-            ]
-            
-            try await supabase
-                .from("profiles")
-                .insert(profileData)
-                .execute()
-            
-            self.currentUser = session.user
-            self.isAuthenticated = true
-            
-            print("✅ Sign up successful")
-            
-        } catch {
-            errorMessage = "สมัครสมาชิกล้มเหลว: \(error.localizedDescription)"
-            print("❌ Sign up error: \(error)")
+            do {
+                // 1. สั่งสมัครสมาชิก และรับค่า response โดยตรง
+                let response = try await supabase.auth.signUp(
+                    email: email,
+                    password: password
+                )
+                print("✅ SignUp API Response Received")
+                
+                // 2. เช็คว่าได้ Session มาจาก response หรือไม่
+                if let session = response.session {
+                    print("✅ Session Found! Creating Profile...")
+                    
+                    // 3. สร้าง Profile
+                    let profileData: [String: String] = [
+                        "id": session.user.id.uuidString,
+                        "nickname": nickname
+                    ]
+                    
+                    try await supabase
+                        .from("profiles")
+                        .insert(profileData)
+                        .execute()
+                    
+                    print("✅ Profile Created")
+                    
+                    // 4. อัปเดตสถานะ (สำคัญ: ต้องทำบน Main Actor)
+                    await MainActor.run {
+                        self.currentUser = session.user
+                        self.isAuthenticated = true
+                    }
+                    
+                } else {
+                    // กรณีไม่ได้ Session (ต้องยืนยันอีเมล)
+                    print("⚠️ No Session in response. Email confirmation might be ON.")
+                    await MainActor.run {
+                        self.errorMessage = "สมัครสำเร็จ! แต่ต้องยืนยันอีเมลก่อน (กรุณาเช็คการตั้งค่า Supabase)"
+                    }
+                }
+                
+            } catch {
+                print("❌ Sign Up Error: \(error)")
+                await MainActor.run {
+                    self.errorMessage = "เกิดข้อผิดพลาด: \(error.localizedDescription)"
+                }
+            }
         }
-    }
     
     // MARK: - Sign In
     

@@ -20,6 +20,7 @@ struct RegisterView: View {
     
     // UI States
     @State private var isLoading = false
+    @State private var navigateToProfile = false
     
     // Validation
     var isFormValid: Bool {
@@ -192,29 +193,41 @@ struct RegisterView: View {
                 }
             }
         }
+        .navigationDestination(isPresented: $navigateToProfile) {
+            Profile()
+        }
     }
     
     // MARK: - Functions
     
-    private func handleSignUp() {
-        Task {
-            isLoading = true
-            // รวม First+Last Name เป็น Nickname เพื่อส่งให้ Backend
-            let combinedNickname = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
-            
-            await authManager.signUp(
-                email: email,
-                password: password,
-                nickname: combinedNickname.isEmpty ? firstName : combinedNickname
-            )
-            
-            isLoading = false
-            
-            if authManager.isAuthenticated {
-                dismiss() // ปิดหน้า Register เมื่อสำเร็จ
+    //  Plantar/Auth/RegisterView.swift
+
+        private func handleSignUp() {
+            Task {
+                // เริ่มหมุน
+                isLoading = true
+                
+                // ✅ defer: สั่งให้หยุดหมุนเสมอเมื่อจบการทำงานของ Task นี้ (ไม่ว่าจะ Error หรือไม่)
+                defer {
+                    isLoading = false
+                }
+                
+                let combinedNickname = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
+                let finalNickname = combinedNickname.isEmpty ? firstName : combinedNickname
+                
+                // เรียกใช้ AuthManager
+                await authManager.signUp(
+                    email: email,
+                    password: password,
+                    nickname: finalNickname
+                )
+                
+                // ถ้าสำเร็จ ให้เปลี่ยนหน้า
+                if authManager.isAuthenticated {
+                    navigateToProfile = true
+                }
             }
         }
-    }
     
     // MARK: - Subviews
     
