@@ -304,7 +304,7 @@ struct ScanView: View {
             
             // Upload to Supabase Storage
             try await UserProfile.supabase.storage
-                .from("foot-scans")
+                .from("foot-scan")
                 .upload(
                     fileName,
                     data: data,
@@ -313,7 +313,7 @@ struct ScanView: View {
             
             // Get public URL
             let url = try UserProfile.supabase.storage
-                .from("foot-scans")
+                .from("foot-scan")
                 .getPublicURL(path: fileName)
             
             imageUrls.append(url.absoluteString)
@@ -433,3 +433,4 @@ struct ScanView: View {
             .environmentObject(UserProfile.preview)
     }
 }
+
