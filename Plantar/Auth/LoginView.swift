@@ -135,24 +135,24 @@ struct LoginView: View {
                         
                         // Apple
                         // Apple requires a specific button class, so we customize it to match the square design
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.black)
-                                .frame(width: 80, height: 50)
-                                .shadow(radius: 1)
-                            
-                            SignInWithAppleButton(.signIn) { request in
-                                request.requestedScopes = [.email, .fullName]
-                            } onCompletion: { result in
-                                handleAppleSignIn(result)
-                            }
-                            .signInWithAppleButtonStyle(.white) // Icon color
-                            .labelStyle(.iconOnly) // Show only icon
-                            .frame(width: 50, height: 50) // Limit hit area mostly to box
-                            .blendMode(.destinationOver) // Hack to hide default button background if needed, or just rely on frame
-                        }
-                        .frame(width: 80, height: 50)
-                        .mask(RoundedRectangle(cornerRadius: 10))
+//                        ZStack {
+//                            RoundedRectangle(cornerRadius: 10)
+//                                .fill(Color.black)
+//                                .frame(width: 80, height: 50)
+//                                .shadow(radius: 1)
+//                            
+//                            SignInWithAppleButton(.signIn) { request in
+//                                request.requestedScopes = [.email, .fullName]
+//                            } onCompletion: { result in
+//                                handleAppleSignIn(result)
+//                            }
+//                            .signInWithAppleButtonStyle(.white) // Icon color
+//                            .labelStyle(.iconOnly) // Show only icon
+//                            .frame(width: 50, height: 50) // Limit hit area mostly to box
+//                            .blendMode(.destinationOver) // Hack to hide default button background if needed, or just rely on frame
+//                        }
+//                        .frame(width: 80, height: 50)
+//                        .mask(RoundedRectangle(cornerRadius: 10))
                     }
                     
                     // MARK: - Footer (Go to Register)
@@ -267,12 +267,12 @@ struct LoginView: View {
                         .frame(width: 24, height: 24)
                     
                 } else {
-                    
-                    Image(systemName: "applelogo")
-                    
-                        .foregroundColor(.white)
-                    
-                        .font(.system(size: 28))
+//                    
+//                    Image(systemName: "applelogo")
+//                    
+//                        .foregroundColor(.white)
+//                    
+//                        .font(.system(size: 28))
                     
                 }
             }

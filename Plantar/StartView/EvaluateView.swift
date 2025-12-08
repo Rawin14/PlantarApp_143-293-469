@@ -30,6 +30,7 @@ struct EvaluateView: View {
     @Environment(\.dismiss) private var dismiss
     
     // --- State Variables ---
+    @EnvironmentObject var userProfile: UserProfile
     @State private var currentQuestionIndex = 0
     @State private var selectedAnswer: Bool? = nil // true = ใช่, false = ไม่ใช่
     @State private var totalScore = 0
@@ -224,6 +225,12 @@ struct EvaluateView: View {
                                     currentQuestionIndex += 1
                                     selectedAnswer = nil
                                 } else {
+                                    // ✅ คำนวณคะแนนเต็ม 10 (คะแนนดิบเต็ม 20 หารด้วย 2)
+                                    let finalScore = Double(totalScore) / 2.0
+                                    userProfile.evaluateScore = finalScore
+                                    print("Evaluate Score (Max 10): \(finalScore)")
+                                    
+                                    // คำนวณ Risk Level เพื่อเลือกหน้าถัดไป (ถ้ายังต้องการ flow เดิม)
                                     riskLevel = calculateRiskLevel()
                                     navigateToResult = true
                                 }
@@ -260,7 +267,7 @@ struct EvaluateView: View {
                 destination: destinationView(),
                 isActive: $navigateToResult
             ) {
-                EmptyView()
+                ScanView()
             }
         }
         .navigationBarBackButtonHidden(true)

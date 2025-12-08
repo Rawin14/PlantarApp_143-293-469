@@ -59,6 +59,7 @@ class UserProfile: ObservableObject {
     @Published var weight: Double = 0.0
     @Published var gender: String = "female"
     @Published var birthdate: Date = Date()
+    @Published var evaluateScore: Double = 0.0
     
     // Loading States
     @Published var isLoading = false

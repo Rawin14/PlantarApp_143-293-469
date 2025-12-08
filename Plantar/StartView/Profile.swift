@@ -214,5 +214,6 @@ struct Profile: View {
 #Preview {
     NavigationStack { // 👈 เปลี่ยนจาก NavigationView เป็น NavigationStack
         Profile()
+            .environmentObject(UserProfile()) // ✅ เพิ่ม environmentObject สำหรับ Preview
     }
 }

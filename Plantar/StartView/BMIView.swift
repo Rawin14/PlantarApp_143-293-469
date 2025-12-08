@@ -311,7 +311,7 @@ struct BMIView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $navigateToNext) {
-            ScanView()
+            EvaluateView()
         }
         .onAppear {
             Task {

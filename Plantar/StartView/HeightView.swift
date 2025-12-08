@@ -92,14 +92,14 @@ struct HeightView: View {
                 }
                 .padding(.vertical, 30)
                 
-                // MARK: - Ruler/Slider (แถบไม้บรรทัดที่เลื่อนได้)
+                // MARK: - Ruler/Slider
                 HeightRuler(currentValue: $currentHeight, min: minHeight, max: maxHeight, step: heightStep)
                     .frame(height: 100)
                     .padding(.vertical, 20)
                 
                 // MARK: - Plus/Minus Buttons
                 HStack(spacing: 40) {
-                    // ปุ่มลด (-)
+                    // (-)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             if currentHeight > minHeight {
@@ -118,7 +118,7 @@ struct HeightView: View {
                     }
                     .disabled(currentHeight <= minHeight)
                     
-                    // ปุ่มเพิ่ม (+)
+                    // (+)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             if currentHeight < maxHeight {
@@ -197,20 +197,17 @@ struct HeightView: View {
     }
 }
 
-// MARK: - Custom Views for HeightView
-// Custom Ruler/Slider
+// MARK: - Custom Views
 struct HeightRuler: View {
     @Binding var currentValue: Double
     let min: Double
     let max: Double
     let step: Double
     
-    // State สำหรับการลาก
     @State private var dragOffset: CGFloat = 0
     
-    // ค่าคงที่
-    let pixelsPerUnit: CGFloat = 20 // เพิ่มจาก 8 เป็น 20 (ยิ่งมากยิ่งช้า)
-    let dragSensitivity: CGFloat = 0.5 // ค่า 0.5 = ช้าลง 50%
+    let pixelsPerUnit: CGFloat = 20
+    let dragSensitivity: CGFloat = 0.5
     
     var body: some View {
         GeometryReader { geometry in
@@ -218,7 +215,6 @@ struct HeightRuler: View {
             let centerOffset = rulerWidth / 2
             
             ZStack(alignment: .leading) {
-                // Current Value Indicator (Triangle) - วางไว้กึ่งกลางเสมอ
                 VStack {
                     HTriangle()
                         .fill(Color.Height_Primary)
@@ -228,26 +224,22 @@ struct HeightRuler: View {
                 }
                 .frame(width: rulerWidth)
                 
-                // Ruler Line
                 Rectangle()
                     .fill(Color.Height_Primary.opacity(0.3))
                     .frame(height: 2)
                     .padding(.horizontal, 20)
                     .offset(y: 10)
                 
-                // Markings
                 HStack(spacing: 0) {
                     ForEach(Int(min)...Int(max), id: \.self) { value in
-                        let isMajor = value % 10 == 0 // ทุก 10 CM เป็นขีดยาว
-                        let isMedium = value % 5 == 0 && value % 10 != 0 // ทุก 5 CM เป็นขีดกลาง
+                        let isMajor = value % 10 == 0
+                        let isMedium = value % 5 == 0 && value % 10 != 0
                         
                         VStack(spacing: 0) {
-                            // ขีดหลัก (ยาว/กลาง)
                             Rectangle()
                                 .fill(Color.Height_Primary.opacity(0.8))
                                 .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15))
                             
-                            // ตัวเลข
                             if isMajor {
                                 Text("\(value)")
                                     .font(.caption)
@@ -262,17 +254,14 @@ struct HeightRuler: View {
                 .gesture(
                     DragGesture()
                         .onChanged { gesture in
-                            // ใช้ dragSensitivity เพื่อลดความไวในการลาก
                             dragOffset = gesture.translation.width * dragSensitivity
                             let deltaValue = -dragOffset / pixelsPerUnit
                             let newValue = currentValue + deltaValue
                             
-                            // ปัดเศษให้ตรงกับ step และจำกัดค่า
                             let snappedValue = (newValue / step).rounded() * step
                             currentValue = Swift.max(min, Swift.min(max, snappedValue))
                         }
                         .onEnded { _ in
-                            // รีเซ็ต dragOffset พร้อมแอนิเมชั่นแบบ smooth
                             withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
                                 dragOffset = 0
                             }
@@ -283,7 +272,6 @@ struct HeightRuler: View {
     }
 }
 
-// Custom Shape for Triangle (Indicator)
 struct HTriangle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -295,11 +283,12 @@ struct HTriangle: Shape {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview ✔ (แก้แล้ว)
 struct HeightView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             HeightView()
+                .environmentObject(UserProfile())   // ✅ แก้ตรงนี้อย่างเดียว
         }
     }
 }

@@ -368,11 +368,11 @@ struct ScanView: View {
         
         let body: [String: Any] = [
             "scan_id": scanId,
-            "image_urls": imageUrls
+            "image_urls": imageUrls,
+            "questionnaire_score": userProfile.evaluateScore 
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
         let (_, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse,

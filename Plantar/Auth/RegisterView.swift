@@ -68,10 +68,10 @@ struct RegisterView: View {
                             }
                             
                             // Apple
-                            socialButton(image: "applelogo", color: Color.black) {
-                                // Apple Sign in flow usually handled via specific request controller
-                                // But here represents the trigger
-                            }
+//                            socialButton(image: "applelogo", color: Color.black) {
+//                                // Apple Sign in flow usually handled via specific request controller
+//                                // But here represents the trigger
+//                            }
                         }
                         
                         // Divider

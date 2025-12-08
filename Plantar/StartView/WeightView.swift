@@ -304,9 +304,12 @@ struct WTriangle: Shape {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview ✔ (แก้แล้วเฉพาะ Preview)
 struct WeightView_Previews: PreviewProvider {
     static var previews: some View {
-        WeightView()
+        NavigationView {
+            WeightView()
+                .environmentObject(UserProfile()) // ✅ ใส่ตัวอย่าง UserProfile สำหรับ Preview
+        }
     }
 }
