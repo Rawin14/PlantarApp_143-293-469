@@ -267,7 +267,7 @@ struct EvaluateView: View {
                 destination: destinationView(),
                 isActive: $navigateToResult
             ) {
-                ScanView()
+                EmptyView()
             }
         }
         .navigationBarBackButtonHidden(true)
