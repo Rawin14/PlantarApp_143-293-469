@@ -34,7 +34,7 @@ struct EvaluateView: View {
     @State private var currentQuestionIndex = 0
     @State private var selectedAnswer: Bool? = nil // true = ใช่, false = ไม่ใช่
     @State private var totalScore = 0
-    @State private var navigateToResult = false
+    @State private var navigateToNext = false
     @State private var riskLevel: String = ""
     
     // --- Questions with Scores ---
@@ -232,7 +232,7 @@ struct EvaluateView: View {
                                     
                                     // คำนวณ Risk Level เพื่อเลือกหน้าถัดไป (ถ้ายังต้องการ flow เดิม)
                                     riskLevel = calculateRiskLevel()
-                                    navigateToResult = true
+                                    navigateToNext = true
                                 }
                             }
                         }
@@ -264,8 +264,8 @@ struct EvaluateView: View {
             
             // Navigation to Result Pages
             NavigationLink(
-                destination: destinationView(),
-                isActive: $navigateToResult
+                destination: ScanView(),
+                isActive: $navigateToNext
             ) {
                 EmptyView()
             }
@@ -273,20 +273,20 @@ struct EvaluateView: View {
         .navigationBarBackButtonHidden(true)
     }
     
-    // MARK: - Destination View Based on Risk Level
-    @ViewBuilder
-    func destinationView() -> some View {
-        switch riskLevel {
-        case "Low Risk":
-            LowRisk()
-        case "Medium Risk":
-            MediumRisk()
-        case "High Risk":
-            HighRisk()
-        default:
-            LowRisk()
-        }
-    }
+//    // MARK: - Destination View Based on Risk Level
+//    @ViewBuilder
+//    func destinationView() -> some View {
+//        switch riskLevel {
+//        case "Low Risk":
+//            LowRisk()
+//        case "Medium Risk":
+//            MediumRisk()
+//        case "High Risk":
+//            HighRisk()
+//        default:
+//            LowRisk()
+//        }
+//    }
 }
 
 // MARK: - Answer Option Button Component
