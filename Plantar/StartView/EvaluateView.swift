@@ -60,15 +60,15 @@ struct EvaluateView: View {
     }
     
     // คำนวณระดับความเสี่ยง
-    func calculateRiskLevel() -> String {
-        if totalScore >= 0 && totalScore <= 5 {
-            return "Low Risk"
-        } else if totalScore >= 6 && totalScore <= 12 {
-            return "Medium Risk"
-        } else {
-            return "High Risk"
-        }
-    }
+//    func calculateRiskLevel() -> String {
+//        if totalScore >= 0 && totalScore <= 5 {
+//            return "Low Risk"
+//        } else if totalScore >= 6 && totalScore <= 12 {
+//            return "Medium Risk"
+//        } else {
+//            return "High Risk"
+//        }
+//    }
     
     var body: some View {
         ZStack {
@@ -231,7 +231,7 @@ struct EvaluateView: View {
                                     print("Evaluate Score (Max 10): \(finalScore)")
                                     
                                     // คำนวณ Risk Level เพื่อเลือกหน้าถัดไป (ถ้ายังต้องการ flow เดิม)
-                                    riskLevel = calculateRiskLevel()
+//                                    riskLevel = calculateRiskLevel()
                                     navigateToNext = true
                                 }
                             }

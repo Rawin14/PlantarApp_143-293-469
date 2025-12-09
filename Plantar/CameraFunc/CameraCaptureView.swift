@@ -67,16 +67,16 @@ struct CameraCaptureView: View {
                     
                     // Done Button
                     Button("Done") {
-                        if capturedImages.count >= 3 {
+                        if capturedImages.count >= 1 {
                             onComplete(capturedImages)
                             dismiss()
                         }
                     }
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(capturedImages.count < 3 ? .gray : .green)
+                    .foregroundColor(capturedImages.count < 1 ? .gray : .green)
                     .padding(40)
-                    .disabled(capturedImages.count < 3)
+                    .disabled(capturedImages.count < 1)
                 }
             }
             .padding(.bottom, 20)
