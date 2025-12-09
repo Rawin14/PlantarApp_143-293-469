@@ -50,37 +50,37 @@ struct PFResultView: View {
                             .foregroundColor(.secondary)
                         
                         // 2. แสดงโมเดล 3D (ถ้ามี URL)
-                        if let modelUrlString = result.model_3d_url, let url = URL(string: modelUrlString) {
-                            VStack {
-                                Text("3D Foot Model")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                
-                                Foot3DView(modelUrl: url)
-                                    .frame(height: 300) // กำหนดความสูงของ view 3D
-                                    .background(Color.white)
-                                    .cornerRadius(15)
-                                    .shadow(radius: 5)
-                            }
-                            .padding(.horizontal)
-                        } else {
-                            // กรณีไม่มีโมเดล หรือกำลังโหลด
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(height: 200)
-                                .overlay(
-                                    VStack {
-                                        Image(systemName: "cube.transparent")
-                                            .font(.system(size: 50))
-                                            .foregroundColor(.gray)
-                                        Text("No 3D Model Available")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                )
-                                .padding(.horizontal)
-                        }
-                        
+//                        if let modelUrlString = result.model_3d_url, let url = URL(string: modelUrlString) {
+//                            VStack {
+//                                Text("3D Foot Model")
+//                                    .font(.headline)
+//                                    .foregroundColor(.secondary)
+//                                
+//                                Foot3DView(modelUrl: url)
+//                                    .frame(height: 300) // กำหนดความสูงของ view 3D
+//                                    .background(Color.white)
+//                                    .cornerRadius(15)
+//                                    .shadow(radius: 5)
+//                            }
+//                            .padding(.horizontal)
+//                        } else {
+//                            // กรณีไม่มีโมเดล หรือกำลังโหลด
+//                            RoundedRectangle(cornerRadius: 15)
+//                                .fill(Color.gray.opacity(0.1))
+//                                .frame(height: 200)
+//                                .overlay(
+//                                    VStack {
+//                                        Image(systemName: "cube.transparent")
+//                                            .font(.system(size: 50))
+//                                            .foregroundColor(.gray)
+//                                        Text("No 3D Model Available")
+//                                            .font(.caption)
+//                                            .foregroundColor(.gray)
+//                                    }
+//                                )
+//                                .padding(.horizontal)
+//                        }
+//                        
                         // Severity Score
                         ZStack {
                             Circle()

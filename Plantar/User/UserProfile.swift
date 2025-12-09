@@ -19,6 +19,7 @@ struct ProfileInsert: Encodable {
     let weight: Double?
     let gender: String?
     let birthdate: String?
+    let bmi: Double?
 }
 
 struct ProfileData: Codable {
@@ -75,6 +76,8 @@ class UserProfile: ObservableObject {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
             
+            let currentBMI = calculateBMI()
+            
             // สร้าง ProfileInsert struct
             let profileData = ProfileInsert(
                 id: userId,
@@ -83,7 +86,8 @@ class UserProfile: ObservableObject {
                 height: height > 0 ? height : nil,
                 weight: weight > 0 ? weight : nil,
                 gender: gender.isEmpty ? nil : gender,
-                birthdate: ISO8601DateFormatter().string(from: birthdate)
+                birthdate: ISO8601DateFormatter().string(from: birthdate),
+                bmi: currentBMI > 0 ? currentBMI : nil
             )
             
             // Upsert to Supabase
@@ -97,6 +101,7 @@ class UserProfile: ObservableObject {
             print("   - Age: \(age)")
             print("   - Height: \(height)")
             print("   - Weight: \(weight)")
+            print("✅ Profile saved (with BMI: \(String(format: "%.1f", currentBMI)))")
             
         } catch {
             errorMessage = "บันทึกข้อมูลล้มเหลว: \(error.localizedDescription)"
