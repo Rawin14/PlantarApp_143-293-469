@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     // --- Environment ---
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var userProfile: UserProfile
     
     // --- State Variables ---
     @State private var showImagePicker = false
@@ -23,6 +24,7 @@ struct ProfileView: View {
     @State private var weight: Double = 58.0
     @State private var painLevel: Int = 3 // 1-5
     
+    
     // --- Custom Colors (เหลือแค่ 4 สี) ---
     let backgroundColor = Color(red: 247/255, green: 246/255, blue: 236/255) // ครีม
     let cardBackground = Color.white
@@ -35,10 +37,7 @@ struct ProfileView: View {
     let availableImages = ["Female", "Male", "profile1", "profile2", "profile3"]
     
     // Computed BMI
-    var bmiValue: Double {
-        let heightInMeters = height / 100
-        return weight / (heightInMeters * heightInMeters)
-    }
+    var bmiValue: Double { userProfile.calculateBMI() }
     
     var bmiCategory: String {
         switch bmiValue {
@@ -155,7 +154,7 @@ struct ProfileView: View {
                             .padding(.top, 20)
                             
                             // User Name
-                            Text(userName)
+                            Text(userProfile.nickname)
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(buttonColor)
                             
@@ -179,26 +178,9 @@ struct ProfileView: View {
                         
                         // MARK: - Quick Stats Grid
                         HStack(spacing: 12) {
-                            QuickStatCard(
-                                icon: "calendar",
-                                value: "\(age)",
-                                label: "ปี",
-                                color: primaryColor
-                            )
-                            
-                            QuickStatCard(
-                                icon: "arrow.up",
-                                value: "\(Int(height))",
-                                label: "CM",
-                                color: accentColor
-                            )
-                            
-                            QuickStatCard(
-                                icon: "scalemass",
-                                value: "\(Int(weight))",
-                                label: "KG",
-                                color: buttonColor
-                            )
+                            QuickStatCard(icon: "calendar", value: "\(userProfile.age)", label: "ปี", color: primaryColor)
+                            QuickStatCard(icon: "arrow.up", value: "\(Int(userProfile.height))", label: "CM", color: accentColor)
+                            QuickStatCard(icon: "scalemass", value: "\(Int(userProfile.weight))", label: "KG", color: buttonColor)
                         }
                         .padding(.horizontal, 20)
                         
@@ -422,6 +404,9 @@ struct ProfileView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            Task { await userProfile.loadFromSupabase() }
+        }
     }
 }
 

@@ -12,21 +12,23 @@ struct PlantarApp: App {
     @StateObject var userProfile = UserProfile()
     @StateObject var authManager = AuthManager()
     
+    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                // เช็คสถานะการล็อกอินตรงนี้
-                if authManager.isAuthenticated {
-                    // ถ้าล็อกอินแล้ว ไปหน้า Profile (หรือ HomeView ตาม Flow ของคุณ)
-                    Profile()
+                // เช็คสถานะตามลำดับ: ครั้งแรก -> ล็อกอินค้างไว้ -> ยังไม่ล็อกอิน
+                if isFirstLaunch {
+                    ContentView() // หน้า Splash -> Welcome -> Terms
+                } else if authManager.isAuthenticated {
+                    Profile() // หรือ HomeView ตาม Flow ของคุณ
                 } else {
-                    // ⚠️ แก้ตรงนี้: ถ้าไม่ได้ล็อกอิน (หรือกด Logout) ให้เรียก LoginView โดยตรง
-                    // จากเดิม: ContentView()
                     LoginView()
                 }
             }
-                .environmentObject(userProfile)
-                .environmentObject(authManager)
+            .id(authManager.isAuthenticated)
+            .environmentObject(userProfile)
+            .environmentObject(authManager)
         }
     }
 }
