@@ -237,7 +237,13 @@ struct HomeView: View {
                                 Divider().background(Color.white.opacity(0.3)).padding(.vertical, 16)
                                 
                                 SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: {
-                                    Task { await authManager.signOut() }
+                                    // สั่งปิด Sidebar ก่อน (Optional เพื่อความสวยงาม)
+                                    showSidebar = false
+                                    
+                                    // เรียกคำสั่ง Logout
+                                    Task {
+                                        await authManager.signOut()
+                                    }
                                 })
                             }
                             .padding(.top, 20)
@@ -553,5 +559,8 @@ struct SidebarMenuItem: View {
 }
 
 #Preview {
-    HomeView()
+    NavigationStack{
+        HomeView()
+            .environmentObject(UserProfile())
+    }
 }
