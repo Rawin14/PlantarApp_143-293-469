@@ -14,6 +14,9 @@ struct HomeView: View {
     @State private var selectedDate = Date()
     @State private var showVideoPlayer = false
     
+    @EnvironmentObject var userProfile: UserProfile
+    @EnvironmentObject var authManager: AuthManager
+    
     // --- Custom Colors ---
     let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255)
     let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255)
@@ -30,37 +33,20 @@ struct HomeView: View {
                     // MARK: - Top Navigation Bar
                     HStack {
                         // Menu Button (3 ขีด)
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3)) {
-                                showSidebar.toggle()
-                            }
-                        }) {
+                        Button(action: { withAnimation { showSidebar.toggle() } }) {
                             Image(systemName: "line.3.horizontal")
                                 .font(.title2)
                                 .foregroundColor(.black)
                                 .padding(8)
                         }
-                        
                         Spacer()
-                        
-                        // Title
-                        Text("Plantar")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.black)
-                        
+                        Text("Plantar").font(.title2).fontWeight(.bold).foregroundColor(.black)
                         Spacer()
-                        
-                        // Notification Button (แบบง่าย)
                         NavigationLink(destination: NotificationView()) {
-                            Image(systemName: "bell.fill")
-                                .font(.title3)
-                                .foregroundColor(.black)
-                                .padding(8)
+                            Image(systemName: "bell.fill").font(.title3).foregroundColor(.black).padding(8)
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
+                    .padding()
                     .background(Color.white)
                     
                     // MARK: - Main Content Area
@@ -110,11 +96,11 @@ struct HomeView: View {
                             
                             // MARK: - Risk & Progress Cards
                             HStack(spacing: 16) {
-                                // High Risk Card
+                                // High Risk Card (ดึงจาก latestScan)
                                 VStack(spacing: 16) {
                                     ZStack {
                                         Circle()
-                                            .fill(Color.red)
+                                            .fill(riskColor(severity: userProfile.latestScan?.pf_severity))
                                             .frame(width: 70, height: 70)
                                         
                                         Image(systemName: "exclamationmark.triangle.fill")
@@ -122,7 +108,7 @@ struct HomeView: View {
                                             .foregroundColor(.white)
                                     }
                                     
-                                    Text("High Risk")
+                                    Text(riskText(severity: userProfile.latestScan?.pf_severity))
                                         .font(.headline)
                                         .fontWeight(.bold)
                                         .foregroundColor(.white)
@@ -132,28 +118,18 @@ struct HomeView: View {
                                 .background(challengeCardColor)
                                 .cornerRadius(20)
                                 
-                                // Progress Card
+                                // Progress Card (Mock หรือคำนวณจาก Diary)
                                 VStack(spacing: 16) {
                                     ZStack {
+                                        Circle().stroke(Color.white.opacity(0.3), lineWidth: 8).frame(width: 70, height: 70)
                                         Circle()
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 8)
-                                            .frame(width: 70, height: 70)
-                                        
-                                        Circle()
-                                            .trim(from: 0, to: 0.87)
+                                            .trim(from: 0, to: 0.87) // ตัวอย่าง
                                             .stroke(accentColor, lineWidth: 8)
                                             .frame(width: 70, height: 70)
                                             .rotationEffect(.degrees(-90))
-                                        
-                                        Text("87%")
-                                            .font(.system(size: 18, weight: .bold))
-                                            .foregroundColor(.white)
+                                        Text("87%").font(.system(size: 18, weight: .bold)).foregroundColor(.white)
                                     }
-                                    
-                                    Text("Progress")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                    Text("Progress").font(.headline).fontWeight(.bold).foregroundColor(.white)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 30)
@@ -228,13 +204,7 @@ struct HomeView: View {
                 
                 // MARK: - Sidebar Menu
                 if showSidebar {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.3)) {
-                                showSidebar = false
-                            }
-                        }
+                    Color.black.opacity(0.3).ignoresSafeArea().onTapGesture { withAnimation { showSidebar = false } }
                     
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
@@ -243,32 +213,32 @@ struct HomeView: View {
                                     .font(.system(size: 80))
                                     .foregroundColor(.white)
                                 
-                                Text("Username")
+                                // ✅ ชื่อผู้ใช้จริง
+                                Text(userProfile.nickname.isEmpty ? "User" : userProfile.nickname)
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                 
-                                Text("user@email.com")
+                                // ✅ อีเมลจริง
+                                Text(authManager.currentUser?.email ?? "No Email")
                                     .font(.caption)
-                                    .foregroundColor(Color(red: 139/255, green: 122/255, blue: 184/255))
+                                    .foregroundColor(Color.white.opacity(0.8))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.top, 60)
                             .padding(.bottom, 30)
                             
-                            Divider()
-                                .background(Color.white.opacity(0.3))
+                            Divider().background(Color.white.opacity(0.3))
                             
                             VStack(spacing: 0) {
                                 SidebarMenuItem(icon: "chart.bar.fill", title: "Dashboard", action: { showSidebar = false })
                                 SidebarMenuItem(icon: "gearshape.fill", title: "Settings", action: { showSidebar = false })
-                                SidebarMenuItem(icon: "key.fill", title: "Change Password", action: { showSidebar = false })
                                 
-                                Divider()
-                                    .background(Color.white.opacity(0.3))
-                                    .padding(.vertical, 16)
+                                Divider().background(Color.white.opacity(0.3)).padding(.vertical, 16)
                                 
-                                SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: { showSidebar = false })
+                                SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: {
+                                    Task { await authManager.signOut() }
+                                })
                             }
                             .padding(.top, 20)
                             
@@ -279,6 +249,7 @@ struct HomeView: View {
                         .transition(.move(edge: .leading))
                         
                         Spacer()
+                        
                     }
                 }
                 
@@ -290,6 +261,30 @@ struct HomeView: View {
                 }
             }
             .navigationBarBackButtonHidden(true)
+            .onAppear {
+                Task {
+                    await userProfile.loadFromSupabase()
+                    await userProfile.fetchLatestScan()
+                }
+            }
+        }
+    }
+    // Helper Functions
+    func riskColor(severity: String?) -> Color {
+        switch severity {
+        case "high": return .red
+        case "medium": return .orange
+        case "low": return .green
+        default: return .gray
+        }
+    }
+    
+    func riskText(severity: String?) -> String {
+        switch severity {
+        case "high": return "High Risk"
+        case "medium": return "Medium Risk"
+        case "low": return "Low Risk"
+        default: return "No Data"
         }
     }
     

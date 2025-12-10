@@ -122,7 +122,6 @@
 				392797442EB3648B002C3E26 /* Profile.swift */,
 				39A608612EA397780070B69C /* WeightView.swift */,
 				39A608632EA3A1B10070B69C /* HeightView.swift */,
-				392797462EB366C3002C3E26 /* HomeView.swift */,
 				3927973A2EB356A8002C3E26 /* HighRisk.swift */,
 				392797582EB50AE8002C3E26 /* BMIView.swift */,
 				3927973E2EB35789002C3E26 /* MediumRisk.swift */,
@@ -146,6 +145,7 @@
 				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
 				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
 				392797482EB47873002C3E26 /* NotificationView.swift */,
+				392797462EB366C3002C3E26 /* HomeView.swift */,
 			);
 			path = MainView;
 			sourceTree = "<group>";

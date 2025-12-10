@@ -34,6 +34,22 @@ struct ProfileData: Codable {
     let updated_at: String?
 }
 
+struct DiaryEntryModel: Codable, Identifiable {
+    let id: UUID
+    let user_id: UUID
+    let date: String // ISO String
+    let feeling_level: Int
+    let note: String?
+    let created_at: String?
+}
+
+struct FootScanModel: Codable {
+    let id: String
+    let pf_severity: String?
+    let pf_score: Double?
+    let created_at: String?
+}
+
 // MARK: - UserProfile Class
 
 @MainActor
@@ -41,7 +57,7 @@ class UserProfile: ObservableObject {
     
     // Supabase Client
     // ในไฟล์ UserProfile.swift
-
+    
     static let supabase = SupabaseClient(
         supabaseURL: URL(string: AppConfig.supabaseURL)!,
         supabaseKey: AppConfig.supabaseAnonKey,
@@ -55,12 +71,17 @@ class UserProfile: ObservableObject {
     // User Data
     @Published var userId: String = ""
     @Published var nickname: String = ""
+    @Published var email: String = ""
     @Published var age: Int = 0
     @Published var height: Double = 0.0
     @Published var weight: Double = 0.0
     @Published var gender: String = "female"
     @Published var birthdate: Date = Date()
     @Published var evaluateScore: Double = 0.0
+    
+    // App Data
+    @Published var latestScan: FootScanModel? // เก็บผลสแกนล่าสุด
+    @Published var diaryEntries: [DiaryEntryModel] = [] // เก็บไดอารี่
     
     // Loading States
     @Published var isLoading = false
@@ -181,6 +202,80 @@ class UserProfile: ObservableObject {
         } catch {
             errorMessage = "ลบข้อมูลล้มเหลว: \(error.localizedDescription)"
         }
+    }
+    // เพิ่มฟังก์ชันดึงข้อมูล Scan ล่าสุด
+    func fetchLatestScan() async {
+        do {
+            let session = try await Self.supabase.auth.session
+            let userId = session.user.id.uuidString
+            
+            let response: [FootScanModel] = try await Self.supabase
+                .from("foot_scans")
+                .select("id, pf_severity, pf_score, created_at")
+                .eq("user_id", value: userId)
+                .order("created_at", ascending: false)
+                .limit(1)
+                .execute()
+                .value
+            
+            if let scan = response.first {
+                self.latestScan = scan
+            }
+        } catch {
+            print("❌ Error fetching latest scan: \(error)")
+        }
+    }
+    
+    // เพิ่มฟังก์ชันดึง Diary
+    func fetchDiaryEntries() async {
+        do {
+            let session = try await Self.supabase.auth.session
+            let userId = session.user.id.uuidString
+            
+            let response: [DiaryEntryModel] = try await Self.supabase
+                .from("diary_entries") // สมมติว่ามีตารางนี้
+                .select()
+                .eq("user_id", value: userId)
+                .order("date", ascending: false)
+                .execute()
+                .value
+            
+            self.diaryEntries = response
+        } catch {
+            print("ℹ️ Diary fetch info: \(error.localizedDescription) (Table might not exist yet)")
+        }
+    }
+    
+    // เพิ่มฟังก์ชันบันทึก Diary
+    func saveDiaryEntry(date: Date, feeling: Int, note: String) async {
+        do {
+            let session = try await Self.supabase.auth.session
+            let userId = session.user.id
+            
+            let newEntry = DiaryEntryModel(
+                id: UUID(),
+                user_id: userId,
+                date: ISO8601DateFormatter().string(from: date),
+                feeling_level: feeling,
+                note: note,
+                created_at: nil
+            )
+            
+            try await Self.supabase
+                .from("diary_entries")
+                .insert(newEntry)
+                .execute()
+            
+            await fetchDiaryEntries() // รีโหลดข้อมูล
+            print("✅ Diary saved")
+        } catch {
+            print("❌ Error saving diary: \(error)")
+        }
+    }
+    
+    // Helper สำหรับดึง Email (เรียกตอน Login สำเร็จ)
+    func setEmail(_ email: String) {
+        self.email = email
     }
 }
 
