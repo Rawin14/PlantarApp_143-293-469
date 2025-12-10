@@ -137,13 +137,19 @@ class AuthManager: ObservableObject {
     // MARK: - Sign Out
     
     func signOut() async {
-        do {
-            try await supabase.auth.signOut()
-            self.currentUser = nil
+        // ✅ ย้ายมาไว้ตรงนี้ เพื่อให้แอปตัดเข้าหน้า Login ทันทีที่กด ไม่ต้องรอ Server ตอบกลับ
+        await MainActor.run {
             self.isAuthenticated = false
-            print("✅ Signed out")
+            self.currentUser = nil
+        }
+        
+        do {
+            // พยายามแจ้ง Server ว่า Logout (ถ้าล้มเหลวก็ไม่เป็นไร เพราะเราเคลียร์หน้าจอแล้ว)
+            try await supabase.auth.signOut()
+            print("✅ Signed out form Server")
         } catch {
-            errorMessage = "ออกจากระบบล้มเหลว: \(error.localizedDescription)"
+            print("⚠️ Logout server error: \(error.localizedDescription)")
+            // ไม่ต้อง set errorMessage ให้ user เห็น เพราะเขากำลังออกจากแอปแล้ว
         }
     }
 }

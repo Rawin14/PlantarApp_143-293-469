@@ -26,7 +26,6 @@ struct HomeView: View {
     let challengeCardColor = Color(red: 94/255, green: 84/255, blue: 68/255) // สีน้ำตาล
     
     var body: some View {
-        NavigationStack {
             ZStack {
                 // Main Content
                 VStack(spacing: 0) {
@@ -237,10 +236,7 @@ struct HomeView: View {
                                 Divider().background(Color.white.opacity(0.3)).padding(.vertical, 16)
                                 
                                 SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: {
-                                    // สั่งปิด Sidebar ก่อน (Optional เพื่อความสวยงาม)
                                     showSidebar = false
-                                    
-                                    // เรียกคำสั่ง Logout
                                     Task {
                                         await authManager.signOut()
                                     }
@@ -306,7 +302,7 @@ struct HomeView: View {
         }
         return dates
     }
-}
+
 
 // MARK: - Video Card Component (Compact)
 struct VideoCardCompact: View {
