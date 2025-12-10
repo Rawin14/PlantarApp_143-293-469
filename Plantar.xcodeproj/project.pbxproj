@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0439CC7D2EE9754E00935095 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC7C2EE9754E00935095 /* Auth */; };
+		0439CC7F2EE9754E00935095 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC7E2EE9754E00935095 /* Functions */; };
+		0439CC812EE9754E00935095 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC802EE9754E00935095 /* PostgREST */; };
+		0439CC832EE9754E00935095 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC822EE9754E00935095 /* Realtime */; };
+		0439CC852EE9754E00935095 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC842EE9754E00935095 /* Storage */; };
+		045943A52EE97CCF00152150 /* DiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A42EE97CCF00152150 /* DiaryModels.swift */; };
+		045943A72EE97CF200152150 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A62EE97CF200152150 /* SupabaseManager.swift */; };
+		048B80A62ECCE47000D6B2D1 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */; };
 		3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973A2EB356A8002C3E26 /* HighRisk.swift */; };
 		3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973C2EB3575A002C3E26 /* LowRisk.swift */; };
 		3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973E2EB35789002C3E26 /* MediumRisk.swift */; };
@@ -47,6 +55,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		045943A42EE97CCF00152150 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
+		045943A62EE97CF200152150 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarychartView.swift; sourceTree = "<group>"; };
 		3927973A2EB356A8002C3E26 /* HighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRisk.swift; sourceTree = "<group>"; };
 		3927973C2EB3575A002C3E26 /* LowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowRisk.swift; sourceTree = "<group>"; };
 		3927973E2EB35789002C3E26 /* MediumRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediumRisk.swift; sourceTree = "<group>"; };
@@ -89,10 +100,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0439CC832EE9754E00935095 /* Realtime in Frameworks */,
 				397624522EAEB916007C7D99 /* Zip in Frameworks */,
 				394689682EB8AFBF005BC4E7 /* FirebaseAuth in Frameworks */,
+				0439CC7D2EE9754E00935095 /* Auth in Frameworks */,
 				394689662EB8AF82005BC4E7 /* FirebaseFirestore in Frameworks */,
+				0439CC812EE9754E00935095 /* PostgREST in Frameworks */,
+				0439CC7F2EE9754E00935095 /* Functions in Frameworks */,
 				39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */,
+				0439CC852EE9754E00935095 /* Storage in Frameworks */,
 				3976244F2EAEB8DE007C7D99 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,7 +141,10 @@
 				392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */,
 				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
 				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
+				045943A42EE97CCF00152150 /* DiaryModels.swift */,
+				045943A62EE97CF200152150 /* SupabaseManager.swift */,
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
+				048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */,
 				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
 				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
 				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
@@ -234,6 +253,11 @@
 				397624512EAEB916007C7D99 /* Zip */,
 				394689652EB8AF82005BC4E7 /* FirebaseFirestore */,
 				394689672EB8AFBF005BC4E7 /* FirebaseAuth */,
+				0439CC7C2EE9754E00935095 /* Auth */,
+				0439CC7E2EE9754E00935095 /* Functions */,
+				0439CC802EE9754E00935095 /* PostgREST */,
+				0439CC822EE9754E00935095 /* Realtime */,
+				0439CC842EE9754E00935095 /* Storage */,
 			);
 			productName = Plantar;
 			productReference = 39A608582EA1E5AF0070B69C /* Plantar.app */;
@@ -266,6 +290,7 @@
 			packageReferences = (
 				3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				397624502EAEB916007C7D99 /* XCRemoteSwiftPackageReference "Zip" */,
+				0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 394B810F2E94F581004CB2AB;
@@ -302,6 +327,7 @@
 				3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */,
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
+				048B80A62ECCE47000D6B2D1 /* DiarychartView.swift in Sources */,
 				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
 				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
@@ -321,9 +347,11 @@
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
 				3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */,
 				39A608662EA3A1C20070B69C /* AgeView.swift in Sources */,
+				045943A52EE97CCF00152150 /* DiaryModels.swift in Sources */,
 				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
 				392797492EB47873002C3E26 /* NotificationView.swift in Sources */,
 				392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */,
+				045943A72EE97CF200152150 /* SupabaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,6 +563,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.7;
+			};
+		};
 		3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -554,6 +590,31 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0439CC7C2EE9754E00935095 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		0439CC7E2EE9754E00935095 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		0439CC802EE9754E00935095 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		0439CC822EE9754E00935095 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		0439CC842EE9754E00935095 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
 		394689652EB8AF82005BC4E7 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3976244D2EAEB8DE007C7D99 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
