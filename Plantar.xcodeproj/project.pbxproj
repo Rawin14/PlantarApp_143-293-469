@@ -14,9 +14,6 @@
 		391889DA2ECCF10B0045549E /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889D92ECCF10B0045549E /* Config.swift */; };
 		391889DC2ECCF1F20045549E /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889DB2ECCF1F20045549E /* AuthManager.swift */; };
 		391889DE2ECD15970045549E /* PFResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889DD2ECD15970045549E /* PFResultView.swift */; };
-		3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973A2EB356A8002C3E26 /* HighRisk.swift */; };
-		3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973C2EB3575A002C3E26 /* LowRisk.swift */; };
-		3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973E2EB35789002C3E26 /* MediumRisk.swift */; };
 		392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797422EB360E6002C3E26 /* EvaluateView.swift */; };
 		392797452EB3648B002C3E26 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797442EB3648B002C3E26 /* Profile.swift */; };
 		392797472EB366C3002C3E26 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797462EB366C3002C3E26 /* HomeView.swift */; };
@@ -56,9 +53,6 @@
 		391889D92ECCF10B0045549E /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		391889DB2ECCF1F20045549E /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		391889DD2ECD15970045549E /* PFResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PFResultView.swift; sourceTree = "<group>"; };
-		3927973A2EB356A8002C3E26 /* HighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRisk.swift; sourceTree = "<group>"; };
-		3927973C2EB3575A002C3E26 /* LowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowRisk.swift; sourceTree = "<group>"; };
-		3927973E2EB35789002C3E26 /* MediumRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediumRisk.swift; sourceTree = "<group>"; };
 		392797422EB360E6002C3E26 /* EvaluateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateView.swift; sourceTree = "<group>"; };
 		392797442EB3648B002C3E26 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		392797462EB366C3002C3E26 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -129,10 +123,7 @@
 				392797442EB3648B002C3E26 /* Profile.swift */,
 				39A608612EA397780070B69C /* WeightView.swift */,
 				39A608632EA3A1B10070B69C /* HeightView.swift */,
-				3927973A2EB356A8002C3E26 /* HighRisk.swift */,
 				392797582EB50AE8002C3E26 /* BMIView.swift */,
-				3927973E2EB35789002C3E26 /* MediumRisk.swift */,
-				3927973C2EB3575A002C3E26 /* LowRisk.swift */,
 				39A608652EA3A1C20070B69C /* AgeView.swift */,
 				392797422EB360E6002C3E26 /* EvaluateView.swift */,
 				391889DD2ECD15970045549E /* PFResultView.swift */,
@@ -332,12 +323,10 @@
 				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
 				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
-				3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */,
 				391889DC2ECCF1F20045549E /* AuthManager.swift in Sources */,
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
 				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
 				3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */,
-				3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */,
 				392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */,
 				394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */,
 				391889DA2ECCF10B0045549E /* Config.swift in Sources */,
@@ -349,7 +338,6 @@
 				399A9CD22EE1844200A54BED /* EntryView.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
-				3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */,
 				39A608662EA3A1C20070B69C /* AgeView.swift in Sources */,
 				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
 				391889DE2ECD15970045549E /* PFResultView.swift in Sources */,

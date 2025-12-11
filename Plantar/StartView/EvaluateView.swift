@@ -59,15 +59,15 @@ struct EvaluateView: View {
     }
     
     // คำนวณระดับความเสี่ยง
-//    func calculateRiskLevel() -> String {
-//        if totalScore >= 0 && totalScore <= 5 {
-//            return "Low Risk"
-//        } else if totalScore >= 6 && totalScore <= 12 {
-//            return "Medium Risk"
-//        } else {
-//            return "High Risk"
-//        }
-//    }
+    //    func calculateRiskLevel() -> String {
+    //        if totalScore >= 0 && totalScore <= 5 {
+    //            return "Low Risk"
+    //        } else if totalScore >= 6 && totalScore <= 12 {
+    //            return "Medium Risk"
+    //        } else {
+    //            return "High Risk"
+    //        }
+    //    }
     
     var body: some View {
         ZStack {
@@ -168,7 +168,7 @@ struct EvaluateView: View {
                         Text("คะแนนรวม")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("\(totalScore) / 20")
+                        Text("\(totalScore) / 17")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(Color.Evaluate_Secondary)
                     }
@@ -224,13 +224,11 @@ struct EvaluateView: View {
                                     currentQuestionIndex += 1
                                     selectedAnswer = nil
                                 } else {
-                                    // ✅ คำนวณคะแนนเต็ม 10 (คะแนนดิบเต็ม 20 หารด้วย 2)
-                                    let finalScore = Double(totalScore) / 2.0
-                                    userProfile.evaluateScore = finalScore
-                                    print("Evaluate Score (Max 10): \(finalScore)")
+                                    // ✅ แก้ไข: บันทึกคะแนนเต็ม ไม่ต้องหาร 2
+                                    userProfile.evaluateScore = Double(totalScore)
+                                    print("Evaluate Score: \(totalScore) (Saved to UserProfile)")
                                     
-                                    // คำนวณ Risk Level เพื่อเลือกหน้าถัดไป (ถ้ายังต้องการ flow เดิม)
-//                                    riskLevel = calculateRiskLevel()
+                                    // ไปหน้าถัดไป
                                     navigateToNext = true
                                 }
                             }
@@ -250,7 +248,7 @@ struct EvaluateView: View {
                                 .fill(
                                     selectedAnswer != nil ?
                                     Color.Evaluate_ButtonColor :
-                                    Color.Evaluate_ButtonColor.opacity(0.5)
+                                        Color.Evaluate_ButtonColor.opacity(0.5)
                                 )
                         )
                     }
@@ -272,20 +270,20 @@ struct EvaluateView: View {
         .navigationBarBackButtonHidden(true)
     }
     
-//    // MARK: - Destination View Based on Risk Level
-//    @ViewBuilder
-//    func destinationView() -> some View {
-//        switch riskLevel {
-//        case "Low Risk":
-//            LowRisk()
-//        case "Medium Risk":
-//            MediumRisk()
-//        case "High Risk":
-//            HighRisk()
-//        default:
-//            LowRisk()
-//        }
-//    }
+    //    // MARK: - Destination View Based on Risk Level
+    //    @ViewBuilder
+    //    func destinationView() -> some View {
+    //        switch riskLevel {
+    //        case "Low Risk":
+    //            LowRisk()
+    //        case "Medium Risk":
+    //            MediumRisk()
+    //        case "High Risk":
+    //            HighRisk()
+    //        default:
+    //            LowRisk()
+    //        }
+    //    }
 }
 
 // MARK: - Answer Option Button Component

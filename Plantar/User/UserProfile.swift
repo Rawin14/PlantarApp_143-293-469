@@ -87,6 +87,32 @@ class UserProfile: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    var bmiScore: Int {
+            let bmi = calculateBMI()
+            if bmi < 25.0 {
+                return 1 // ต่ำ/ปกติ (Low Risk)
+            } else if bmi < 30.0 {
+                return 2 // เริ่มอ้วน (Medium Risk)
+            } else {
+                return 3 // อ้วน (High Risk)
+            }
+        }
+    
+    var totalRiskScore: Double {
+            return evaluateScore + Double(bmiScore)
+        }
+    
+    var riskSeverity: String {
+            let score = totalRiskScore
+            // เกณฑ์คะแนน (ปรับตามความเหมาะสมของคะแนนเต็ม ~23)
+            if score <= 8 {
+                return "Low Risk"
+            } else if score <= 15 {
+                return "Medium Risk"
+            } else {
+                return "High Risk"
+            }
+        }
     // MARK: - Save to Supabase
     
     func saveToSupabase() async {

@@ -11,6 +11,7 @@ import SceneKit // 1. เพิ่ม import SceneKit
 struct PFResultView: View {
     let scanId: String
     
+    @EnvironmentObject var userProfile: UserProfile
     @State private var scanResult: FootScanResult?
     @State private var isLoading = true
     @State private var errorMessage: String?
@@ -20,154 +21,104 @@ struct PFResultView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 247/255, green: 246/255, blue: 236/255)
-                .ignoresSafeArea()
+            Color(red: 247/255, green: 246/255, blue: 236/255).ignoresSafeArea()
             
             if isLoading {
-                ProgressView("Loading results...")
-            } else if let error = errorMessage {
-                VStack(spacing: 20) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 60))
-                        .foregroundColor(.red)
-                    
-                    Text(error)
-                        .multilineTextAlignment(.center)
-                }
-                .padding()
+                ProgressView("กำลังประมวลผล...")
             } else if let result = scanResult {
                 ScrollView {
                     VStack(spacing: 24) {
                         
                         // Header
-                        Text("ผลการประเมิน")
+                        Text("ผลการวิเคราะห์")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top, 20)
                         
-                        Text("อาการรองช้ำ (Plantar Fasciitis)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        // 2. แสดงโมเดล 3D (ถ้ามี URL)
-//                        if let modelUrlString = result.model_3d_url, let url = URL(string: modelUrlString) {
-//                            VStack {
-//                                Text("3D Foot Model")
-//                                    .font(.headline)
-//                                    .foregroundColor(.secondary)
-//                                
-//                                Foot3DView(modelUrl: url)
-//                                    .frame(height: 300) // กำหนดความสูงของ view 3D
-//                                    .background(Color.white)
-//                                    .cornerRadius(15)
-//                                    .shadow(radius: 5)
-//                            }
-//                            .padding(.horizontal)
-//                        } else {
-//                            // กรณีไม่มีโมเดล หรือกำลังโหลด
-//                            RoundedRectangle(cornerRadius: 15)
-//                                .fill(Color.gray.opacity(0.1))
-//                                .frame(height: 200)
-//                                .overlay(
-//                                    VStack {
-//                                        Image(systemName: "cube.transparent")
-//                                            .font(.system(size: 50))
-//                                            .foregroundColor(.gray)
-//                                        Text("No 3D Model Available")
-//                                            .font(.caption)
-//                                            .foregroundColor(.gray)
-//                                    }
-//                                )
-//                                .padding(.horizontal)
-//                        }
-//                        
-                        // Severity Score
+                        // --- ส่วนแสดงคะแนนความเสี่ยง (ใช้สูตรใหม่ BMI + Evaluate) ---
                         ZStack {
                             Circle()
                                 .stroke(Color.gray.opacity(0.2), lineWidth: 20)
-                                .frame(width: 180, height: 180) // ปรับขนาดลงเล็กน้อยเพื่อให้สมดุล
+                                .frame(width: 180, height: 180)
                             
+                            // วงกลมคะแนน (คำนวณ % จากคะแนนเต็มประมาณ 23)
                             Circle()
-                                .trim(from: 0, to: (result.pf_score ?? 0) / 100)
-                                .stroke(severityColor(result.pf_severity), style: StrokeStyle(lineWidth: 20, lineCap: .round))
+                                .trim(from: 0, to: userProfile.totalRiskScore / 23.0)
+                                .stroke(riskColor(userProfile.riskSeverity), style: StrokeStyle(lineWidth: 20, lineCap: .round))
                                 .frame(width: 180, height: 180)
                                 .rotationEffect(.degrees(-90))
-                                .animation(.easeInOut(duration: 1), value: result.pf_score)
                             
-                            VStack(spacing: 8) {
-                                Text("\(Int(result.pf_score ?? 0))")
-                                    .font(.system(size: 50, weight: .bold))
-                                    .foregroundColor(severityColor(result.pf_severity))
+                            VStack(spacing: 4) {
+                                Text("\(Int(userProfile.totalRiskScore))")
+                                    .font(.system(size: 60, weight: .bold))
+                                    .foregroundColor(riskColor(userProfile.riskSeverity))
                                 
-                                Text(severityText(result.pf_severity))
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.secondary)
+                                Text(userProfile.riskSeverity) // แสดง Low/Medium/High Risk
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.gray)
                             }
                         }
                         .padding(.vertical)
                         
-                        // Arch Type
-                        if let archType = result.arch_type {
-                            InfoCard(
-                                icon: "figure.walk",
-                                title: "ประเภทโค้งเท้า",
-                                value: archTypeText(archType),
+                        // --- ส่วนแสดงรายละเอียดคะแนนที่มา ---
+                        HStack(spacing: 15) {
+                            // BMI Score
+                            ScoreDetailCard(
+                                title: "BMI Score",
+                                score: "\(userProfile.bmiScore)",
+                                max: "3",
                                 color: .blue
                             )
-                        }
-                        
-                        // Recommendations Section (เก็บไว้เฉพาะความเสี่ยงและคำแนะนำทั่วไป)
-                        if let indicators = result.pf_indicators?.first {
                             
-                            // Risk Factors
-                            if !indicators.risk_factors.isEmpty {
-                                RecommendationCard(
-                                    icon: "exclamationmark.triangle.fill",
-                                    title: "ปัจจัยเสี่ยง",
-                                    items: indicators.risk_factors,
-                                    color: .orange
+                            // Evaluate Score
+                            ScoreDetailCard(
+                                title: "Evaluate",
+                                score: "\(Int(userProfile.evaluateScore))",
+                                max: "17",
+                                color: .orange
+                            )
+                        }
+                        .padding(.horizontal)
+                        
+                        // --- ส่วนแสดงผลจาก Scan (Arch Type) ---
+                        if let archType = result.arch_type {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("ลักษณะรูปเท้า (จากการสแกน)")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                
+                                InfoCard(
+                                    icon: "figure.walk",
+                                    title: "ประเภทโค้งเท้า",
+                                    value: archTypeText(archType),
+                                    color: .purple
                                 )
                             }
-                            
-                            // Recommendations
-                            if !indicators.recommendations.isEmpty {
-                                RecommendationCard(
-                                    icon: "lightbulb.fill",
-                                    title: "คำแนะนำ",
-                                    items: indicators.recommendations,
-                                    color: .blue
-                                )
-                            }
                         }
-                        
-                        // 3. (ลบส่วน Exercise และ Shoe Recommendations ออกตามที่ขอ)
                         
                         Spacer(minLength: 20)
                         
-                        // 4. ปุ่มไปหน้า HomeView
-                        Button(action: {
-                            navigateToHome = true
-                        }) {
+                        // ปุ่มกลับหน้าหลัก
+                        Button(action: { navigateToHome = true }) {
                             Text("เข้าสู่หน้าหลัก")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color(red: 94/255, green: 84/255, blue: 68/255)) // สีธีม
+                                .background(Color(red: 94/255, green: 84/255, blue: 68/255))
                                 .cornerRadius(15)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 40)
                     }
-                    .padding()
                 }
             }
         }
-        .navigationBarBackButtonHidden(true) // ซ่อนปุ่ม Back เดิม
+        .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $navigateToHome) {
-            HomeView() // ไปหน้า HomeView
+            HomeView()
         }
         .task {
             await loadScanResult()
@@ -175,31 +126,22 @@ struct PFResultView: View {
     }
     
     func loadScanResult() async {
-        // ... (Code เดิม) ...
         do {
             let response: [FootScanResult] = try await UserProfile.supabase
                 .from("foot_scans")
-                .select("""
-                        *,
-                        pf_indicators (*),
-                        exercise_recommendations (*),
-                        shoe_recommendations (*)
-                    """)
+                .select("*") // เลือกทั้งหมดมาก่อน
                 .eq("id", value: scanId)
                 .execute()
                 .value
             
             if let result = response.first {
                 scanResult = result
-            } else {
-                errorMessage = "Scan not found"
             }
-            
+            isLoading = false
         } catch {
-            errorMessage = "Failed to load results: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
+            isLoading = false
         }
-        
-        isLoading = false
     }
     
     // ... (Helper Functions: severityColor, severityText, archTypeText คงเดิม) ...
@@ -227,6 +169,15 @@ struct PFResultView: View {
         case "high": return "โค้งเท้าสูง"
         case "normal": return "โค้งเท้าปกติ"
         default: return type
+        }
+    }
+    // Helper Colors
+    func riskColor(_ severity: String) -> Color {
+        switch severity {
+        case "Low Risk": return .green
+        case "Medium Risk": return .orange
+        case "High Risk": return .red
+        default: return .gray
         }
     }
 }
@@ -262,6 +213,36 @@ struct Foot3DView: UIViewRepresentable {
     }
 }
 
+// การ์ดแสดงคะแนนย่อย
+struct ScoreDetailCard: View {
+    let title: String
+    let score: String
+    let max: String
+    let color: Color
+    
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            HStack(alignment: .lastTextBaseline, spacing: 2) {
+                Text(score)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(color)
+                Text("/\(max)")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 5)
+    }
+}
 // ... (Supporting Views: InfoCard, RecommendationCard คงเดิม) ...
 // (ExerciseCard และ ShoeRecommendationCard ลบออกได้ถ้าไม่ได้ใช้ที่อื่น หรือปล่อยไว้ก็ได้แต่ไม่ได้เรียกใช้)
 
@@ -378,3 +359,4 @@ struct ShoeRecommendation: Codable {
     let image_url: String?
     let price: Double?
 }
+
