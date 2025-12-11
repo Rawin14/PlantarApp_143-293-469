@@ -47,6 +47,9 @@
 		39A608662EA3A1C20070B69C /* AgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608652EA3A1C20070B69C /* AgeView.swift */; };
 		39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608692EAA1EE60070B69C /* ScanView.swift */; };
 		39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39F4D0F02EAA3918009FEBDD /* ModelIO.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */; };
+		39F7F9AB2EEAA34A00FDB353 /* DiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */; };
+		39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,6 +90,9 @@
 		39A608692EAA1EE60070B69C /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
 		39A6086D2EAA28530070B69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		39F4D0F02EAA3918009FEBDD /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
+		39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarychartView.swift; sourceTree = "<group>"; };
+		39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
+		39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +147,9 @@
 				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
 				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
+				39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */,
+				39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */,
+				39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */,
 				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
 				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
 				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
@@ -318,6 +327,8 @@
 				3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */,
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
+				39F7F9AB2EEAA34A00FDB353 /* DiaryModels.swift in Sources */,
+				39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */,
 				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
 				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
@@ -333,6 +344,7 @@
 				397624492EAA3DF8007C7D99 /* CameraCaptureView.swift in Sources */,
 				392797472EB366C3002C3E26 /* HomeView.swift in Sources */,
 				39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */,
+				39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */,
 				392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */,
 				399A9CD22EE1844200A54BED /* EntryView.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,

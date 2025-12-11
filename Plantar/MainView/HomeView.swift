@@ -202,7 +202,7 @@ struct HomeView: View {
                                 .foregroundColor(.white.opacity(0.9))
                         }
                         Spacer()
-                        Image(systemName: "heart.fill")
+                        Image("PlantarMan")
                             .font(.system(size: 60))
                             .foregroundColor(.white.opacity(0.8))
                     }
