@@ -24,7 +24,7 @@ struct PlantarApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack{
-                ContentView()
+                DiaryTodayView()
             }
             .environmentObject(userProfile)
         }

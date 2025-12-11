@@ -14,6 +14,8 @@
 		0439CC852EE9754E00935095 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 0439CC842EE9754E00935095 /* Storage */; };
 		045943A52EE97CCF00152150 /* DiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A42EE97CCF00152150 /* DiaryModels.swift */; };
 		045943A72EE97CF200152150 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A62EE97CF200152150 /* SupabaseManager.swift */; };
+		045943A92EE97F0F00152150 /* DiaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A82EE97F0F00152150 /* DiaryService.swift */; };
+		045943AB2EE9814500152150 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 045943AA2EE9814500152150 /* Supabase */; };
 		048B80A62ECCE47000D6B2D1 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */; };
 		3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973A2EB356A8002C3E26 /* HighRisk.swift */; };
 		3927973D2EB3575A002C3E26 /* LowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973C2EB3575A002C3E26 /* LowRisk.swift */; };
@@ -57,6 +59,7 @@
 /* Begin PBXFileReference section */
 		045943A42EE97CCF00152150 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
 		045943A62EE97CF200152150 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		045943A82EE97F0F00152150 /* DiaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryService.swift; sourceTree = "<group>"; };
 		048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarychartView.swift; sourceTree = "<group>"; };
 		3927973A2EB356A8002C3E26 /* HighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRisk.swift; sourceTree = "<group>"; };
 		3927973C2EB3575A002C3E26 /* LowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowRisk.swift; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				045943AB2EE9814500152150 /* Supabase in Frameworks */,
 				0439CC832EE9754E00935095 /* Realtime in Frameworks */,
 				397624522EAEB916007C7D99 /* Zip in Frameworks */,
 				394689682EB8AFBF005BC4E7 /* FirebaseAuth in Frameworks */,
@@ -143,6 +147,7 @@
 				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
 				045943A42EE97CCF00152150 /* DiaryModels.swift */,
 				045943A62EE97CF200152150 /* SupabaseManager.swift */,
+				045943A82EE97F0F00152150 /* DiaryService.swift */,
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
 				048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */,
 				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
@@ -258,6 +263,7 @@
 				0439CC802EE9754E00935095 /* PostgREST */,
 				0439CC822EE9754E00935095 /* Realtime */,
 				0439CC842EE9754E00935095 /* Storage */,
+				045943AA2EE9814500152150 /* Supabase */,
 			);
 			productName = Plantar;
 			productReference = 39A608582EA1E5AF0070B69C /* Plantar.app */;
@@ -334,6 +340,7 @@
 				3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */,
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
 				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
+				045943A92EE97F0F00152150 /* DiaryService.swift in Sources */,
 				3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */,
 				3927973F2EB35789002C3E26 /* MediumRisk.swift in Sources */,
 				392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */,
@@ -485,7 +492,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
-				DEVELOPMENT_TEAM = N4GP5HK5R4;
+				DEVELOPMENT_TEAM = 4UN27HCPG2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
@@ -500,7 +507,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.Plantar;
+				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -516,7 +523,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
-				DEVELOPMENT_TEAM = N4GP5HK5R4;
+				DEVELOPMENT_TEAM = 4UN27HCPG2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
@@ -531,7 +538,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.Plantar;
+				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -614,6 +621,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Storage;
+		};
+		045943AA2EE9814500152150 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0439CC7B2EE9754E00935095 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 		394689652EB8AF82005BC4E7 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
