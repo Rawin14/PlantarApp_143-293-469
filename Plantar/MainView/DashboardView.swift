@@ -55,11 +55,11 @@ struct DashboardView: View {
             VStack(spacing: 0) {
                 // MARK: - Top Navigation Bar
                 HStack {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(backgroundColor) // น้ำตาล
-                    }
+//                    Button(action: { dismiss() }) {
+//                        Image(systemName: "chevron.left")
+//                            .font(.title3)
+//                            .foregroundColor(backgroundColor) // น้ำตาล
+//                    }
                     Spacer()
                     Text("Dashboard")
                         .font(.headline)

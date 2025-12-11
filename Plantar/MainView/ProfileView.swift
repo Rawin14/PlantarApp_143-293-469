@@ -85,23 +85,23 @@ struct ProfileView: View {
             VStack(spacing: 0) {
                 // MARK: - Top Navigation Bar
                 HStack {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(buttonColor)
-                    }
+//                    Button(action: { dismiss() }) {
+//                        Image(systemName: "chevron.left")
+//                            .font(.title3)
+//                            .foregroundColor(buttonColor)
+//                    }
                     Spacer()
                     Text("โปรไฟล์")
                         .font(.headline)
                         .foregroundColor(buttonColor)
                     Spacer()
-                    Button(action: {
-                        // Edit profile
-                    }) {
-                        Image(systemName: "pencil")
-                            .font(.title3)
-                            .foregroundColor(buttonColor)
-                    }
+//                    Button(action: {
+//                        // Edit profile
+//                    }) {
+//                        Image(systemName: "pencil")
+//                            .font(.title3)
+//                            .foregroundColor(buttonColor)
+//                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -488,5 +488,7 @@ struct InfoRowCard: View {
 #Preview {
     NavigationView {
         ProfileView()
+            .environmentObject(UserProfile())
+            .environmentObject(AuthManager())
     }
 }

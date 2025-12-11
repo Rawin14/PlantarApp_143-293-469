@@ -116,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				391889D92ECCF10B0045549E /* Config.swift */,
+				39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -147,7 +148,6 @@
 				392797542EB4E5FC002C3E26 /* DashboardView.swift */,
 				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
-				39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */,
 				39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */,
 				39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */,
 				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
@@ -218,14 +218,14 @@
 				394689622EB8ADC8005BC4E7 /* User */,
 				3927975E2EB88F37002C3E26 /* MainView */,
 				3927975D2EB7C46A002C3E26 /* StartView */,
+				39A608562E961AD90070B69C /* policy */,
 				3976244C2EAA45A8007C7D99 /* CameraFunc */,
+				39A608542E961A7F0070B69C /* Auth */,
 				39A6086D2EAA28530070B69C /* Info.plist */,
 				394B814D2E96150E004CB2AB /* Preview Content */,
 				394B814E2E96150E004CB2AB /* Assets.xcassets */,
 				394B814F2E96150E004CB2AB /* ContentView.swift */,
 				394B81512E96150E004CB2AB /* PlantarApp.swift */,
-				39A608542E961A7F0070B69C /* Auth */,
-				39A608562E961AD90070B69C /* policy */,
 			);
 			path = Plantar;
 			sourceTree = "<group>";

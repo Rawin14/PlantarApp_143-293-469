@@ -282,21 +282,21 @@ struct DiaryTodayView: View {
             VStack(spacing: 0) {
                 // MARK: - Top Navigation Bar
                 HStack {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                    }
+//                    Button(action: { dismiss() }) {
+//                        Image(systemName: "chevron.left")
+//                            .font(.title3)
+//                            .foregroundColor(.white)
+//                    }
                     Spacer()
                     Text("Pain Diary")
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Button(action: {}) {
-                        Image(systemName: "gear")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                    }
+//                    Button(action: {}) {
+//                        Image(systemName: "gear")
+//                            .font(.title3)
+//                            .foregroundColor(.white)
+//                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
