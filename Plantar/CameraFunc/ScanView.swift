@@ -1,14 +1,14 @@
 //
-// ScanView.swift
-// Plantar
+//  ScanView.swift
+//  Plantar
 //
-// Created by Jeerapan Chirachanchai on 23/10/2568 BE.
+//  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
 //
-
 
 import SwiftUI
-import Storage
+import Storage // ตรวจสอบว่า module นี้มีอยู่จริง หรือถ้าไม่มีให้ลบออก
 
+// State ของหน้าจอ
 enum ScanState {
     case idle
     case uploading
@@ -21,7 +21,7 @@ struct ScanView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var userProfile: UserProfile
     
-    @State private var currentPageIndex = 4
+    // Navigation & State
     @State private var navigateToCamera = false
     @State private var navigateToResult = false
     @State private var scanId: String?
@@ -29,9 +29,8 @@ struct ScanView: View {
     @State private var uploadProgress: Double = 0.0
     @State private var errorMessage: String?
     
+    // UI Colors
     let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255)
-    let selectedDotColor = Color(red: 188/255, green: 204/255, blue: 112/255)
-    let unselectedDotColor = Color(red: 220/255, green: 220/255, blue: 220/255)
     
     var body: some View {
         ZStack {
@@ -39,33 +38,38 @@ struct ScanView: View {
             
             VStack(alignment: .leading, spacing: 16) {
                 
-                // MARK: - สถานะต่างๆ
-                
+                // MARK: - ส่วนแสดงผลตามสถานะ (State Handling)
                 switch scanState {
                     
-                // MARK: - Uploading
+                    // ---------------------------------------------------------
+                    // 1. กำลังอัปโหลด
+                    // ---------------------------------------------------------
                 case .uploading:
                     VStack(spacing: 20) {
+                        Spacer()
                         Text("Uploading...")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                         
-                        Text("กำลังอัปโหลดรูปภาพ")
+                        Text("กำลังอัปโหลดรูปภาพรอยเท้า")
                             .font(.callout)
                             .foregroundColor(.secondary)
                         
                         ProgressView(value: uploadProgress)
-                            .padding(.vertical)
+                            .padding(.horizontal, 40)
                         
                         Text("\(Int(uploadProgress * 100))%")
                             .font(.title)
-                        
+                            .foregroundColor(.blue)
                         Spacer()
                     }
                     
-                // MARK: - Processing
+                    // ---------------------------------------------------------
+                    // 2. กำลังประมวลผล (AI Analyzing)
+                    // ---------------------------------------------------------
                 case .processing:
                     VStack(spacing: 20) {
+                        Spacer()
                         ProgressView()
                             .scaleEffect(2)
                             .padding()
@@ -74,17 +78,19 @@ struct ScanView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                         
-                        Text("กำลังวิเคราะห์รูปเท้า\nโปรดรอ 30-60 วินาที")
+                        Text("ระบบกำลังวิเคราะห์รอยเท้าเปียก\nคำนวณค่า Arch Index...")
                             .font(.callout)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
-                        
                         Spacer()
                     }
                     
-                // MARK: - Completed
+                    // ---------------------------------------------------------
+                    // 3. เสร็จสิ้น
+                    // ---------------------------------------------------------
                 case .completed:
                     VStack(spacing: 20) {
+                        Spacer()
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 100))
                             .foregroundColor(.green)
@@ -95,35 +101,40 @@ struct ScanView: View {
                         
                         Text("การวิเคราะห์เสร็จสมบูรณ์")
                             .font(.headline)
+                            .foregroundColor(.secondary)
                         
                         Spacer()
                         
                         Button(action: {
                             navigateToResult = true
                         }) {
-                            Text("View Results")
+                            Text("ดูผลลัพธ์")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(.black)
-                                .clipShape(Capsule())
+                                .background(Color(red: 94/255, green: 84/255, blue: 68/255))
+                                .cornerRadius(15)
                         }
+                        .padding(.horizontal)
                         
                         Button(action: {
-                            scanState = .idle
-                            scanId = nil
+                            resetState()
                         }) {
-                            Text("Scan Again")
+                            Text("สแกนใหม่")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
+                        .padding(.bottom)
                     }
                     
-                // MARK: - Failed
+                    // ---------------------------------------------------------
+                    // 4. เกิดข้อผิดพลาด
+                    // ---------------------------------------------------------
                 case .failed:
                     VStack(spacing: 20) {
+                        Spacer()
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 100))
                             .foregroundColor(.red)
@@ -134,116 +145,140 @@ struct ScanView: View {
                         
                         if let error = errorMessage {
                             Text(error)
-                                .font(.callout)
+                                .font(.body)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
+                                .padding(.horizontal)
                         }
                         
                         Spacer()
                         
                         Button(action: {
-                            scanState = .idle
-                            errorMessage = nil
+                            resetState()
                         }) {
-                            Text("Try Again")
+                            Text("ลองใหม่อีกครั้ง")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(.black)
-                                .clipShape(Capsule())
+                                .background(Color.black)
+                                .cornerRadius(15)
                         }
+                        .padding(.horizontal)
+                        .padding(.bottom)
                     }
                     
-                // MARK: - Idle (เริ่มต้น)
-                default:
-                    // Back Button
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "arrow.left")
-                            .font(.title2.weight(.medium))
-                            .foregroundColor(.black)
-                            .padding(8)
-                            .background(.white.opacity(0.5))
-                            .clipShape(Circle())
-                    }
-                    .padding(.bottom, 16)
-                    
-                    // Title
-                    Text("Scan your feet")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                    
-                    Text("ถ่ายรูปเท้าของคุณเพื่อประเมินอาการรองช้ำ")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                        .padding(.bottom, 24)
-                    
-                    // Camera Icon
-                    HStack {
-                        Spacer()
-                        Image(systemName: "camera.fill.badge.ellipsis")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 200)
-                            .foregroundColor(.black.opacity(0.8))
-                        Spacer()
-                    }
-                    
-                    Spacer()
-                    
-                    // Start Capture Button
-                    Button(action: {
-                        navigateToCamera = true
-                    }) {
-                        Text("Start Capture")
+                    // ---------------------------------------------------------
+                    // 5. หน้าเริ่มต้น (คำแนะนำ Wet Test)
+                    // ---------------------------------------------------------
+                default: // .idle
+                    VStack {
+                        // Header: ปุ่มย้อนกลับ
+                        HStack {
+                            Button(action: { dismiss() }) {
+                                Image(systemName: "arrow.left")
+                                    .font(.title2.weight(.medium))
+                                    .foregroundColor(.black)
+                                    .padding(8)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 2)
+                            }
+                            Spacer()
+                        }
+                        .padding(.top, 10)
+                        .padding(.bottom, 10)
+                        
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 20) {
+                                Text("Wet Footprint Test")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
+                                
+                                Text("วิธีการทดสอบรอยเท้าเปียกเพื่อวิเคราะห์ลักษณะอุ้งเท้า")
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                                
+                                // กรอบคำแนะนำ
+                                VStack(alignment: .leading, spacing: 16) {
+                                    InstructionRow(icon: "drop.fill", text: "1. นำฝ่าเท้าไปชุบน้ำให้เปียกพอหมาดๆ")
+                                    Divider()
+                                    InstructionRow(icon: "doc.fill", text: "2. เหยียบลงบนกระดาษขาว หรือถุงกระดาษสีน้ำตาล ให้เกิดรอยชัดเจน")
+                                    Divider()
+                                    InstructionRow(icon: "camera.viewfinder", text: "3. ยกเท้าออก แล้วกดปุ่มถ่ายภาพรอยเท้าที่ปรากฏ")
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(16)
+                                .shadow(color: .black.opacity(0.05), radius: 5)
+                                
+                                // ตัวอย่างภาพ (Guide)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 2, dash: [5]))
+                                        .frame(height: 200)
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.white.opacity(0.5))
+                                    
+                                    VStack {
+                                        Image(systemName: "shoe.fill") // หรือใช้รูปเท้าจริงถ้ามี
+                                            .font(.system(size: 60))
+                                            .foregroundColor(.gray.opacity(0.5))
+                                        Text("ตัวอย่าง: รอยเท้าบนกระดาษ")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // ปุ่มเริ่มถ่ายภาพ
+                        Button(action: {
+                            navigateToCamera = true
+                        }) {
+                            HStack {
+                                Image(systemName: "camera.fill")
+                                Text("เริ่มถ่ายภาพ")
+                            }
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(.black)
+                            .background(Color(red: 94/255, green: 84/255, blue: 68/255))
                             .clipShape(Capsule())
-                    }
-                    
-                    // Page Indicator
-                    HStack(spacing: 8) {
-                        ForEach(0..<6, id: \.self) { index in
-                            Circle()
-                                .fill(index == currentPageIndex ? selectedDotColor : unselectedDotColor)
-                                .frame(width: 10, height: 10)
+                            .shadow(radius: 3)
                         }
+                        .padding(.top, 10)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 8)
+                    .padding(.horizontal, 24)
                 }
             }
-            .padding(.horizontal, 24)
         }
         .navigationBarBackButtonHidden(true)
+        // ไปหน้ากล้อง
         .navigationDestination(isPresented: $navigateToCamera) {
             CameraCaptureView(
                 onComplete: { images in
-                    // เมื่อถ่ายรูปเสร็จ
+                    // เมื่อถ่ายรูปเสร็จ ให้เริ่มกระบวนการ upload & process
                     Task {
                         await uploadAndProcess(images: images)
                     }
                 }
             )
         }
+        // ไปหน้าผลลัพธ์
         .navigationDestination(isPresented: $navigateToResult) {
             if let scanId = scanId {
                 PFResultView(scanId: scanId)
             }
         }
-        .alert("Error", isPresented: .constant(errorMessage != nil)) {
-            Button("OK") {
-                errorMessage = nil
-                scanState = .idle
+        // Alert Error
+        .alert("การประมวลผลล้มเหลว", isPresented: .constant(errorMessage != nil)) {
+            Button("ตกลง") {
+                resetState()
             }
         } message: {
             if let error = errorMessage {
@@ -252,44 +287,51 @@ struct ScanView: View {
         }
     }
     
-    // MARK: - Upload and Process
+    // MARK: - Logic Functions
     
+    func resetState() {
+        errorMessage = nil
+        scanState = .idle
+        scanId = nil
+        uploadProgress = 0.0
+    }
+    
+    // ฟังก์ชันหลักในการจัดการ Upload -> Record -> ML -> Result
     func uploadAndProcess(images: [UIImage]) async {
         scanState = .uploading
         uploadProgress = 0.0
         
         do {
-            // 1. Upload images to Supabase Storage
+            // 1. อัปโหลดรูป (รอยเท้า) ไป Supabase Storage
             let imageUrls = try await uploadImagesToSupabase(images: images)
             
             uploadProgress = 0.5
             
-            // 2. Create scan record
+            // 2. สร้าง Record ในตาราง foot_scans
             let scanId = try await createScanRecord(imageUrls: imageUrls)
             self.scanId = scanId
             
             uploadProgress = 1.0
             
-            // 3. Trigger ML processing
+            // 3. ยิง Request ไป ML Service ให้วิเคราะห์
             scanState = .processing
             
             try await triggerMLProcessing(scanId: scanId, imageUrls: imageUrls)
             
-            // 4. Wait for results
+            // 4. รอผลลัพธ์ (Polling)
             try await waitForResults(scanId: scanId)
             
-            // 5. Success
+            // 5. สำเร็จ
             scanState = .completed
             
         } catch {
-            errorMessage = "Processing failed: \(error.localizedDescription)"
+            errorMessage = "\(error.localizedDescription)"
             scanState = .failed
             print("❌ Error: \(error)")
         }
     }
     
-    // MARK: - Upload Images
-    
+    // อัปโหลดรูปภาพ
     func uploadImagesToSupabase(images: [UIImage]) async throws -> [String] {
         let session = try await UserProfile.supabase.auth.session
         let userId = session.user.id.uuidString
@@ -298,11 +340,12 @@ struct ScanView: View {
         var imageUrls: [String] = []
         
         for (index, image) in images.enumerated() {
-            guard let data = image.jpegData(compressionQuality: 0.8) else { continue }
+            // ลดขนาดรูปเพื่อความรวดเร็ว
+            guard let data = image.jpegData(compressionQuality: 0.6) else { continue }
             
             let fileName = "\(userId)/\(timestamp)/\(index).jpg"
             
-            // Upload to Supabase Storage
+            // Upload
             try await UserProfile.supabase.storage
                 .from("foot-scan")
                 .upload(
@@ -311,14 +354,14 @@ struct ScanView: View {
                     options: FileOptions(contentType: "image/jpeg")
                 )
             
-            // Get public URL
+            // Get Public URL
             let url = try UserProfile.supabase.storage
                 .from("foot-scan")
                 .getPublicURL(path: fileName)
             
             imageUrls.append(url.absoluteString)
             
-            // Update progress
+            // Update Progress
             uploadProgress = 0.5 * Double(index + 1) / Double(images.count)
         }
         
@@ -326,41 +369,47 @@ struct ScanView: View {
         return imageUrls
     }
     
-    // MARK: - Create Scan Record
-    
+    // สร้าง Record ใน Database
     func createScanRecord(imageUrls: [String]) async throws -> String {
+        // Struct สำหรับ Insert
         struct ScanInsert: Encodable {
-            let id: String
-            let user_id: String
+            let user_id: String // Supabase จะ Gen ID ให้เอง หรือถ้าจะ Gen เองก็ใส่ id ไปด้วย
             let foot_side: String
             let images_url: [String]
             let status: String
         }
         
         let session = try await UserProfile.supabase.auth.session
-        let scanId = UUID().uuidString
         
         let scanData = ScanInsert(
-            id: scanId,
             user_id: session.user.id.uuidString,
-            foot_side: "left", // หรือให้เลือกได้
+            foot_side: "right", // ค่า Default หรือให้ user เลือกก่อนหน้านี้
             images_url: imageUrls,
             status: "processing"
         )
         
-        try await UserProfile.supabase
+        // Insert และ Return ข้อมูลที่เพิ่งสร้าง (เพื่อเอา ID)
+        let response: [FootScanResult] = try await UserProfile.supabase
             .from("foot_scans")
             .insert(scanData)
+            .select() // สำคัญ: ต้อง Select เพื่อให้ได้ ID กลับมา
             .execute()
+            .value
         
-        print("✅ Scan record created: \(scanId)")
-        return scanId
+        guard let createdScan = response.first else {
+            throw NSError(domain: "Database", code: -1, userInfo: [NSLocalizedDescriptionKey: "ไม่ได้รับ Scan ID กลับมา"])
+        }
+        
+        print("✅ Scan record created: \(createdScan.id)")
+        return createdScan.id
     }
     
-    // MARK: - Trigger ML Processing
-    
+    // เรียก ML Service
     func triggerMLProcessing(scanId: String, imageUrls: [String]) async throws {
-        let url = URL(string: "\(AppConfig.mlServiceURL)/process")!
+        // ตรวจสอบ URL Config ให้ถูกต้อง
+        guard let url = URL(string: "\(AppConfig.mlServiceURL)/process") else {
+            throw URLError(.badURL)
+        }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -369,10 +418,11 @@ struct ScanView: View {
         let body: [String: Any] = [
             "scan_id": scanId,
             "image_urls": imageUrls,
-            "questionnaire_score": userProfile.evaluateScore 
+            "questionnaire_score": userProfile.evaluateScore // ส่งคะแนน Evaluate ไปด้วย
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
         let (_, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse,
@@ -383,54 +433,74 @@ struct ScanView: View {
         print("✅ ML processing triggered")
     }
     
-    // MARK: - Wait for Results
-    
+    // รอผลลัพธ์ (Polling)
     func waitForResults(scanId: String) async throws {
-        let maxAttempts = 60 // 5 นาที (5 วินาที/ครั้ง)
+        let maxAttempts = 30 // รอสูงสุด 60 วินาที (2 วิ * 30 ครั้ง)
         
         for attempt in 0..<maxAttempts {
-            try await Task.sleep(nanoseconds: 5_000_000_000) // 5 วินาที
+            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 วินาที
             
-            print("⏳ Checking scan status... (\(attempt + 1)/\(maxAttempts))")
+            print("⏳ Checking status... (\(attempt + 1)/\(maxAttempts))")
             
-            // Query scan status
+            // ดึงสถานะล่าสุด
             struct ScanStatus: Codable {
                 let status: String
-                let pf_severity: String?
-                let error_message: String?
+                let error_message: String? // ชื่อแบบที่ 1
+                let error: String?         // ชื่อแบบที่ 2 (เผื่อไว้)
+                
+                // Helper เพื่อดึง Error ไม่ว่าจะชื่ออะไร
+                var combinedError: String? {
+                    return error_message ?? error
+                }
             }
             
             let response: [ScanStatus] = try await UserProfile.supabase
                 .from("foot_scans")
-                .select("status, pf_severity, error_message")
+                .select("*")
                 .eq("id", value: scanId)
                 .execute()
                 .value
             
-            guard let scan = response.first else {
-                throw NSError(domain: "Scan", code: 404, userInfo: [NSLocalizedDescriptionKey: "Scan not found"])
-            }
+            guard let scan = response.first else { continue }
             
             if scan.status == "completed" {
                 print("✅ Processing completed!")
                 return
             } else if scan.status == "failed" {
                 throw NSError(domain: "Scan", code: -1, userInfo: [
-                    NSLocalizedDescriptionKey: scan.error_message ?? "Processing failed"
+                    NSLocalizedDescriptionKey: scan.error_message ?? "การวิเคราะห์ล้มเหลวโดยไม่ทราบสาเหตุ"
                 ])
             }
-            
-            // Still processing...
         }
         
-        throw NSError(domain: "Scan", code: -2, userInfo: [NSLocalizedDescriptionKey: "Processing timeout"])
+        throw NSError(domain: "Scan", code: -2, userInfo: [NSLocalizedDescriptionKey: "หมดเวลาการเชื่อมต่อ (Timeout)"])
     }
 }
 
+// Helper Component สำหรับแถวคำแนะนำ
+struct InstructionRow: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 15) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(Color(red: 172/255, green: 187/255, blue: 98/255)) // สีเขียว Accent
+                .frame(width: 30)
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.black)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Spacer()
+        }
+    }
+}
+
+// Preview
 #Preview {
-    NavigationStack {
-        ScanView()
-            .environmentObject(UserProfile.preview)
-    }
+    ScanView()
+        .environmentObject(UserProfile())
 }
-

@@ -83,7 +83,7 @@ struct PFResultView: View {
                         
                         // --- ส่วนแสดงผลจาก Scan (Arch Type) ---
                         if let archType = result.arch_type {
-                            VStack(alignment: .leading, spacing: 5) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("ลักษณะรูปเท้า (จากการสแกน)")
                                     .font(.headline)
                                     .padding(.horizontal)
@@ -337,6 +337,8 @@ struct PFIndicator: Codable {
     let flexibility_score: Double
     let risk_factors: [String]
     let recommendations: [String]
+    let scan_part_score: Double?
+    let questionnaire_part_score: Double?
 }
 
 struct Exercise: Codable {
