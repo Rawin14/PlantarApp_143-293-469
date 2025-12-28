@@ -40,7 +40,7 @@ struct Profile: View {
                 // MARK: - Main Card
                 VStack(spacing: 0) {
                     // Title
-                    Text("Please fill in the true\ninformation")
+                    Text("โปรดระบุข้อมูล")
                         .font(.system(size: 26, weight: .bold))
                         .foregroundColor(.black)
                         .multilineTextAlignment(.center)
@@ -51,7 +51,7 @@ struct Profile: View {
                     HStack(spacing: 20) {
                         // Female Option
                         VStack(spacing: 12) {
-                            Text("Girl")
+                            Text("ผู้หญิง")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(selectedGender == .female ? femaleColor : Color.gray)
                             
@@ -84,7 +84,7 @@ struct Profile: View {
                         
                         // Male Option
                         VStack(spacing: 12) {
-                            Text("Boy")
+                            Text("ผู้ชาย")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(selectedGender == .male ? maleColor : Color.gray)
                             
@@ -119,7 +119,7 @@ struct Profile: View {
                     
                     // Nickname Field
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Nickname")
+                        Text("ชื่อ - นามสกุล")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
@@ -136,7 +136,7 @@ struct Profile: View {
                     
                     // Birthday Field
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Birthday")
+                        Text("วัน/เดือน/ปีเกิด")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
@@ -150,7 +150,7 @@ struct Profile: View {
                                     .fill(Color.gray.opacity(0.1))
                             )
                         
-                        Text("* Real age can quickly match accurate objects")
+                        Text("* โปรดระบุอายุจริงเพื่อให้ระบบคำนวนได้อย่างถูกต้อง")
                             .font(.caption)
                             .foregroundColor(.gray.opacity(0.7))
                     }
@@ -180,7 +180,7 @@ struct Profile: View {
                         }
                     }
                 }) {
-                    Text("Next")
+                    Text("ถัดไป")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

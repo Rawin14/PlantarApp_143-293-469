@@ -19,6 +19,19 @@ struct PFResultView: View {
     // เพิ่ม State สำหรับไปหน้า Home
     @State private var navigateToHome = false
     
+    // 🔥🔥🔥 เพิ่ม init นี้เข้าไปครับ 🔥🔥🔥
+        init(scanId: String, mockResult: FootScanResult? = nil) {
+            self.scanId = scanId
+            
+            // เช็คว่าถ้าเป็นการ Preview (มี mockResult ส่งมา)
+            if let result = mockResult {
+                // กำหนดค่าเริ่มต้นให้ State โดยตรง
+                _scanResult = State(initialValue: result)
+                _isLoading = State(initialValue: false)
+            }
+        }
+        // 🔥🔥🔥 จบส่วนที่เพิ่ม 🔥🔥🔥
+    
     var body: some View {
         ZStack {
             Color(red: 247/255, green: 246/255, blue: 236/255).ignoresSafeArea()
@@ -83,7 +96,7 @@ struct PFResultView: View {
                         
                         // --- ส่วนแสดงผลจาก Scan (Arch Type) ---
                         if let archType = result.arch_type {
-                            VStack(alignment: .leading, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 5) {
                                 Text("ลักษณะรูปเท้า (จากการสแกน)")
                                     .font(.headline)
                                     .padding(.horizontal)
@@ -94,10 +107,11 @@ struct PFResultView: View {
                                     value: archTypeText(archType),
                                     color: .purple
                                 )
+                                .padding(.horizontal)
                             }
                         }
                         
-                        Spacer(minLength: 20)
+                        Spacer(minLength: 10)
                         
                         // ปุ่มกลับหน้าหลัก
                         Button(action: { navigateToHome = true }) {
@@ -253,26 +267,36 @@ struct InfoCard: View {
     let color: Color
     
     var body: some View {
-        HStack {
+        HStack(spacing: 15) {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundColor(color)
+                .frame(width: 40, height: 40)
+                .background(Color.white) // ไอคอนพื้นขาว
+                .clipShape(Circle())
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(color.opacity(0.8)) // สีตัวอักษรตาม Theme
                 
                 Text(value)
                     .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(color)
             }
             
             Spacer()
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(color: .black.opacity(0.05), radius: 5)
+        // 3. ใช้พื้นหลังเป็นสี Theme แบบจางๆ ทั้งการ์ด
+        .background(color.opacity(0.1))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(color.opacity(0.2), lineWidth: 1) // เพิ่มขอบบางๆ
+        )
     }
 }
 
@@ -362,3 +386,44 @@ struct ShoeRecommendation: Codable {
     let price: Double?
 }
 
+#Preview {
+    // 1. สร้าง Mock Data
+    let mockIndicator = PFIndicator(
+        id: "ind_001",
+        arch_collapse_score: 80.0,
+        heel_pain_index: 50.0,
+        pressure_distribution_score: 45.0,
+        foot_alignment_score: 15.0,
+        flexibility_score: 60.0,
+        risk_factors: ["น้ำหนักตัวเกินเกณฑ์", "เท้าแบน (Flat Arch)"],
+        recommendations: ["ควรสวมรองเท้าที่มี Arch Support", "ลดน้ำหนัก"],
+        scan_part_score: 0.28,
+        questionnaire_part_score: 14.0
+    )
+    
+    let mockResult = FootScanResult(
+        id: "preview_id",
+        user_id: "user_preview",
+        foot_side: "left",
+        images_url: [],
+        model_3d_url: nil,
+        pf_severity: "high",
+        pf_score: 85.5,
+        arch_type: "flat",
+        status: "completed",
+        error_message: nil,
+        pf_indicators: [mockIndicator],
+        exercise_recommendations: [],
+        shoe_recommendations: []
+    )
+    
+    // 2. สร้าง UserProfile
+    let mockProfile = UserProfile()
+    // (กำหนดค่าเพิ่มถ้าจำเป็น)
+    
+    // 3. แสดงผล (❌ ลบคำว่า return ออก)
+    NavigationStack {
+        PFResultView(scanId: "test_id", mockResult: mockResult)
+            .environmentObject(mockProfile)
+    }
+}

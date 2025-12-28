@@ -69,7 +69,7 @@ struct AgeView: View {
                 .padding(.top, 10)
                 
                 // MARK: - Title (Centered)
-                Text("What's your Age?")
+                Text("โปรดระบุอายุ ?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -161,7 +161,7 @@ struct AgeView: View {
                     }
                     navigateToHeight = true
                 }) {
-                    Text("Next")
+                    Text("ถัดไป")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)

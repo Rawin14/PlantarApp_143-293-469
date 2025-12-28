@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-import Storage // ตรวจสอบว่า module นี้มีอยู่จริง หรือถ้าไม่มีให้ลบออก
+import Storage
+import PhotosUI // ✅ 1. เพิ่ม import PhotosUI
 
 // State ของหน้าจอ
 enum ScanState {
@@ -28,6 +29,9 @@ struct ScanView: View {
     @State private var scanState: ScanState = .idle
     @State private var uploadProgress: Double = 0.0
     @State private var errorMessage: String?
+    
+    // ✅ 2. เพิ่ม State สำหรับเก็บรูปที่เลือกจากอัลบั้ม
+    @State private var selectedItem: PhotosPickerItem? = nil
     
     // UI Colors
     let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255)
@@ -223,7 +227,7 @@ struct ScanView: View {
                                         .background(Color.white.opacity(0.5))
                                     
                                     VStack {
-                                        Image(systemName: "shoe.fill") // หรือใช้รูปเท้าจริงถ้ามี
+                                        Image(systemName: "shoe.fill")
                                             .font(.system(size: 60))
                                             .foregroundColor(.gray.opacity(0.5))
                                         Text("ตัวอย่าง: รอยเท้าบนกระดาษ")
@@ -252,6 +256,26 @@ struct ScanView: View {
                             .shadow(radius: 3)
                         }
                         .padding(.top, 10)
+                        
+                        // ✅ 3. ปุ่มเลือกรูปจากอัลบั้ม
+                        PhotosPicker(selection: $selectedItem, matching: .images) {
+                            HStack {
+                                Image(systemName: "photo.on.rectangle")
+                                Text("เลือกจากอัลบั้ม")
+                            }
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.white)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule().stroke(Color(red: 94/255, green: 84/255, blue: 68/255), lineWidth: 2)
+                            )
+                            .shadow(radius: 3)
+                        }
+                        .padding(.bottom, 20)
                     }
                     .padding(.horizontal, 24)
                 }
@@ -276,13 +300,25 @@ struct ScanView: View {
             }
         }
         // Alert Error
-        .alert("การประมวลผลล้มเหลว", isPresented: .constant(errorMessage != nil)) {
+        .alert("เกิดข้อผิดพลาด", isPresented: .constant(errorMessage != nil)) {
             Button("ตกลง") {
                 resetState()
             }
         } message: {
             if let error = errorMessage {
                 Text(error)
+            }
+        }
+        // ✅ 4. Logic เมื่อเลือกรูปเสร็จ
+        .onChange(of: selectedItem) { newItem in
+            Task {
+                if let newItem = newItem,
+                   let data = try? await newItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    // ส่งรูปที่เลือกเข้าสู่กระบวนการวิเคราะห์
+                    await uploadAndProcess(images: [image])
+                }
+                selectedItem = nil // รีเซ็ตค่าเพื่อเลือกรอบหน้าได้ใหม่
             }
         }
     }
@@ -325,7 +361,7 @@ struct ScanView: View {
             scanState = .completed
             
         } catch {
-            errorMessage = "\(error.localizedDescription)"
+            errorMessage = "การประมวลผลล้มเหลว: \(error.localizedDescription)"
             scanState = .failed
             print("❌ Error: \(error)")
         }
@@ -418,7 +454,8 @@ struct ScanView: View {
         let body: [String: Any] = [
             "scan_id": scanId,
             "image_urls": imageUrls,
-            "questionnaire_score": userProfile.evaluateScore // ส่งคะแนน Evaluate ไปด้วย
+            "questionnaire_score": userProfile.evaluateScore,
+            "bmi_score": userProfile.bmiScore // เพิ่มบรรทัดนี้ (ค่า 1, 2, หรือ 3)
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -445,18 +482,12 @@ struct ScanView: View {
             // ดึงสถานะล่าสุด
             struct ScanStatus: Codable {
                 let status: String
-                let error_message: String? // ชื่อแบบที่ 1
-                let error: String?         // ชื่อแบบที่ 2 (เผื่อไว้)
-                
-                // Helper เพื่อดึง Error ไม่ว่าจะชื่ออะไร
-                var combinedError: String? {
-                    return error_message ?? error
-                }
+                let error_message: String?
             }
             
             let response: [ScanStatus] = try await UserProfile.supabase
                 .from("foot_scans")
-                .select("*")
+                .select("status, error_message")
                 .eq("id", value: scanId)
                 .execute()
                 .value
