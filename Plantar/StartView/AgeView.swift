@@ -25,7 +25,7 @@ struct AgeView: View {
     // 👤 Initial Age
     @State private var currentAge: Double = 25.0 // Changed initial value
     // 📍 For Page Indicator at the bottom
-    @State private var currentPage: Int = 2 // Adjusted for a typical starting page
+    @State private var currentPage: Int = 0 // Adjusted for a typical starting page
     // 🔄 Navigation
     @State private var navigateToHeight = false
     @EnvironmentObject var userProfile: UserProfile
@@ -175,7 +175,7 @@ struct AgeView: View {
                 
                 // MARK: - Page Indicator
                 HStack(spacing: 8) {
-                    ForEach(0..<6) { index in
+                    ForEach(0..<4) { index in
                         Circle()
                             .fill(index == currentPage ? Color.Age_PageIndicatorActive : Color.Age_PageIndicatorInactive)
                             .frame(width: 8, height: 8)

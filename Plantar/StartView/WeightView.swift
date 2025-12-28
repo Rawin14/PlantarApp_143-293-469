@@ -25,7 +25,7 @@ struct WeightView: View {
     // น้ำหนักเริ่มต้น
     @State private var currentWeight: Double = 55.0
     // สำหรับ Page Indicator ด้านล่าง
-    @State private var currentPage: Int = 0
+    @State private var currentPage: Int = 2
     
     @State private var isgotoBMIView = false
     
@@ -183,7 +183,7 @@ struct WeightView: View {
 
                 // MARK: - Page Indicator
                 HStack(spacing: 8) {
-                    ForEach(0..<6) { index in
+                    ForEach(0..<4) { index in
                         Circle()
                             .fill(index == currentPage ? Color.Weight_PageIndicatorActive : Color.Weight_PageIndicatorInactive)
                             .frame(width: 8, height: 8)

@@ -299,7 +299,7 @@ struct BMIView: View {
                     
                     // Page Indicator
                     HStack(spacing: 8) {
-                        ForEach(0..<6) { index in
+                        ForEach(0..<4) { index in
                             Circle()
                                 .fill(index == 3 ? Color.black : Color.gray.opacity(0.3))
                                 .frame(width: 8, height: 8)

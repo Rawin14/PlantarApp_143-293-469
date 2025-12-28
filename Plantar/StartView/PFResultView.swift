@@ -89,7 +89,7 @@ struct PFResultView: View {
                                 title: "Evaluate",
                                 score: "\(Int(userProfile.evaluateScore))",
                                 max: "17",
-                                color: .orange
+                                color: Color(hex: "C4CF52")
                             )
                         }
                         .padding(.horizontal)
@@ -105,13 +105,17 @@ struct PFResultView: View {
                                     icon: "figure.walk",
                                     title: "ประเภทโค้งเท้า",
                                     value: archTypeText(archType),
-                                    color: .purple
+                                    color: Color(hex: "50463C")
                                 )
                                 .padding(.horizontal)
                             }
+                                RecommendationCard(
+                                    icon: "exclamationmark.triangle",
+                                    title: "คำเตือน: ผลการวิเคราะห์ที่เห็นเป็นเพียงแค่การวินิจฉัยรอยเท้าเบื่องต้นเท่นนั้น",
+                                    color: .red
+                                )
+                            .padding(.horizontal)
                         }
-                        
-                        Spacer(minLength: 10)
                         
                         // ปุ่มกลับหน้าหลัก
                         Button(action: { navigateToHome = true }) {
@@ -303,28 +307,20 @@ struct InfoCard: View {
 struct RecommendationCard: View {
     let icon: String
     let title: String
-    let items: [String]
     let color: Color
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
+                    .font(.title2)
                     .foregroundColor(color)
+                    .frame(width: 40, height: 40)
+                    .background(Color.white) // ไอคอนพื้นขาว
+                    .clipShape(Circle())
                 Text(title)
                     .font(.headline)
-            }
-            
-            ForEach(items, id: \.self) { item in
-                HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 6))
-                        .foregroundColor(color)
-                        .padding(.top, 6)
-                    
-                    Text(item)
-                        .font(.body)
-                }
+                    .foregroundColor(Color(hex: "50463C"))
             }
         }
         .padding()
@@ -409,7 +405,7 @@ struct ShoeRecommendation: Codable {
         model_3d_url: nil,
         pf_severity: "high",
         pf_score: 85.5,
-        arch_type: "flat",
+        arch_type: "normal",
         status: "completed",
         error_message: nil,
         pf_indicators: [mockIndicator],

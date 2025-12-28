@@ -16,13 +16,37 @@ struct Question {
 
 // MARK: - EvaluateView Colors
 extension Color {
-    static let Evaluate_Background = Color(red: 172/255, green: 187/255, blue: 98/255) // สีเขียวมะนาวล้วนๆ
-    static let Evaluate_Primary = Color(red: 172/255, green: 187/255, blue: 98/255) // สีเขียวมะนาว
-    static let Evaluate_Secondary = Color(red: 139/255, green: 122/255, blue: 184/255) // สีม่วง
+    static let Evaluate_Background = Color(
+        red: 172/255,
+        green: 187/255,
+        blue: 98/255
+    ) // สีเขียวมะนาวล้วนๆ
+    static let Evaluate_Primary = Color(
+        red: 172/255,
+        green: 187/255,
+        blue: 98/255
+    ) // สีเขียวมะนาว
+    static let Evaluate_Secondary = Color(
+        red: 139/255,
+        green: 122/255,
+        blue: 184/255
+    ) // สีม่วง
     static let Evaluate_CardBackground = Color.white // พื้นหลังการ์ดสีขาว
-    static let Evaluate_SelectedAnswer = Color(red: 188/255, green: 204/255, blue: 112/255) // สีเขียวอ่อน
-    static let Evaluate_ButtonColor = Color(red: 94/255, green: 84/255, blue: 68/255) // สีปุ่ม Next
-    static let Evaluate_DotInactive = Color(red: 220/255, green: 220/255, blue: 220/255)
+    static let Evaluate_SelectedAnswer = Color(
+        red: 188/255,
+        green: 204/255,
+        blue: 112/255
+    ) // สีเขียวอ่อน
+    static let Evaluate_ButtonColor = Color(
+        red: 94/255,
+        green: 84/255,
+        blue: 68/255
+    ) // สีปุ่ม Next
+    static let Evaluate_DotInactive = Color(
+        red: 220/255,
+        green: 220/255,
+        blue: 220/255
+    )
 }
 
 struct EvaluateView: View {
@@ -39,15 +63,51 @@ struct EvaluateView: View {
     
     // --- Questions with Scores ---
     let questions: [Question] = [
-        Question(id: 1, text: "คุณรู้สึกเจ็บส้นเท้าหรือฝ่าเท้าทันทีที่ก้าวลงจากเตียงในตอนเช้าใช่หรือไม่?", score: 1),
-        Question(id: 2, text: "คุณรู้สึกเจ็บส้นเท้าเมื่อคุณเริ่มออกเดินหลังจากนั่งพักเป็นเวลานานใช่หรือไม่?", score: 1),
-        Question(id: 3, text: "คุณรู้สึกเจ็บส้นเท้าหรือฝ่าเท้าหลังจากทำกิจกรรมที่ต้องยืนหรือเดินเป็นเวลานานใช่หรือไม่?", score: 1),
-        Question(id: 4, text: "คุณรู้สึกเจ็บที่บริเวณส่วนโค้งของฝ่าเท้าหรือที่ขอบส้นเท้าใช่หรือไม่?", score: 1),
-        Question(id: 5, text: "คุณต้องเดินเขย่งปลายเท้าเพื่อหลีกเลี่ยงการลงน้ำหนักที่ส้นเท้าใช่หรือไม่?", score: 2),
-        Question(id: 6, text: "อาการปวดของคุณเกิดขึ้นเป็นประจำในทุก ๆ วันใช่หรือไม่?", score: 2),
-        Question(id: 7, text: "คุณรู้สึกว่าอาการปวดส่งผลกระทบต่อกิจกรรมประจำวันของคุณ เช่น การเดินช็อปปิ้ง การออกกำลังกาย หรือการทำงานใช่หรือไม่?", score: 3),
-        Question(id: 8, text: "คุณต้องใช้ยาแก้ปวดเพื่อบรรเทาอาการเจ็บส้นเท้าใช่หรือไม่?", score: 3),
-        Question(id: 9, text: "อาการเจ็บของคุณดีขึ้นเพียงชั่วคราวหลังจากนวดหรือพักเท้า แล้วกลับมาปวดอีกครั้งใช่หรือไม่?", score: 3)
+        Question(
+            id: 1,
+            text: "คุณรู้สึกเจ็บส้นเท้าหรือฝ่าเท้าทันทีที่ก้าวลงจากเตียงในตอนเช้าใช่หรือไม่?",
+            score: 1
+        ),
+        Question(
+            id: 2,
+            text: "คุณรู้สึกเจ็บส้นเท้าเมื่อคุณเริ่มออกเดินหลังจากนั่งพักเป็นเวลานานใช่หรือไม่?",
+            score: 1
+        ),
+        Question(
+            id: 3,
+            text: "คุณรู้สึกเจ็บส้นเท้าหรือฝ่าเท้าหลังจากทำกิจกรรมที่ต้องยืนหรือเดินเป็นเวลานานใช่หรือไม่?",
+            score: 1
+        ),
+        Question(
+            id: 4,
+            text: "คุณรู้สึกเจ็บที่บริเวณส่วนโค้งของฝ่าเท้าหรือที่ขอบส้นเท้าใช่หรือไม่?",
+            score: 1
+        ),
+        Question(
+            id: 5,
+            text: "คุณต้องเดินเขย่งปลายเท้าเพื่อหลีกเลี่ยงการลงน้ำหนักที่ส้นเท้าใช่หรือไม่?",
+            score: 2
+        ),
+        Question(
+            id: 6,
+            text: "อาการปวดของคุณเกิดขึ้นเป็นประจำในทุก ๆ วันใช่หรือไม่?",
+            score: 2
+        ),
+        Question(
+            id: 7,
+            text: "คุณรู้สึกว่าอาการปวดส่งผลกระทบต่อกิจกรรมประจำวันของคุณ เช่น การเดินช็อปปิ้ง การออกกำลังกาย หรือการทำงานใช่หรือไม่?",
+            score: 3
+        ),
+        Question(
+            id: 8,
+            text: "คุณต้องใช้ยาแก้ปวดเพื่อบรรเทาอาการเจ็บส้นเท้าใช่หรือไม่?",
+            score: 3
+        ),
+        Question(
+            id: 9,
+            text: "อาการเจ็บของคุณดีขึ้นเพียงชั่วคราวหลังจากนวดหรือพักเท้า แล้วกลับมาปวดอีกครั้งใช่หรือไม่?",
+            score: 3
+        )
     ]
     
     var currentQuestion: Question {
@@ -141,7 +201,9 @@ struct EvaluateView: View {
                     HStack(spacing: 8) {
                         ForEach(0..<questions.count, id: \.self) { index in
                             Circle()
-                                .fill(index == currentQuestionIndex ? Color.Evaluate_Secondary : Color.Evaluate_DotInactive)
+                                .fill(
+                                    index == currentQuestionIndex ? Color.Evaluate_Secondary : Color.Evaluate_DotInactive
+                                )
                                 .frame(width: 8, height: 8)
                         }
                     }
@@ -151,7 +213,12 @@ struct EvaluateView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 30)
                         .fill(Color.Evaluate_CardBackground)
-                        .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+                        .shadow(
+                            color: Color.black.opacity(0.1),
+                            radius: 20,
+                            x: 0,
+                            y: 10
+                        )
                 )
                 .padding(.horizontal, 20)
                 .padding(.top, 60)
@@ -180,7 +247,12 @@ struct EvaluateView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 20)
                         .fill(Color.white)
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                        .shadow(
+                            color: Color.black.opacity(0.05),
+                            radius: 10,
+                            x: 0,
+                            y: 5
+                        )
                 )
                 .padding(.horizontal, 20)
                 
@@ -193,8 +265,6 @@ struct EvaluateView: View {
                                 currentQuestionIndex -= 1
                                 selectedAnswer = nil
                             }
-                        } else {
-                            dismiss()
                         }
                     }) {
                         HStack {
@@ -208,12 +278,18 @@ struct EvaluateView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.Evaluate_ButtonColor)
+                                .fill(
+                                    currentQuestionIndex > 0 ?
+                                    Color.Evaluate_ButtonColor :
+                                        Color.Evaluate_ButtonColor.opacity(0.3)
+                                )
                         )
+                        .disabled(currentQuestionIndex == 0)
                     }
                     
                     // Next/Complete Button (สีน้ำตาล)
-                    Button(action: {
+                    Button(
+                        action: {
                         if let answer = selectedAnswer {
                             if answer {
                                 totalScore += currentQuestion.score
@@ -225,34 +301,38 @@ struct EvaluateView: View {
                                     selectedAnswer = nil
                                 } else {
                                     // ✅ แก้ไข: บันทึกคะแนนเต็ม ไม่ต้องหาร 2
-                                    userProfile.evaluateScore = Double(totalScore)
-                                    print("Evaluate Score: \(totalScore) (Saved to UserProfile)")
+                                    userProfile.evaluateScore = Double(
+                                        totalScore
+                                    )
+                                    print(
+                                        "Evaluate Score: \(totalScore) (Saved to UserProfile)"
+                                    )
                                     
                                     // ไปหน้าถัดไป
                                     navigateToNext = true
                                 }
                             }
                         }
-                    }) {
-                        HStack {
-                            Text(currentQuestionIndex < questions.count - 1 ? "Next" : "Complete")
-                                .font(.system(size: 16, weight: .semibold))
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 16, weight: .semibold))
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(
-                                    selectedAnswer != nil ?
-                                    Color.Evaluate_ButtonColor :
-                                        Color.Evaluate_ButtonColor.opacity(0.5)
-                                )
-                        )
-                    }
-                    .disabled(selectedAnswer == nil)
+}) {
+    HStack {
+        Text(currentQuestionIndex < questions.count - 1 ? "Next" : "Complete")
+            .font(.system(size: 16, weight: .semibold))
+        Image(systemName: "chevron.right")
+            .font(.system(size: 16, weight: .semibold))
+    }
+    .foregroundColor(.white)
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 16)
+    .background(
+        RoundedRectangle(cornerRadius: 15)
+            .fill(
+                selectedAnswer != nil ?
+                Color.Evaluate_ButtonColor :
+                    Color.Evaluate_ButtonColor.opacity(0.5)
+            )
+    )
+}
+.disabled(selectedAnswer == nil)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -300,12 +380,18 @@ struct AnswerOptionButton: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Color.Evaluate_Secondary.opacity(0.1) : Color.clear)
+                        .fill(
+                            isSelected ? Color.Evaluate_Secondary
+                                .opacity(0.1) : Color.clear
+                        )
                         .frame(width: 50, height: 50)
                     
                     Image(systemName: icon)
                         .font(.system(size: 24))
-                        .foregroundColor(isSelected ? Color.Evaluate_Secondary : Color.gray.opacity(0.3))
+                        .foregroundColor(
+                            isSelected ? Color.Evaluate_Secondary : Color.gray
+                                .opacity(0.3)
+                        )
                 }
                 
                 // Text
@@ -341,7 +427,9 @@ struct AnswerOptionButton: View {
                             )
                     )
                     .shadow(
-                        color: isSelected ? Color.Evaluate_Secondary.opacity(0.2) : Color.black.opacity(0.05),
+                        color: isSelected ? Color.Evaluate_Secondary
+                            .opacity(0.2) : Color.black
+                            .opacity(0.05),
                         radius: isSelected ? 10 : 5,
                         x: 0,
                         y: isSelected ? 5 : 2
