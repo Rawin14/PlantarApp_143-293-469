@@ -111,7 +111,7 @@ struct PFResultView: View {
                             }
                                 RecommendationCard(
                                     icon: "exclamationmark.triangle",
-                                    title: "คำเตือน: ผลการวิเคราะห์ที่เห็นเป็นเพียงแค่การวินิจฉัยรอยเท้าเบื่องต้นเท่นนั้น",
+                                    title: "คำเตือน: ผลการวิเคราะห์ที่เห็นเป็นเพียงแค่การวินิจฉัยรอยเท้าเบื้องต้นเท่านั้น",
                                     color: .red
                                 )
                             .padding(.horizontal)

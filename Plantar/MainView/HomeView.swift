@@ -323,7 +323,7 @@ struct HomeView: View {
                                 .padding(.top, 20)
                             
                             // ลิงก์ไปยังหน้าระดับความเสี่ยงต่างๆ
-                            NavigationLink(destination: VideoViewLowRisk()) {
+                            NavigationLink(destination: VideoView()) {
                                 VideoCategoryCard(title: "Low Risk Videos", subtitle: "Basic exercises", color: .green)
                             }
                             

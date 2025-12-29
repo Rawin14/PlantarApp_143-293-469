@@ -1,5 +1,5 @@
 //
-// VideoViewMediumRisk.swift
+// VideoViewLowRisk.swift
 // Plantar
 //
 // Created by Jeerapan Chirachanchai on 23/10/2568 BE.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 // MARK: - Video Model
-struct VideoExerciseMedium: Identifiable {
+struct VideoExercise: Identifiable {
     let id = UUID()
     let thumbnail: String
     let title: String
@@ -16,13 +16,13 @@ struct VideoExerciseMedium: Identifiable {
     let difficulty: String
 }
 
-struct VideoViewMediumRisk: View {
+struct VideoView: View {
     // --- Environment ---
     @Environment(\.dismiss) private var dismiss
     
     // --- State Variables ---
     @State private var showVideoPlayer = false
-    @State private var selectedVideo: VideoExerciseMedium?
+    @State private var selectedVideo: VideoExercise?
     
     // --- Custom Colors (ใช้ธีมเดียวกัน) ---
     let backgroundColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล
@@ -31,12 +31,12 @@ struct VideoViewMediumRisk: View {
     let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255) // ครีม
     let buttonColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล
     
-    // --- Medium Risk Videos ---
-    let videos: [VideoExerciseMedium] = [
-        VideoExerciseMedium(thumbnail: "video1", title: "ยืดกล้ามเนื้อน่องพิงกำแพง", duration: "3:30", difficulty: "Medium"),
-        VideoExerciseMedium(thumbnail: "video2", title: "เขย่งปลายเท้าเพื่อเสริมสร้างความแข็งแรง", duration: "2:45", difficulty: "Medium"),
-        VideoExerciseMedium(thumbnail: "video3", title: "นวดฝ่าเท้าด้วยนิ้วหัวแม่มือ", duration: "3:00", difficulty: "Medium"),
-        VideoExerciseMedium(thumbnail: "video4", title: "ท่ายืดเหยียดเอ็นฝ่าเท้าแบบครอบคลุม", duration: "4:00", difficulty: "Medium")
+    // --- Low Risk Videos ---
+    let videos: [VideoExercise] = [
+        VideoExercise(thumbnail: "video1", title: "ยืดเหยียดเอ็นฝ่าเท้าด้วยมือ", duration: "2:30", difficulty: "Easy"),
+        VideoExercise(thumbnail: "video2", title: "บริหารด้วยการหมุนข้อเท้า", duration: "3:00", difficulty: "Easy"),
+        VideoExercise(thumbnail: "video3", title: "นวดฝ่าเท้าเบื้องต้น", duration: "2:00", difficulty: "Easy"),
+        VideoExercise(thumbnail: "video4", title: "ยืดเหยียดนิ้วเท้า", duration: "1:45", difficulty: "Easy")
     ]
     
     var body: some View {
@@ -91,12 +91,12 @@ struct VideoViewMediumRisk: View {
                     VStack(alignment: .leading, spacing: 16) {
                         // Description Card
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("ระดับกลาง: อาการปานกลาง")
+                            Text("ระดับต่ำ: อาการเบื้องต้น")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(accentColor)
                             
-                            Text("สำหรับผู้ที่มีอาการปวดมากขึ้นและเริ่มส่งผลกระทบต่อชีวิตประจำวัน ควรเพิ่มความถี่และความหลากหลายของท่ากายภาพบำบัดเพื่อลดอาการอักเสบและเพิ่มความยืดหยุ่น")
+                            Text("เป็นคำแนะนำสำหรับผู้ที่เพิ่งเริ่มมีอาการปวดส้นเท้าไม่มากนักและอาการไม่คงที่ มีเป้าหมายเพื่อลดความตึงของเอ็นฝ่าเท้าและกล้ามเนื้อน่อง")
                                 .font(.subheadline)
                                 .foregroundColor(.black.opacity(0.7))
                                 .lineSpacing(4)
@@ -112,20 +112,20 @@ struct VideoViewMediumRisk: View {
                         VStack(alignment: .leading, spacing: 16) {
                             ExerciseDetailBrown(
                                 number: "1",
-                                title: "ยืดกล้ามเนื้อน่อง (การยืนพิงกำแพง)",
-                                description: "ยืนห่างจากกำแพงประมาณ 1 ช่วงแขน ใช้มือยันกำแพงไว้ ก้าวเท้าข้างหนึ่งไปข้างหน้าและงอเข่า ส่วนเท้าข้างที่ปวดให้เหยียดตรง ส้นเท้าติดพื้น ค้างไว้ 30 วินาที ทำ 3-5 ครั้งต่อข้าง"
+                                title: "ยืดเหยียดเอ็นฝ่าเท้าด้วยมือ",
+                                description: "นั่งบนพื้นแล้วใช้มือดึงนิ้วเท้าเข้าหาตัวช้าๆ จนรู้สึกตึงบริเวณฝ่าเท้า ค้างไว้ 15-30 วินาที ทำซ้ำ 3-5 ครั้งต่อข้าง"
                             )
                             
                             ExerciseDetailBrown(
                                 number: "2",
-                                title: "บริหารโดยการเขย่งปลายเท้า",
-                                description: "ยืนตรงโดยใช้มือเกาะขอบโต๊ะหรือกำแพงเพื่อทรงตัว ค่อยๆ ยกส้นเท้าขึ้นช้าๆ แล้วลดส้นเท้าลงช้าๆ ทำซ้ำ 10-15 ครั้ง"
+                                title: "บริหารด้วยการหมุนข้อเท้า",
+                                description: "นั่งบนเก้าอี้ ยกเท้าขึ้นเหนือพื้นเล็กน้อย แล้วหมุนข้อเท้าเป็นวงกลมช้าๆ ทั้งตามเข็มและทวนเข็มนาฬิกา ด้านละ 10-15 ครั้ง"
                             )
                             
                             ExerciseDetailBrown(
                                 number: "3",
-                                title: "นวดฝ่าเท้าด้วยนิ้วหัวแม่มือ",
-                                description: "ใช้นิ้วหัวแม่มือกดและนวดคลึงเบาๆ บริเวณฝ่าเท้าจากส้นเท้าไปจนถึงโคนนิ้วเท้า ทำประมาณ 2-3 นาทีต่อข้าง"
+                                title: "เพิ่มวิธีการนวด",
+                                description: "ใช้นิ้วหัวแม่มือหรือลูกบอลเทนนิสนวดบริเวณฝ่าเท้าเบาๆ เพื่อผ่อนคลายกล้ามเนื้อและเอ็น"
                             )
                         }
                         .padding(.horizontal, 20)
@@ -139,7 +139,7 @@ struct VideoViewMediumRisk: View {
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             ForEach(videos) { video in
-                                VideoCardMedium(
+                                VideoCardBrown(
                                     video: video,
                                     action: {
                                         selectedVideo = video
@@ -165,9 +165,46 @@ struct VideoViewMediumRisk: View {
     }
 }
 
-// MARK: - Video Card Component (Medium Theme)
-struct VideoCardMedium: View {
-    let video: VideoExerciseMedium
+// MARK: - Exercise Detail Component (Brown Theme)
+struct ExerciseDetailBrown: View {
+    let number: String
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 15) {
+            // Number Badge
+            Text(number)
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .frame(width: 32, height: 32)
+                .background(Color(red: 172/255, green: 187/255, blue: 98/255))
+                .clipShape(Circle())
+            
+            // Content
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.black.opacity(0.7))
+                    .lineSpacing(3)
+            }
+        }
+        .padding(16)
+        .background(Color(red: 248/255, green: 247/255, blue: 241/255))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+}
+
+// MARK: - Video Card Component (Brown Theme)
+struct VideoCardBrown: View {
+    let video: VideoExercise
     let action: () -> Void
     
     var body: some View {
@@ -258,6 +295,6 @@ struct VideoCardMedium: View {
 
 #Preview {
     NavigationStack {
-        VideoViewMediumRisk()
+        VideoView()
     }
 }

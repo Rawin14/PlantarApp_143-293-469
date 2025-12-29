@@ -18,9 +18,7 @@
 		392797452EB3648B002C3E26 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797442EB3648B002C3E26 /* Profile.swift */; };
 		392797472EB366C3002C3E26 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797462EB366C3002C3E26 /* HomeView.swift */; };
 		392797492EB47873002C3E26 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797482EB47873002C3E26 /* NotificationView.swift */; };
-		3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */; };
-		3927974D2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */; };
-		3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */; };
+		3927974B2EB48277002C3E26 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927974A2EB48277002C3E26 /* VideoView.swift */; };
 		392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797502EB4B363002C3E26 /* DiaryTodayView.swift */; };
 		392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */; };
 		392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797542EB4E5FC002C3E26 /* DashboardView.swift */; };
@@ -57,9 +55,7 @@
 		392797442EB3648B002C3E26 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		392797462EB366C3002C3E26 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		392797482EB47873002C3E26 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
-		3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewLowRisk.swift; sourceTree = "<group>"; };
-		3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewMediumRisk.swift; sourceTree = "<group>"; };
-		3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewHighRisk.swift; sourceTree = "<group>"; };
+		3927974A2EB48277002C3E26 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		392797502EB4B363002C3E26 /* DiaryTodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryTodayView.swift; sourceTree = "<group>"; };
 		392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryHistoryView.swift; sourceTree = "<group>"; };
 		392797542EB4E5FC002C3E26 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -141,9 +137,7 @@
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
 				39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */,
 				39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */,
-				3927974A2EB48277002C3E26 /* VideoViewLowRisk.swift */,
-				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
-				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
+				3927974A2EB48277002C3E26 /* VideoView.swift */,
 				392797482EB47873002C3E26 /* NotificationView.swift */,
 				392797462EB366C3002C3E26 /* HomeView.swift */,
 			);
@@ -313,14 +307,12 @@
 			files = (
 				392797452EB3648B002C3E26 /* Profile.swift in Sources */,
 				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
-				3927974D2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift in Sources */,
 				392797592EB50AE8002C3E26 /* BMIView.swift in Sources */,
-				3927974B2EB48277002C3E26 /* VideoViewLowRisk.swift in Sources */,
+				3927974B2EB48277002C3E26 /* VideoView.swift in Sources */,
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
 				39F7F9AB2EEAA34A00FDB353 /* DiaryModels.swift in Sources */,
 				39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */,
-				3927974F2EB4AABE002C3E26 /* VideoViewHighRisk.swift in Sources */,
 				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
 				391889DC2ECCF1F20045549E /* AuthManager.swift in Sources */,
