@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct HomeView: View {
     // --- State Variables ---
@@ -15,6 +16,7 @@ struct HomeView: View {
     // States for Home Content
     @State private var selectedDate = Date()
     @State private var showVideoPlayer = false
+    @State private var selectedVideo: VideoExercise?
     
     @EnvironmentObject var userProfile: UserProfile
     @EnvironmentObject var authManager: AuthManager
@@ -145,12 +147,15 @@ struct HomeView: View {
                 .zIndex(100)
             }
             
-            // MARK: - Full Screen Video Player (Overlay for Home Tab)
-            if showVideoPlayer {
-                VideoPlayerView(isPresented: $showVideoPlayer)
-                    .transition(.move(edge: .bottom))
-                    .zIndex(200)
-            }
+            // MARK: - Video Player Overlay
+            if showVideoPlayer, let video = selectedVideo {
+                            VideoPlayerView(
+                                isPresented: $showVideoPlayer,
+                                videoUrlString: video.videoUrl // ✅ ส่ง URL ที่เก็บไว้ใน Model ไปให้ Player
+                            )
+                            .transition(.move(edge: .bottom))
+                            .zIndex(1)
+                        }
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
@@ -509,34 +514,50 @@ struct VideoCardCompact: View {
     }
 }
 
+// MARK: - Video Player View (เพิ่มส่วนนี้เข้าไป)
 struct VideoPlayerView: View {
     @Binding var isPresented: Bool
-    @State private var isPlaying = false
+    let videoUrlString: String // รับ URL เป็น String
     
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            VStack(spacing: 0) {
-                Spacer()
-                ZStack {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .aspectRatio(16/9, contentMode: .fit)
-                        .overlay(Image(systemName: "figure.yoga").font(.system(size: 80)).foregroundColor(.white))
-                    
-                    VStack {
-                        HStack {
-                            Button(action: { withAnimation { isPresented = false } }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.white)
-                            }
-                            Spacer()
-                        }
-                        .padding()
-                        Spacer()
+            
+            VStack {
+                // ส่วนหัวสำหรับกดปิด
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        withAnimation { isPresented = false }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .padding()
                     }
                 }
+                .zIndex(1)
+                
+                // ตัวเล่นวิดีโอ
+                if let url = URL(string: videoUrlString) {
+                    VideoPlayer(player: AVPlayer(url: url))
+                        .onAppear {
+                            // สั่งให้เล่นอัตโนมัติ
+                            let player = AVPlayer(url: url)
+                            player.play()
+                        }
+                } else {
+                    // กรณี URL ผิดพลาด
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 50))
+                            .foregroundColor(.yellow)
+                        Text("Invalid Video URL")
+                            .foregroundColor(.white)
+                            .padding(.top)
+                    }
+                }
+                
                 Spacer()
             }
         }

@@ -3,7 +3,7 @@
 //  Plantar
 //
 //  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
-//  Updated for Dynamic Risk Levels
+//
 //
 
 import SwiftUI
@@ -262,7 +262,7 @@ struct VideoView: View {
             
             // MARK: - Video Player Overlay
             if showVideoPlayer, let video = selectedVideo {
-                            VideoPlayerView(
+                            OnlineVideoPlayer(
                                 isPresented: $showVideoPlayer,
                                 videoUrlString: video.videoUrl // ✅ ส่ง URL ที่เก็บไว้ใน Model ไปให้ Player
                             )
@@ -399,6 +399,55 @@ struct VideoCard: View {
             .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct OnlineVideoPlayer: View {
+    @Binding var isPresented: Bool
+    let videoUrlString: String // รับ URL เป็น String
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack {
+                // ส่วนหัวสำหรับกดปิด
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        withAnimation { isPresented = false }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                }
+                .zIndex(1)
+                
+                // ตัวเล่นวิดีโอ
+                if let url = URL(string: videoUrlString) {
+                    VideoPlayer(player: AVPlayer(url: url))
+                        .onAppear {
+                            // สั่งให้เล่นอัตโนมัติ
+                            let player = AVPlayer(url: url)
+                            player.play()
+                        }
+                } else {
+                    // กรณี URL ผิดพลาด
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 50))
+                            .foregroundColor(.yellow)
+                        Text("Invalid Video URL")
+                            .foregroundColor(.white)
+                            .padding(.top)
+                    }
+                }
+                
+                Spacer()
+            }
+        }
     }
 }
 

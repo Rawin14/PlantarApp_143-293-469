@@ -176,7 +176,7 @@ struct HeightView: View {
                 
                 // MARK: - Page Indicator
                 HStack(spacing: 8) {
-                    ForEach(0..<3) { index in
+                    ForEach(0..<4) { index in
                         Circle()
                             .fill(index == currentPage ? Color.Height_PageIndicatorActive : Color.Height_PageIndicatorInactive)
                             .frame(width: 8, height: 8)
