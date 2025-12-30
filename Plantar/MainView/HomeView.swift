@@ -309,39 +309,19 @@ struct HomeView: View {
     
     // MARK: - Videos Tab View (สร้างเพิ่มให้สำหรับ Tab 1)
     struct VideosTabView: View {
-        var body: some View {
-            NavigationView {
-                ZStack {
-                    Color(red: 248/255, green: 247/255, blue: 241/255).ignoresSafeArea()
-                    
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            Text("Browse Videos")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
-                                .padding(.top, 20)
-                            
-                            // ลิงก์ไปยังหน้าระดับความเสี่ยงต่างๆ
-                            NavigationLink(destination: VideoView()) {
-                                VideoCategoryCard(title: "Low Risk Videos", subtitle: "Basic exercises", color: .green)
-                            }
-                            
-                            NavigationLink(destination: VideoViewMediumRisk()) {
-                                VideoCategoryCard(title: "Medium Risk Videos", subtitle: "Intermediate exercises", color: .orange)
-                            }
-                            
-                            NavigationLink(destination: VideoViewHighRisk()) {
-                                VideoCategoryCard(title: "High Risk Videos", subtitle: "Advanced care", color: .red)
-                            }
-                        }
-                        .padding()
+            @EnvironmentObject var userProfile: UserProfile
+            
+            var body: some View {
+                NavigationView {
+                    ZStack {
+                        // ส่งค่า riskLevel จากผลสแกนล่าสุด
+                        // ถ้าไม่มีค่า ให้ default เป็น "low"
+                        VideoView(riskLevel: userProfile.latestScan?.pf_severity ?? "low")
                     }
+                    .navigationBarHidden(true)
                 }
-                .navigationBarHidden(true)
             }
         }
-    }
     
     struct VideoCategoryCard: View {
         let title: String
