@@ -41,65 +41,65 @@ class AuthManager: ObservableObject {
     // MARK: - Sign Up
     
     // ฟังก์ชันสมัครสมาชิก
-        func signUp(email: String, password: String, nickname: String) async {
-            await MainActor.run { self.isLoading = true; self.errorMessage = nil }
-            
-            defer {
-                Task { await MainActor.run { self.isLoading = false } }
-            }
-            
-            do {
-                // 1. ยิง API สมัคร
-                let response = try await supabase.auth.signUp(
-                    email: email,
-                    password: password
-                )
-                
-                // 2. เช็คว่าได้ Session มาเลยไหม (ถ้าปิด Confirm Email จะได้มาเลย)
-                if let session = response.session {
-                    // บันทึก Profile ลงฐานข้อมูล
-                    let profileData: [String: String] = [
-                        "id": session.user.id.uuidString,
-                        "nickname": nickname
-                    ]
-                    try await supabase.from("profiles").insert(profileData).execute()
-                    
-                    // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้เพื่อให้ PlantarApp สลับหน้า
-                    await MainActor.run {
-                        self.currentUser = session.user
-                        self.isAuthenticated = true
-                    }
-                    print("✅ Sign up successful -> Switching View")
-                }
-            } catch {
-                print("❌ Error: \(error)")
-                await MainActor.run { self.errorMessage = error.localizedDescription }
-            }
+    func signUp(email: String, password: String, nickname: String) async {
+        await MainActor.run { self.isLoading = true; self.errorMessage = nil }
+        
+        defer {
+            Task { await MainActor.run { self.isLoading = false } }
         }
-    
-    // MARK: - Sign In
-    
-    func signIn(email: String, password: String) async {
-            await MainActor.run { self.isLoading = true; self.errorMessage = nil }
+        
+        do {
+            // 1. ยิง API สมัคร
+            let response = try await supabase.auth.signUp(
+                email: email,
+                password: password
+            )
             
-            defer {
-                Task { await MainActor.run { self.isLoading = false } }
-            }
-            
-            do {
-                let session = try await supabase.auth.signIn(email: email, password: password)
+            // 2. เช็คว่าได้ Session มาเลยไหม (ถ้าปิด Confirm Email จะได้มาเลย)
+            if let session = response.session {
+                // บันทึก Profile ลงฐานข้อมูล
+                let profileData: [String: String] = [
+                    "id": session.user.id.uuidString,
+                    "nickname": nickname
+                ]
+                try await supabase.from("profiles").insert(profileData).execute()
                 
-                // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้
+                // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้เพื่อให้ PlantarApp สลับหน้า
                 await MainActor.run {
                     self.currentUser = session.user
                     self.isAuthenticated = true
                 }
-                print("✅ Login successful -> Switching View")
-            } catch {
-                print("❌ Error: \(error)")
-                await MainActor.run { self.errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง" }
+                print("✅ Sign up successful -> Switching View")
             }
+        } catch {
+            print("❌ Error: \(error)")
+            await MainActor.run { self.errorMessage = error.localizedDescription }
         }
+    }
+    
+    // MARK: - Sign In
+    
+    func signIn(email: String, password: String) async {
+        await MainActor.run { self.isLoading = true; self.errorMessage = nil }
+        
+        defer {
+            Task { await MainActor.run { self.isLoading = false } }
+        }
+        
+        do {
+            let session = try await supabase.auth.signIn(email: email, password: password)
+            
+            // ✅ จุดสำคัญ: เปลี่ยนสถานะตรงนี้
+            await MainActor.run {
+                self.currentUser = session.user
+                self.isAuthenticated = true
+            }
+            print("✅ Login successful -> Switching View")
+        } catch {
+            print("❌ Error: \(error)")
+            await MainActor.run { self.errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง" }
+        }
+    }
     
     // MARK: - Sign In with Google
     
@@ -137,19 +137,18 @@ class AuthManager: ObservableObject {
     // MARK: - Sign Out
     
     func signOut() async {
-        // ✅ ย้ายมาไว้ตรงนี้ เพื่อให้แอปตัดเข้าหน้า Login ทันทีที่กด ไม่ต้องรอ Server ตอบกลับ
         await MainActor.run {
             self.isAuthenticated = false
             self.currentUser = nil
+            
+            UserDefaults.standard.set(false, forKey: "isProfileSetupCompleted")
         }
         
         do {
-            // พยายามแจ้ง Server ว่า Logout (ถ้าล้มเหลวก็ไม่เป็นไร เพราะเราเคลียร์หน้าจอแล้ว)
             try await supabase.auth.signOut()
             print("✅ Signed out form Server")
         } catch {
             print("⚠️ Logout server error: \(error.localizedDescription)")
-            // ไม่ต้อง set errorMessage ให้ user เห็น เพราะเขากำลังออกจากแอปแล้ว
         }
     }
 }

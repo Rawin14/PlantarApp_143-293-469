@@ -9,16 +9,17 @@ import SwiftUI
 import SceneKit // 1. เพิ่ม import SceneKit
 
 struct PFResultView: View {
-    let scanId: String
     
+    // เพิ่ม State สำหรับไปหน้า Home
+    @State private var navigateToHome = false
+    @AppStorage("isProfileSetupCompleted") var isProfileSetupCompleted: Bool = false
     @EnvironmentObject var userProfile: UserProfile
     @State private var scanResult: FootScanResult?
     @State private var isLoading = true
     @State private var errorMessage: String?
     
-    // เพิ่ม State สำหรับไปหน้า Home
-    @State private var navigateToHome = false
     
+    let scanId: String
     // 🔥🔥🔥 เพิ่ม init นี้เข้าไปครับ 🔥🔥🔥
         init(scanId: String, mockResult: FootScanResult? = nil) {
             self.scanId = scanId
@@ -118,7 +119,11 @@ struct PFResultView: View {
                         }
                         
                         // ปุ่มกลับหน้าหลัก
-                        Button(action: { navigateToHome = true }) {
+                        Button(action: {
+                            isProfileSetupCompleted = true
+                            
+                            navigateToHome = true
+                        }) {
                             Text("เข้าสู่หน้าหลัก")
                                 .font(.headline)
                                 .fontWeight(.bold)

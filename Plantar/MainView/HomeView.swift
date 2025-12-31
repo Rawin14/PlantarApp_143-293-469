@@ -234,7 +234,6 @@ struct HomeView: View {
                         }
                     }
                     // 4. Status Snapshot
-                    NavigationLink(destination: DashboardView()) {
                         HStack(spacing: 20) {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("YOUR CONDITION")
@@ -275,7 +274,7 @@ struct HomeView: View {
                         .cornerRadius(20)
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                         .padding(.horizontal, 20)
-                    }
+                    
                     
                     // 5. App Features (Grid)
                     VStack(alignment: .leading, spacing: 16) {
@@ -462,9 +461,23 @@ struct HomeView: View {
 }
 
 #Preview {
-    NavigationStack{
+    // 1. สร้างข้อมูลจำลอง (Mock Data)
+    let mockProfile = UserProfile()
+    mockProfile.nickname = "สมชาย ใจดี"
+    mockProfile.email = "test@example.com"
+    
+    // 2. จำลองผลสแกน (เลือก risk ได้ตามใจ: "low", "medium", "high")
+    mockProfile.latestScan = FootScanModel(
+        id: "preview-id",
+        pf_severity: "medium", // 👈 ลองแก้ตรงนี้เป็น "high" หรือ "low" เพื่อดูสีเปลี่ยน
+        pf_score: 15.0,
+        created_at: nil
+    )
+    
+    // 3. ส่งข้อมูลจำลองเข้าไปใน Preview
+    return NavigationStack {
         HomeView()
-            .environmentObject(UserProfile())
+            .environmentObject(mockProfile)
             .environmentObject(AuthManager())
     }
 }
