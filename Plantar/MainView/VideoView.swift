@@ -3,7 +3,7 @@
 //  Plantar
 //
 //  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
-//
+//  Redesigned: Streaming Layout with HomeView Tone
 //
 
 import SwiftUI
@@ -16,7 +16,7 @@ struct VideoExercise: Identifiable {
     let title: String
     let duration: String
     let difficulty: String
-    let videoUrl : String
+    let videoUrl: String
 }
 
 // MARK: - Exercise Step Model
@@ -28,8 +28,8 @@ struct ExerciseStep: Identifiable {
 }
 
 struct VideoView: View {
-    // --- รับค่า Risk Level จากภายนอก ---
-    var riskLevel: String = "low" // ค่าเริ่มต้น "low", "medium", "high"
+    // --- รับค่า Risk Level ---
+    var riskLevel: String = "low"
     
     // --- Environment ---
     @Environment(\.dismiss) private var dismiss
@@ -38,419 +38,401 @@ struct VideoView: View {
     @State private var showVideoPlayer = false
     @State private var selectedVideo: VideoExercise?
     
-    // --- Computed Properties for Dynamic Content ---
+    // --- Theme Colors (เหมือน HomeView) ---
+    let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255) // ครีมอ่อน
+    let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255) // ม่วง
+    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255) // เขียว
+    let brownColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล (หัวข้อ)
     
-    // 1. Theme Colors
+    // สีตามความเสี่ยง (Risk)
     var themeColor: Color {
         switch riskLevel {
         case "high": return Color.red.opacity(0.8)
         case "medium": return Color.orange.opacity(0.8)
-        default: return Color(red: 172/255, green: 187/255, blue: 98/255) // เขียว (Low)
+        default: return accentColor // เขียวเดียวกับ HomeView
         }
     }
     
-    var backgroundColor: Color {
-        Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล (พื้นหลังหลักคงเดิม)
-    }
-    
-    var cardBackground: Color {
-        Color(red: 248/255, green: 247/255, blue: 241/255) // ครีม
-    }
-    
-    // 2. Text Content
-    var titleText: String {
-        switch riskLevel {
-        case "high": return "ระดับสูง: อาการรุนแรง"
-        case "medium": return "ระดับปานกลาง: อาการเรื้อรัง"
-        default: return "ระดับต่ำ: อาการเบื้องต้น"
-        }
-    }
-    
-    var descriptionText: String {
-        switch riskLevel {
-        case "high": return "สำหรับผู้ที่มีอาการปวดรุนแรง ควรเน้นการพักและการยืดเหยียดแบบนุ่มนวลที่สุด หลีกเลี่ยงการลงน้ำหนักที่ส้นเท้าโดยตรง และควรพบแพทย์"
-        case "medium": return "สำหรับผู้ที่มีอาการปวดเป็นประจำ เน้นการยืดเหยียดที่เข้มข้นขึ้นเล็กน้อย และการบริหารเพื่อเพิ่มความแข็งแรงของกล้ามเนื้อรอบข้อเท้า"
-        default: return "สำหรับผู้ที่เพิ่งเริ่มมีอาการปวดส้นเท้าไม่มากนัก เป้าหมายเพื่อลดความตึงของเอ็นฝ่าเท้าและกล้ามเนื้อน่อง ป้องกันไม่ให้เป็นมากขึ้น"
-        }
-    }
-    
-    // 3. Exercise Steps Data
+    // --- Data (คงเดิม) ---
     var exercises: [ExerciseStep] {
         switch riskLevel {
         case "high":
             return [
-                ExerciseStep(number: "1", title: "ประคบเย็น", description: "ใช้น้ำแข็งประคบบริเวณส้นเท้า 15-20 นาที เพื่อลดการอักเสบ"),
-                ExerciseStep(number: "2", title: "ยืดผ้าขนหนู (ท่านั่ง)", description: "ใช้ผ้าขนหนูคล้องปลายเท้าแล้วดึงเข้าหาตัวเบาๆ ค้างไว้ 30 วินาที"),
-                ExerciseStep(number: "3", title: "พักการใช้งาน", description: "หลีกเลี่ยงการยืนหรือเดินนานๆ และสวมรองเท้าที่นุ่มสบายตลอดเวลา")
+                ExerciseStep(number: "1", title: "ประคบเย็น", description: "ใช้น้ำแข็งประคบบริเวณส้นเท้า 15-20 นาที"),
+                ExerciseStep(number: "2", title: "ยืดผ้าขนหนู", description: "ใช้ผ้าขนหนูคล้องปลายเท้าแล้วดึงเข้าหาตัว"),
+                ExerciseStep(number: "3", title: "พักการใช้งาน", description: "หลีกเลี่ยงการยืนนานๆ และใส่รองเท้านุ่มๆ")
             ]
         case "medium":
             return [
-                ExerciseStep(number: "1", title: "ยืดน่องกับกำแพง", description: "ยืนดันกำแพง ขาหลังเหยียดตึง ส้นเท้าติดพื้น ค้างไว้ 30 วินาที"),
-                ExerciseStep(number: "2", title: "คลึงฝ่าเท้าด้วยลูกบอล", description: "ใช้น้ำหนักกดลงบนลูกบอลเทนนิสแล้วกลิ้งไปมาทั่วฝ่าเท้า 2 นาที"),
-                ExerciseStep(number: "3", title: "ฝึกขยำผ้า", description: "ใช้นิ้วเท้าจิกผ้าขนหนูที่วางบนพื้นเข้าหาตัว ทำ 10 ครั้ง 3 เซ็ต")
+                ExerciseStep(number: "1", title: "ยืดน่องกับกำแพง", description: "ยืนดันกำแพง ขาหลังเหยียดตึง ส้นเท้าติดพื้น"),
+                ExerciseStep(number: "2", title: "คลึงลูกบอล", description: "ใช้ฝ่าเท้ากลิ้งลูกบอลเทนนิสไปมา"),
+                ExerciseStep(number: "3", title: "ฝึกขยำผ้า", description: "ใช้นิ้วเท้าจิกผ้าขนหนูเข้าหาตัว")
             ]
         default: // Low
             return [
-                ExerciseStep(number: "1", title: "ยืดเหยียดเอ็นฝ่าเท้าด้วยมือ", description: "นั่งบนพื้นแล้วใช้มือดึงนิ้วเท้าเข้าหาตัวช้าๆ จนรู้สึกตึงบริเวณฝ่าเท้า ค้างไว้ 15-30 วินาที"),
-                ExerciseStep(number: "2", title: "บริหารด้วยการหมุนข้อเท้า", description: "นั่งบนเก้าอี้ หมุนข้อเท้าเป็นวงกลมช้าๆ ทั้งตามเข็มและทวนเข็มนาฬิกา"),
-                ExerciseStep(number: "3", title: "นวดฝ่าเท้าเบื้องต้น", description: "ใช้นิ้วหัวแม่มือหรือลูกบอลนวดบริเวณฝ่าเท้าเบาๆ เพื่อผ่อนคลาย")
+                ExerciseStep(number: "1", title: "ยืดฝ่าเท้า", description: "ใช้มือดึงนิ้วเท้าเข้าหาตัวช้าๆ"),
+                ExerciseStep(number: "2", title: "หมุนข้อเท้า", description: "หมุนข้อเท้าเป็นวงกลมทั้งสองข้าง"),
+                ExerciseStep(number: "3", title: "นวดผ่อนคลาย", description: "นวดบริเวณฝ่าเท้าเบาๆ")
             ]
         }
     }
     
-    // 4. Videos Data
     var videos: [VideoExercise] {
+        
         switch riskLevel {
+            
         case "high":
+            
             return [
-                VideoExercise(thumbnail: "video_e1",
-                              title: "ยืดเหยียดเอ็นฝ่าเท้าด้วยมือ",
-                              duration: "0:38",
-                              difficulty: "Easy",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/1.mp4"),
-                VideoExercise(thumbnail: "video_e2",
-                              title: "บริหารด้วยการหมุนข้อเท้า",
-                              duration: "0:42",
-                              difficulty: "Easy",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/2.mp4"),
-                VideoExercise(thumbnail: "video_m1",
-                              title: "ยืดกล้ามเนื้อน่อง (การยืนพิงกำแพง)",
-                              duration: "3:22",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/3.mp4"),
-                VideoExercise(thumbnail: "video_m2",
-                              title: "บริหารโดยการเขย่งปลายเท้า",
-                              duration: "1:56",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/4.mp4"),
-                VideoExercise(thumbnail: "video_m3",
-                              title: "นวดฝ่าเท้าด้วยนิ้วหัวแม่มือ",
-                              duration: "4:33",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/5.mp4"),
+                
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "0:38", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                
+                VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4"),
+                
+                VideoExercise(thumbnail: "video_m1", title: "ยืดกล้ามเนื้อน่อง", duration: "3:22", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/3.mp4"),
+                
+                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "1:56", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
+                
+                VideoExercise(thumbnail: "video_m3", title: "นวดกดจุดฝ่าเท้า", duration: "4:33", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/5.mp4"),
+                
             ]
+            
         case "medium":
+            
             return [
-                VideoExercise(thumbnail: "video_m1",
-                              title: "ยืดกล้ามเนื้อน่อง (การยืนพิงกำแพง)",
-                              duration: "3:22",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/3.mp4"),
-                VideoExercise(thumbnail: "video_m2",
-                              title: "บริหารโดยการเขย่งปลายเท้า",
-                              duration: "1:56",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/4.mp4"),
-                VideoExercise(thumbnail: "video_m3",
-                              title: "นวดฝ่าเท้าด้วยนิ้วหัวแม่มือ",
-                              duration: "4:33",
-                              difficulty: "Medium",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/5.mp4"),
+                
+                VideoExercise(thumbnail: "video_m1", title: "ยืดกล้ามเนื้อน่อง", duration: "3:22", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/3.mp4"),
+                
+                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "1:56", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
+                
+                VideoExercise(thumbnail: "video_m3", title: "นวดกดจุดฝ่าเท้า", duration: "4:33", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/5.mp4"),
+                
             ]
+            
         default: // Low
+            
             return [
-                VideoExercise(thumbnail: "video_e1",
-                              title: "ยืดเหยียดเอ็นฝ่าเท้าด้วยมือ",
-                              duration: "0:38",
-                              difficulty: "Easy",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/1.mp4"),
-                VideoExercise(thumbnail: "video_e2",
-                              title: "บริหารด้วยการหมุนข้อเท้า",
-                              duration: "0:42",
-                              difficulty: "Easy",
-                              videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/Physical-posture/2.mp4"),
+                
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "0:38", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                
+                VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4"),
+                
             ]
+            
         }
+        
     }
     
     var body: some View {
         ZStack {
+            // Background สีครีมอ่อน (Plantar Theme)
             backgroundColor.ignoresSafeArea()
             
-            VStack(spacing: 0) {
-                // MARK: - Top Bar
-                HStack {
-                    // ปุ่ม Back (ซ่อนถ้าเป็นหน้าหลักใน TabView แต่ถ้า Push มาจะแสดง)
-                    // ถ้าใช้ใน TabView อาจจะไม่ต้องการปุ่ม Back หรือต้องการปุ่ม Menu
-                    Spacer()
-                    Text("Recommended Videos")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 16)
-                
-                // MARK: - Tips Bar (แถบสีตาม Risk)
-                HStack {
-                    Image(systemName: "lightbulb.fill")
-                        .font(.title3)
-                        .foregroundColor(themeColor) // ใช้สีตาม Risk
-                    Text("Tips for \(riskLevel.capitalized) Risk")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 16)
-                
-                // MARK: - Content ScrollView
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Description Card
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(titleText)
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .foregroundColor(themeColor) // ใช้สีตาม Risk
-                            
-                            Text(descriptionText)
-                                .font(.subheadline)
-                                .foregroundColor(.black.opacity(0.7))
-                                .lineSpacing(4)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    
+                    // MARK: 1. Hero Section (วิดีโอแนะนำขนาดใหญ่)
+                    if let heroVideo = videos.first {
+                        HeroVideoCard(video: heroVideo, themeColor: brownColor) {
+                            selectedVideo = heroVideo
+                            showVideoPlayer = true
                         }
-                        .padding(20)
-                        .background(cardBackground)
-                        .cornerRadius(15)
                         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 10)
-                        
-                        // Exercise List
-                        VStack(alignment: .leading, spacing: 16) {
-                            ForEach(exercises) { exercise in
-                                ExerciseDetailCard(
-                                    step: exercise,
-                                    badgeColor: themeColor
-                                )
-                            }
+                    }
+                    
+                    // MARK: 2. Status Banner
+                    HStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white) // ไอคอนขาว
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Current Status: \(riskLevel.capitalized) Risk")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("Recommended daily routine for you")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.9))
                         }
-                        .padding(.horizontal, 20)
+                        Spacer()
+                    }
+                    .padding()
+                    .background(themeColor) // พื้นหลังสีน้ำตาล (เหมือนการ์ดใน HomeView)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .shadow(color: themeColor.opacity(0.3), radius: 5, x: 0, y: 3)
+                    
+                    // MARK: 3. Daily Routine (Steps)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Your Routine Steps")
+                            .font(.title3).bold()
+                            .foregroundColor(brownColor) // หัวข้อสีน้ำตาล
+                            .padding(.horizontal)
                         
-                        // MARK: - Video Grid
-                        Text("Recommended Videos")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(exercises) { step in
+                                    StepCardStream(step: step, color: primaryColor)
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 10) // เผื่อเงา
+                        }
+                    }
+                    
+                    // MARK: 4. Other Clips (Video Carousel)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Other Clips")
+                            .font(.title3).bold()
+                            .foregroundColor(brownColor) // หัวข้อสีน้ำตาล
+                            .padding(.horizontal)
                         
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                            ForEach(videos) { video in
-                                VideoCard(
-                                    video: video,
-                                    themeColor: themeColor,
-                                    action: {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                // ใช้ dropFirst เพื่อไม่ให้ซ้ำกับ Hero Video
+                                ForEach(videos.dropFirst()) { video in
+                                    SmallVideoCardStream(video: video, themeColor: themeColor) {
                                         selectedVideo = video
                                         showVideoPlayer = true
                                     }
-                                )
+                                }
                             }
+                            .padding(.horizontal)
+                            .padding(.bottom, 20)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 100)
                     }
+                    
+                    Spacer(minLength: 120) // เผื่อพื้นที่ด้านล่าง
                 }
             }
+            .ignoresSafeArea(edges: .top) // ให้รูป Hero ชนขอบบนสุด
             
             // MARK: - Video Player Overlay
             if showVideoPlayer, let video = selectedVideo {
-                            OnlineVideoPlayer(
-                                isPresented: $showVideoPlayer,
-                                videoUrlString: video.videoUrl // ✅ ส่ง URL ที่เก็บไว้ใน Model ไปให้ Player
-                            )
-                            .transition(.move(edge: .bottom))
-                            .zIndex(1)
-                        }
-        }
-        .navigationBarBackButtonHidden(true)
-    }
-}
-
-// MARK: - Reusable Components
-
-struct ExerciseDetailCard: View {
-    let step: ExerciseStep
-    let badgeColor: Color
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 15) {
-            // Number Badge
-            Text(step.number)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(badgeColor)
-                .clipShape(Circle())
-            
-            // Content
-            VStack(alignment: .leading, spacing: 6) {
-                Text(step.title)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.black)
-                
-                Text(step.description)
-                    .font(.caption)
-                    .foregroundColor(.black.opacity(0.7))
-                    .lineSpacing(3)
+                OnlineVideoPlayer(
+                    isPresented: $showVideoPlayer,
+                    videoUrlString: video.videoUrl
+                )
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
             }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading) // ให้เต็มความกว้าง
-        .background(Color(red: 248/255, green: 247/255, blue: 241/255))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(showVideoPlayer ? .hidden : .visible, for: .tabBar)
+        // เอา preferredColorScheme(.dark) ออก เพื่อให้ใช้สีตามระบบ (หรือสีที่เรากำหนดเอง)
     }
 }
 
-struct VideoCard: View {
+// MARK: - Components (ปรับสีให้เข้ากับธีม)
+
+struct HeroVideoCard: View {
     let video: VideoExercise
     let themeColor: Color
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Thumbnail
-                ZStack(alignment: .bottomLeading) {
+            ZStack(alignment: .bottomLeading) {
+                // Background Image
+                if UIImage(named: video.thumbnail) != nil {
+                    Image(video.thumbnail)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 420)
+                        .clipped()
+                } else {
                     Rectangle()
-                        .fill(Color(red: 248/255, green: 247/255, blue: 241/255))
-                        .aspectRatio(3/4, contentMode: .fit)
-                        .overlay(
-                            Image(systemName: "figure.yoga")
-                                .font(.system(size: 60))
-                                .foregroundColor(themeColor.opacity(0.5))
-                        )
-                    
-                    // Duration
-                    VStack {
-                        HStack {
-                            Spacer()
-                            Text(video.duration)
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.black.opacity(0.7))
-                                .cornerRadius(4)
-                                .padding(8)
-                        }
-                        Spacer()
-                    }
-                    
-                    // Play Button
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Circle()
-                                .fill(themeColor)
-                                .frame(width: 36, height: 36)
-                                .overlay(
-                                    Image(systemName: "play.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.white)
-                                        .offset(x: 1)
-                                )
-                                .padding(10)
-                            Spacer()
-                        }
-                    }
+                        .fill(Color(white: 0.9))
+                        .frame(height: 420)
+                        .overlay(Image(systemName: "figure.yoga").font(.system(size: 80)).foregroundColor(.gray))
                 }
                 
-                // Info
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(video.title)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 8))
-                        Text("Guide")
-                            .font(.caption2)
-                        Circle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(width: 2, height: 2)
-                        Text(video.difficulty)
-                            .font(.caption2)
+                // Gradient Overlay (เพื่อให้ตัวหนังสืออ่านง่าย)
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.8)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+                
+                // Content Info
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("FEATURED")
+                            .font(.caption).bold()
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(themeColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(4)
+                        Spacer()
                     }
-                    .foregroundColor(.secondary)
+                    
+                    Text(video.title)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .shadow(radius: 5)
+                    
+                    HStack(spacing: 16) {
+                        Label(video.duration, systemImage: "clock")
+                        Label(video.difficulty, systemImage: "chart.bar")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.9))
+                    
+                    // Play Button
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Play Now")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .padding(.top, 8)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white)
+                .padding(24)
+                .padding(.bottom, 20)
             }
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
         }
         .buttonStyle(PlainButtonStyle())
     }
 }
 
-struct OnlineVideoPlayer: View {
-    @Binding var isPresented: Bool
-    let videoUrlString: String // รับ URL เป็น String
+struct StepCardStream: View {
+    let step: ExerciseStep
+    let color: Color
     
     var body: some View {
-        ZStack {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(step.number)
+                    .font(.title)
+                    .fontWeight(.heavy)
+                    .foregroundColor(color) // เลขสีตาม Risk
+                Spacer()
+                Image(systemName: "figure.walk")
+                    .font(.title2)
+                    .foregroundColor(Color.gray.opacity(0.5))
+            }
+            
+            Text(step.title)
+                .font(.headline)
+                .foregroundColor(.black) // ตัวหนังสือสีดำ (บนพื้นขาว)
+                .lineLimit(1)
+            
+            Text(step.description)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding()
+        .frame(width: 160, height: 180)
+        .background(Color.white) // พื้นหลังขาว
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2) // เงาบางๆ
+    }
+}
+
+struct SmallVideoCardStream: View {
+    let video: VideoExercise
+    let themeColor: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                // Thumbnail
+                ZStack(alignment: .bottomTrailing) {
+                    if UIImage(named: video.thumbnail) != nil {
+                        Image(video.thumbnail)
+                            .resizable()
+                            .aspectRatio(16/9, contentMode: .fill)
+                            .frame(width: 200, height: 112)
+                            .cornerRadius(8)
+                            .clipped()
+                    } else {
+                        Rectangle()
+                            .fill(Color(white: 0.9)) // พื้นเทาอ่อน
+                            .frame(width: 200, height: 112)
+                            .cornerRadius(8)
+                            .overlay(Image(systemName: "play.circle").font(.largeTitle).foregroundColor(.gray))
+                    }
+                    
+                    // Duration Badge
+                    Text(video.duration)
+                        .font(.caption2).bold()
+                        .foregroundColor(.white)
+                        .padding(4)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(4)
+                        .padding(6)
+                }
+                
+                // Title
+                Text(video.title)
+                    .font(.subheadline).bold()
+                    .foregroundColor(.black) // ตัวหนังสือสีดำ
+                    .lineLimit(2)
+                    .frame(width: 200, alignment: .leading)
+                
+                // Difficulty
+                Text(video.difficulty)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }
+    }
+}
+
+// MARK: - Online Video Player (อันเดิม)
+struct OnlineVideoPlayer: View {
+    @Binding var isPresented: Bool
+    let videoUrlString: String
+    @State private var player: AVPlayer?
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
             Color.black.ignoresSafeArea()
             
-            VStack {
-                // ส่วนหัวสำหรับกดปิด
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        withAnimation { isPresented = false }
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                            .padding()
-                    }
-                }
-                .zIndex(1)
+            if let encodedString = videoUrlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+               let url = URL(string: encodedString) {
                 
-                // ตัวเล่นวิดีโอ
-                if let url = URL(string: videoUrlString) {
-                    VideoPlayer(player: AVPlayer(url: url))
-                        .onAppear {
-                            // สั่งให้เล่นอัตโนมัติ
-                            let player = AVPlayer(url: url)
-                            player.play()
+                VideoPlayer(player: player)
+                    .onAppear {
+                        if player == nil {
+                            player = AVPlayer(url: url)
                         }
-                } else {
-                    // กรณี URL ผิดพลาด
-                    VStack {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 50))
-                            .foregroundColor(.yellow)
-                        Text("Invalid Video URL")
-                            .foregroundColor(.white)
-                            .padding(.top)
+                        player?.play()
                     }
+                    .ignoresSafeArea()
+            } else {
+                VStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundColor(.yellow)
+                    Text("Invalid URL")
+                        .foregroundColor(.white)
                 }
-                
-                Spacer()
+            }
+            
+            Button(action: {
+                player?.pause()
+                player = nil
+                withAnimation { isPresented = false }
+            }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 36))
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.top, 60)
+                    .padding(.trailing, 20)
             }
         }
     }
 }
 
 #Preview {
-    VideoView(riskLevel: "medium") // ลองเปลี่ยนเป็น "high" หรือ "low" เพื่อดูผลลัพธ์
+    VideoView(riskLevel: "medium")
 }

@@ -3,6 +3,7 @@
 //  Plantar
 //
 //  Created by Jeerapan Chirachanchai on 23/10/2568 BE.
+//  Redesigned: App Overview with Header Profile Icon
 //
 
 import SwiftUI
@@ -16,7 +17,6 @@ struct HomeView: View {
     // States for Home Content
     @State private var selectedDate = Date()
     @State private var showVideoPlayer = false
-    @State private var selectedVideo: VideoExercise?
     
     @EnvironmentObject var userProfile: UserProfile
     @EnvironmentObject var authManager: AuthManager
@@ -26,76 +26,66 @@ struct HomeView: View {
     let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255) // ม่วง
     let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255) // เขียว
     let sidebarColor = Color(red: 172/255, green: 187/255, blue: 98/255) // เขียว sidebar
-    let tabBarColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล
     let challengeCardColor = Color(red: 94/255, green: 84/255, blue: 68/255) // สีน้ำตาล
+    
+    // ตั้งค่า TabBar
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        let brownColor = UIColor(red: 94/255, green: 84/255, blue: 68/255, alpha: 1.0)
+        appearance.backgroundColor = brownColor
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.6)
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white.withAlphaComponent(0.6)]
+        let activeColor = UIColor(red: 172/255, green: 187/255, blue: 98/255, alpha: 1.0)
+        appearance.stackedLayoutAppearance.selected.iconColor = activeColor
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: activeColor]
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
     
     var body: some View {
         ZStack {
-            // Background
-            if selectedTab == 0 {
-                backgroundColor.ignoresSafeArea()
-            } else {
-                Color.white.ignoresSafeArea() // พื้นหลังสำหรับหน้าอื่นๆ
-            }
-
-            VStack(spacing: 0) {
-                // MARK: - Content Area (สลับหน้าตรงนี้)
+            // MARK: - Main TabView
+            TabView(selection: $selectedTab) {
+                // Tab 1: Home
                 ZStack {
-                    switch selectedTab {
-                    case 0:
-                        HomeContent // หน้า Dashboard (แยกออกมาเป็นตัวแปรด้านล่าง)
-                    case 1:
-                        VideosTabView() // หน้า Videos (สร้างใหม่ให้ด้านล่าง)
-                    case 2:
-                        DiaryTodayView() // หน้า Diary (มีไฟล์อยู่แล้ว)
-                    case 3:
-                        ProfileView() // หน้า Profile (มีไฟล์อยู่แล้ว)
-                    default:
-                        HomeContent
-                    }
+                    backgroundColor.ignoresSafeArea()
+                    HomeContent
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(0)
                 
-                // MARK: - Bottom Tab Bar
-                HStack(spacing: 0) {
-                    TabBarButton(
-                        icon: "house.fill",
-                        title: "Home",
-                        isSelected: selectedTab == 0,
-                        action: { selectedTab = 0 }
-                    )
-                    
-                    TabBarButton(
-                        icon: "play.rectangle.fill",
-                        title: "Videos",
-                        isSelected: selectedTab == 1,
-                        action: { selectedTab = 1 }
-                    )
-                    
-                    TabBarButton(
-                        icon: "book.fill",
-                        title: "Diary",
-                        isSelected: selectedTab == 2,
-                        action: { selectedTab = 2 }
-                    )
-                    
-                    TabBarButton(
-                        icon: "person.fill",
-                        title: "Profile",
-                        isSelected: selectedTab == 3,
-                        action: { selectedTab = 3 }
-                    )
-                }
-                .padding(.vertical, 12)
-                .background(tabBarColor)
+                // Tab 2: Videos
+                VideosTabView()
+                    .tabItem {
+                        Label("Videos", systemImage: "play.rectangle.fill")
+                    }
+                    .tag(1)
+                
+                // Tab 3: Diary
+                DiaryTodayView()
+                    .tabItem {
+                        Label("Diary", systemImage: "book.fill")
+                    }
+                    .tag(2)
+                
+                // Tab 4: Profile
+                ProfileView()
+                    .tabItem {
+                        Label("Profile", systemImage: "person.fill")
+                    }
+                    .tag(3)
             }
-            .ignoresSafeArea(.keyboard) // ป้องกัน Tab Bar ดันขึ้นเมื่อคีย์บอร์ดมา
+            .accentColor(accentColor)
             
-            // MARK: - Sidebar Menu (Overlay)
+            // MARK: - Sidebar Menu
             if showSidebar {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture { withAnimation { showSidebar = false } }
+                    .zIndex(100)
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 0) {
@@ -104,58 +94,42 @@ struct HomeView: View {
                             Image(systemName: "person.crop.circle.fill")
                                 .font(.system(size: 80))
                                 .foregroundColor(.white)
-                            
                             Text(userProfile.nickname.isEmpty ? "User" : userProfile.nickname)
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
+                                .font(.title3).fontWeight(.bold).foregroundColor(.white)
                             Text(authManager.currentUser?.email ?? "No Email")
-                                .font(.caption)
-                                .foregroundColor(Color.white.opacity(0.8))
+                                .font(.caption).foregroundColor(Color.white.opacity(0.8))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 60)
-                        .padding(.bottom, 30)
+                        .padding(.top, 60).padding(.bottom, 30)
                         
                         Divider().background(Color.white.opacity(0.3))
                         
-                        // Menu Items
                         VStack(spacing: 0) {
                             SidebarMenuItem(icon: "chart.bar.fill", title: "Dashboard", action: { showSidebar = false })
                             SidebarMenuItem(icon: "gearshape.fill", title: "Settings", action: { showSidebar = false })
-                            
                             Divider().background(Color.white.opacity(0.3)).padding(.vertical, 16)
-                            
                             SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: {
                                 showSidebar = false
-                                Task {
-                                    await authManager.signOut()
-                                }
+                                Task { await authManager.signOut() }
                             })
                         }
                         .padding(.top, 20)
-                        
                         Spacer()
                     }
                     .frame(width: 280)
                     .background(sidebarColor)
                     .transition(.move(edge: .leading))
-                    
                     Spacer()
                 }
-                .zIndex(100)
+                .zIndex(101)
             }
             
             // MARK: - Video Player Overlay
-            if showVideoPlayer, let video = selectedVideo {
-                            VideoPlayerView(
-                                isPresented: $showVideoPlayer,
-                                videoUrlString: video.videoUrl // ✅ ส่ง URL ที่เก็บไว้ใน Model ไปให้ Player
-                            )
-                            .transition(.move(edge: .bottom))
-                            .zIndex(1)
-                        }
+            if showVideoPlayer {
+                VideoPlayerView(isPresented: $showVideoPlayer)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(200)
+            }
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
@@ -166,10 +140,10 @@ struct HomeView: View {
         }
     }
     
-    // MARK: - Home Content (หน้า Dashboard เดิม)
+    // MARK: - Home Content
     var HomeContent: some View {
         VStack(spacing: 0) {
-            // Header (เฉพาะหน้า Home)
+            // 1. Header (ปรับปรุงใหม่ ใส่ Profile Icon)
             HStack {
                 Button(action: { withAnimation { showSidebar.toggle() } }) {
                     Image(systemName: "line.3.horizontal")
@@ -177,26 +151,41 @@ struct HomeView: View {
                         .foregroundColor(.black)
                         .padding(8)
                 }
+                
                 Spacer()
+                
                 Text("Plantar")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
+                
                 Spacer()
+                
+                // Notification Icon
                 NavigationLink(destination: NotificationView()) {
                     Image(systemName: "bell.fill")
                         .font(.title3)
                         .foregroundColor(.black)
                         .padding(8)
                 }
+                
+                // ✅ NEW: Profile Icon (ขวาบน)
+                Button(action: { selectedTab = 3 }) { // กดแล้วไป Tab Profile (Tab 3)
+                    Image(systemName: "person.crop.circle.fill") // รูปไอคอนคนกลมๆ
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .foregroundColor(.gray) // หรือใช้ .accentColor ถ้าอยากได้สีเขียว
+                        .padding(.leading, 4)
+                }
             }
             .padding()
             .background(Color.white)
             
-            // Content
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Daily Challenge Card
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    
+                    
+                    // 2. Daily Challenge
                     HStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Daily\nchallenge")
@@ -215,148 +204,232 @@ struct HomeView: View {
                     .background(challengeCardColor)
                     .cornerRadius(20)
                     .padding(.horizontal, 20)
-                    .padding(.top, 20)
                     .onTapGesture {
-                        selectedTab = 2 // กดแล้วไปหน้า Diary
+                        selectedTab = 2
                     }
                     
-                    // Week Calendar
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(getDatesForWeek(), id: \.self) { date in
-                                DateButton(
-                                    date: date,
-                                    isSelected: Calendar.current.isDate(date, inSameDayAs: selectedDate),
-                                    action: {
-                                        withAnimation(.spring(response: 0.3)) {
-                                            selectedDate = date
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                    
-                    // Risk & Progress Cards
-                    HStack(spacing: 16) {
-                        // High Risk Card
-                        NavigationLink(destination: DashboardView()) {
-                            VStack(spacing: 16) {
-                                ZStack {
-                                    Circle()
-                                        .fill(riskColor(severity: userProfile.latestScan?.pf_severity))
-                                        .frame(width: 70, height: 70)
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.system(size: 35))
-                                        .foregroundColor(.white)
-                                }
-                                Text(riskText(severity: userProfile.latestScan?.pf_severity))
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 30)
-                            .background(challengeCardColor)
-                            .cornerRadius(20)
-                        }
-                        
-                        // Progress Card
-                        VStack(spacing: 16) {
-                            ZStack {
-                                Circle().stroke(Color.white.opacity(0.3), lineWidth: 8).frame(width: 70, height: 70)
-                                Circle()
-                                    .trim(from: 0, to: 0.87)
-                                    .stroke(accentColor, lineWidth: 8)
-                                    .frame(width: 70, height: 70)
-                                    .rotationEffect(.degrees(-90))
-                                Text("87%").font(.system(size: 18, weight: .bold)).foregroundColor(.white)
-                            }
-                            Text("Progress").font(.headline).fontWeight(.bold).foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 30)
-                        .background(challengeCardColor)
-                        .cornerRadius(20)
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // Video Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Stretching Videos")
+                    // 3. Date & Calendar Section
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(currentDateString)
                             .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.gray)
                             .padding(.horizontal, 20)
+                            .padding(.top, 10)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(0..<3) { index in
-                                    VideoCardCompact(
-                                        thumbnail: "video_thumbnail_\(index)",
-                                        duration: "00:35",
-                                        title: "Yoga Exercise",
-                                        action: { showVideoPlayer = true }
+                            HStack(spacing: 12) {
+                                ForEach(getDatesForWeek(), id: \.self) { date in
+                                    DateButton(
+                                        date: date,
+                                        isSelected: Calendar.current.isDate(date, inSameDayAs: selectedDate),
+                                        action: {
+                                            withAnimation(.spring(response: 0.3)) {
+                                                selectedDate = date
+                                            }
+                                        }
                                     )
                                 }
                             }
                             .padding(.horizontal, 20)
                         }
                     }
+                    // 4. Status Snapshot
+                    NavigationLink(destination: DashboardView()) {
+                        HStack(spacing: 20) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("YOUR CONDITION")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.gray)
+                                    .tracking(1)
+                                
+                                Text(riskText(severity: userProfile.latestScan?.pf_severity))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(riskColor(severity: userProfile.latestScan?.pf_severity))
+                                
+                                Text("Last scan analysis result")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.1), lineWidth: 8)
+                                    .frame(width: 70, height: 70)
+                                Circle()
+                                    .trim(from: 0, to: 0.75)
+                                    .stroke(
+                                        riskColor(severity: userProfile.latestScan?.pf_severity),
+                                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                                    )
+                                    .rotationEffect(.degrees(-90))
+                                    .frame(width: 70, height: 70)
+                                Image(systemName: "waveform.path.ecg")
+                                    .font(.title2)
+                                    .foregroundColor(riskColor(severity: userProfile.latestScan?.pf_severity))
+                            }
+                        }
+                        .padding(20)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                        .padding(.horizontal, 20)
+                    }
                     
-                    Spacer(minLength: 50)
+                    // 5. App Features (Grid)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Quick Actions")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black.opacity(0.8))
+                            .padding(.horizontal, 20)
+                        
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                            NavigationLink(destination: DashboardView()) {
+                                OverviewCard(icon: "doc.text.magnifyingglass", title: "Scan History", subtitle: "See details", color: primaryColor)
+                            }
+                            Button(action: { selectedTab = 1 }) {
+                                OverviewCard(icon: "play.rectangle.fill", title: "Therapy Videos", subtitle: "Guided Exercise", color: accentColor)
+                            }
+                            Button(action: { selectedTab = 2 }) {
+                                OverviewCard(icon: "book.fill", title: "Pain Diary", subtitle: "Daily Log", color: challengeCardColor)
+                            }
+                            
+                            // ❌ ลบปุ่ม Profile ออกจากตรงนี้แล้ว
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 40)
                 }
             }
-            .background(backgroundColor)
         }
     }
     
-    // MARK: - Videos Tab View (สร้างเพิ่มให้สำหรับ Tab 1)
+    // MARK: - Videos Tab View
     struct VideosTabView: View {
-            @EnvironmentObject var userProfile: UserProfile
-            
-            var body: some View {
-                NavigationView {
-                    ZStack {
-                        // ส่งค่า riskLevel จากผลสแกนล่าสุด
-                        // ถ้าไม่มีค่า ให้ default เป็น "low"
-                        VideoView(riskLevel: userProfile.latestScan?.pf_severity ?? "low")
-                    }
-                    .navigationBarHidden(true)
+        @EnvironmentObject var userProfile: UserProfile
+        var body: some View {
+            NavigationView {
+                ZStack {
+                    VideoView(riskLevel: userProfile.latestScan?.pf_severity ?? "low")
                 }
+                .navigationBarHidden(true)
             }
         }
+    }
     
-    struct VideoCategoryCard: View {
+    // MARK: - Helper Components
+    
+    struct SidebarMenuItem: View {
+        let icon: String
+        let title: String
+        let action: () -> Void
+        var body: some View {
+            Button(action: action) {
+                HStack(spacing: 16) {
+                    Image(systemName: icon).font(.title3).foregroundColor(.white).frame(width: 30)
+                    Text(title).font(.body).foregroundColor(.white)
+                    Spacer()
+                }
+                .padding(.horizontal, 24).padding(.vertical, 16)
+            }
+        }
+    }
+    
+    struct OverviewCard: View {
+        let icon: String
         let title: String
         let subtitle: String
         let color: Color
-        
         var body: some View {
-            HStack {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(title)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+            VStack(alignment: .leading, spacing: 12) {
+                ZStack {
+                    color.opacity(0.15)
+                    Image(systemName: icon).font(.title).foregroundColor(color)
                 }
-                Spacer()
-                Image(systemName: "play.circle.fill")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
+                .frame(width: 50, height: 50).cornerRadius(12)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title).font(.headline).fontWeight(.bold).foregroundColor(.black).lineLimit(1)
+                    Text(subtitle).font(.caption).foregroundColor(.gray).lineLimit(1)
+                }
             }
-            .padding(25)
-            .background(color.opacity(0.8))
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white)
             .cornerRadius(20)
-            .shadow(radius: 5)
+            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         }
     }
     
-    // MARK: - Helper Functions
+    struct DateButton: View {
+        let date: Date
+        let isSelected: Bool
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                VStack(spacing: 4) {
+                    Text(dayOfWeek(from: date))
+                        .font(.caption2)
+                        .foregroundColor(isSelected ? .white : .secondary)
+                    Text("\(dayOfMonth(from: date))")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(isSelected ? .white : .black)
+                }
+                .frame(width: 50, height: 70)
+                .background(isSelected ? Color(red: 172/255, green: 187/255, blue: 98/255) : Color.white)
+                .cornerRadius(25)
+                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+            }
+        }
+        
+        func dayOfWeek(from date: Date) -> String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEE"
+            return formatter.string(from: date)
+        }
+        
+        func dayOfMonth(from date: Date) -> Int {
+            Calendar.current.component(.day, from: date)
+        }
+    }
+    
+    struct VideoPlayerView: View {
+        @Binding var isPresented: Bool
+        var body: some View {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    Spacer()
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .aspectRatio(16/9, contentMode: .fit)
+                            .overlay(Image(systemName: "figure.yoga").font(.system(size: 80)).foregroundColor(.white))
+                        VStack {
+                            HStack {
+                                Button(action: { withAnimation { isPresented = false } }) {
+                                    Image(systemName: "xmark.circle.fill").font(.largeTitle).foregroundColor(.white)
+                                }
+                                Spacer()
+                            }
+                            .padding()
+                            Spacer()
+                        }
+                    }
+                    Spacer()
+                }
+            }
+        }
+    }
+    
+    var currentDateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, d MMMM yyyy"
+        return formatter.string(from: Date())
+    }
+    
     func riskColor(severity: String?) -> Color {
         switch severity {
         case "high": return .red
@@ -385,182 +458,6 @@ struct HomeView: View {
             }
         }
         return dates
-    }
-}
-
-// MARK: - Component Definitions (ย้ายมาไว้ข้างนอกให้เป็นระเบียบ)
-
-struct DateButton: View {
-    let date: Date
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Text(dayOfWeek(from: date))
-                    .font(.caption2)
-                    .foregroundColor(isSelected ? .white : .secondary)
-                Text("\(dayOfMonth(from: date))")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isSelected ? .white : .black)
-            }
-            .frame(width: 50, height: 70)
-            .background(isSelected ? Color(red: 172/255, green: 187/255, blue: 98/255) : Color.white)
-            .cornerRadius(25)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        }
-    }
-    
-    func dayOfWeek(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return formatter.string(from: date)
-    }
-    
-    func dayOfMonth(from date: Date) -> Int {
-        Calendar.current.component(.day, from: date)
-    }
-}
-
-struct TabBarButton: View {
-    let icon: String
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                Text(title)
-                    .font(.caption2)
-            }
-            .foregroundColor(isSelected ? Color(red: 172/255, green: 187/255, blue: 98/255) : .white)
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
-
-struct SidebarMenuItem: View {
-    let icon: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .frame(width: 30)
-                Text(title)
-                    .font(.body)
-                    .foregroundColor(.white)
-                Spacer()
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-        }
-    }
-}
-
-struct VideoCardCompact: View {
-    let thumbnail: String
-    let duration: String
-    let title: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            ZStack(alignment: .bottomLeading) {
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 200, height: 280)
-                    .overlay(
-                        Image(systemName: "figure.yoga")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.6))
-                    )
-                
-                Circle()
-                    .fill(Color(red: 172/255, green: 187/255, blue: 98/255))
-                    .frame(width: 50, height: 50)
-                    .overlay(
-                        Image(systemName: "play.fill")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                    )
-                    .position(x: 100, y: 140)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(duration)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.black.opacity(0.6))
-                        .cornerRadius(8)
-                    Text(title)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                }
-                .padding(12)
-            }
-        }
-    }
-}
-
-// MARK: - Video Player View (เพิ่มส่วนนี้เข้าไป)
-struct VideoPlayerView: View {
-    @Binding var isPresented: Bool
-    let videoUrlString: String // รับ URL เป็น String
-    
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack {
-                // ส่วนหัวสำหรับกดปิด
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        withAnimation { isPresented = false }
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                            .padding()
-                    }
-                }
-                .zIndex(1)
-                
-                // ตัวเล่นวิดีโอ
-                if let url = URL(string: videoUrlString) {
-                    VideoPlayer(player: AVPlayer(url: url))
-                        .onAppear {
-                            // สั่งให้เล่นอัตโนมัติ
-                            let player = AVPlayer(url: url)
-                            player.play()
-                        }
-                } else {
-                    // กรณี URL ผิดพลาด
-                    VStack {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 50))
-                            .foregroundColor(.yellow)
-                        Text("Invalid Video URL")
-                            .foregroundColor(.white)
-                            .padding(.top)
-                    }
-                }
-                
-                Spacer()
-            }
-        }
     }
 }
 
