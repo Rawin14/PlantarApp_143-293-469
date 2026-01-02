@@ -7,6 +7,41 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
+
+extension CLLocationCoordinate2D: @retroactive Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        return lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
+    }
+}
+// MARK: - 1. Location Manager (คลาสสำหรับจัดการตำแหน่ง)
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    @Published var userLocation: CLLocationCoordinate2D?
+    
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        // ขออนุญาตใช้ตำแหน่ง (อย่าลืมเพิ่ม Privacy Key ใน Info.plist)
+        manager.requestWhenInUseAuthorization()
+    }
+    
+    func requestLocation() {
+        manager.requestLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.first else { return }
+        DispatchQueue.main.async {
+            self.userLocation = location.coordinate
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("❌ Location Error: \(error.localizedDescription)")
+    }
+}
 
 // MARK: - Clinic Model
 struct Clinic: Identifiable, Decodable {
@@ -86,6 +121,9 @@ struct ClinicsNearMeView: View {
     // --- Environment ---
     @Environment(\.dismiss) private var dismiss
     
+    // --- Managers ---
+    @StateObject private var locationManager = LocationManager()
+    
     // --- State Variables ---
     // ปักหมุดเริ่มต้นที่กรุงเทพฯ (แถวสยาม/ปทุมวัน เพื่อให้เห็นคลินิกทั่วถึง)
     @State private var region = MKCoordinateRegion(
@@ -105,7 +143,7 @@ struct ClinicsNearMeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // MARK: - Map View
-            Map(coordinateRegion: $region, annotationItems: clinics) { clinic in
+            Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: clinics) { clinic in
                 MapAnnotation(coordinate: clinic.coordinate) {
                     ClinicMapPin(
                         clinic: clinic,
@@ -136,10 +174,8 @@ struct ClinicsNearMeView: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            withAnimation {
-                                region.center = CLLocationCoordinate2D(latitude: 13.7469, longitude: 100.5349)
-                                region.span = MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
-                            }
+                            print("📍 Requesting location...")
+                            locationManager.requestLocation()
                         }) {
                             Circle()
                                 .fill(Color.white)
@@ -174,6 +210,14 @@ struct ClinicsNearMeView: View {
             await fetchClinics()
         }
         .toolbar(.hidden, for: .tabBar)
+        .onChange(of: locationManager.userLocation) { newLocation in
+            if let location = newLocation {
+                withAnimation {
+                    region.center = location
+                    region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                }
+            }
+        }
     }
     
     // MARK: - Top Bar

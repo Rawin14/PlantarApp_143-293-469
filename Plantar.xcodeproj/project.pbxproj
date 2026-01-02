@@ -472,7 +472,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องนะจ๊ะ";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องสำหรับการถ่ายรูปรอยเท้า";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "แอปต้องการตำแหน่งของคุณเพื่อค้นหาคลินิกที่ใกล้ที่สุด";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -503,7 +504,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องนะจ๊ะ";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องสำหรับการถ่ายรูปรอยเท้า";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "แอปต้องการตำแหน่งของคุณเพื่อค้นหาคลินิกที่ใกล้ที่สุด";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
