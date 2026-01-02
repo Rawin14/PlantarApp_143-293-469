@@ -175,7 +175,8 @@ struct Profile: View {
                             print("Gender: \(selectedGender)")
                             print("Nickname: \(userProfile.nickname)")
                             print("Birthday: \(birthdate)")
-                            await userProfile.loadFromSupabase()
+                            userProfile.gender = (selectedGender == .male) ? "male" : "female"
+                            userProfile.birthdate = birthdate
                             navigateToAge = true // 👈 Trigger navigation
                         }
                     }
@@ -190,7 +191,7 @@ struct Profile: View {
                                 .fill(
                                     !userProfile.nickname.isEmpty ?
                                     buttonColor :
-                                    buttonColor.opacity(0.5)
+                                        buttonColor.opacity(0.5)
                                 )
                         )
                 }
@@ -200,6 +201,16 @@ struct Profile: View {
                 .onAppear {
                     Task {
                         await userProfile.loadFromSupabase()
+                        
+                        // ✅ 3. เพิ่ม: อัปเดต UI ให้ตรงกับข้อมูลที่โหลดมา
+                        if userProfile.gender.lowercased() == "male" {
+                            selectedGender = .male
+                        } else {
+                            selectedGender = .female
+                        }
+                        
+                        // อัปเดตวันเกิดด้วย
+                        birthdate = userProfile.birthdate
                     }
                 }
             }

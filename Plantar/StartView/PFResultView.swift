@@ -197,9 +197,9 @@ struct PFResultView: View {
     // Helper Colors
     func riskColor(_ severity: String) -> Color {
         switch severity {
-        case "Low Risk": return .green
-        case "Medium Risk": return .orange
-        case "High Risk": return .red
+        case "low": return .green
+        case "medium": return .orange
+        case "high": return .red
         default: return .gray
         }
     }

@@ -242,10 +242,10 @@ struct HomeView: View {
                                     .foregroundColor(.gray)
                                     .tracking(1)
                                 
-                                Text(riskText(severity: userProfile.latestScan?.pf_severity))
+                                Text(riskText(severity: userProfile.riskSeverity))
                                     .font(.title)
                                     .fontWeight(.bold)
-                                    .foregroundColor(riskColor(severity: userProfile.latestScan?.pf_severity))
+                                    .foregroundColor(riskColor(severity: userProfile.riskSeverity))
                                 
                                 Text("Last scan analysis result")
                                     .font(.caption)
@@ -259,14 +259,14 @@ struct HomeView: View {
                                 Circle()
                                     .trim(from: 0, to: 0.75)
                                     .stroke(
-                                        riskColor(severity: userProfile.latestScan?.pf_severity),
+                                        riskColor(severity: userProfile.riskSeverity),
                                         style: StrokeStyle(lineWidth: 8, lineCap: .round)
                                     )
                                     .rotationEffect(.degrees(-90))
                                     .frame(width: 70, height: 70)
                                 Image(systemName: "waveform.path.ecg")
                                     .font(.title2)
-                                    .foregroundColor(riskColor(severity: userProfile.latestScan?.pf_severity))
+                                    .foregroundColor(riskColor(severity: userProfile.riskSeverity))
                             }
                         }
                         .padding(20)
@@ -295,7 +295,6 @@ struct HomeView: View {
                                 OverviewCard(icon: "book.fill", title: "Pain Diary", subtitle: "Daily Log", color: challengeCardColor)
                             }
                             
-                            // ❌ ลบปุ่ม Profile ออกจากตรงนี้แล้ว
                         }
                         .padding(.horizontal, 20)
                     }
@@ -311,7 +310,7 @@ struct HomeView: View {
         var body: some View {
             NavigationView {
                 ZStack {
-                    VideoView(riskLevel: userProfile.latestScan?.pf_severity ?? "low")
+                    VideoView(riskLevel: userProfile.riskSeverity)
                 }
                 .navigationBarHidden(true)
             }
@@ -467,12 +466,8 @@ struct HomeView: View {
     mockProfile.email = "test@example.com"
     
     // 2. จำลองผลสแกน (เลือก risk ได้ตามใจ: "low", "medium", "high")
-    mockProfile.latestScan = FootScanModel(
-        id: "preview-id",
-        pf_severity: "medium", // 👈 ลองแก้ตรงนี้เป็น "high" หรือ "low" เพื่อดูสีเปลี่ยน
-        pf_score: 15.0,
-        created_at: nil
-    )
+    mockProfile.height = 170; mockProfile.weight = 75; // BMI เริ่มอ้วน (2 คะแนน)
+    mockProfile.evaluateScore = 9.0
     
     // 3. ส่งข้อมูลจำลองเข้าไปใน Preview
     return NavigationStack {

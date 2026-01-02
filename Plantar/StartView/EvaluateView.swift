@@ -290,49 +290,45 @@ struct EvaluateView: View {
                     // Next/Complete Button (สีน้ำตาล)
                     Button(
                         action: {
-                        if let answer = selectedAnswer {
-                            if answer {
-                                totalScore += currentQuestion.score
-                            }
-                            
-                            withAnimation {
-                                if currentQuestionIndex < questions.count - 1 {
-                                    currentQuestionIndex += 1
-                                    selectedAnswer = nil
-                                } else {
-                                    // ✅ แก้ไข: บันทึกคะแนนเต็ม ไม่ต้องหาร 2
-                                    userProfile.evaluateScore = Double(
-                                        totalScore
-                                    )
-                                    print(
-                                        "Evaluate Score: \(totalScore) (Saved to UserProfile)"
-                                    )
-                                    
-                                    // ไปหน้าถัดไป
-                                    navigateToNext = true
+                            if let answer = selectedAnswer {
+                                if answer {
+                                    totalScore += currentQuestion.score
+                                }
+                                
+                                withAnimation {
+                                    if currentQuestionIndex < questions.count - 1 {
+                                        currentQuestionIndex += 1
+                                        selectedAnswer = nil
+                                    } else {
+                                        userProfile.evaluateScore = Double(totalScore)
+                                        print("Evaluate Score: \(totalScore)")
+                                        Task {
+                                            await userProfile.saveToSupabase()
+                                        }
+                                        navigateToNext = true
+                                    }
                                 }
                             }
+                        }) {
+                            HStack {
+                                Text(currentQuestionIndex < questions.count - 1 ? "Next" : "Complete")
+                                    .font(.system(size: 16, weight: .semibold))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(
+                                        selectedAnswer != nil ?
+                                        Color.Evaluate_ButtonColor :
+                                            Color.Evaluate_ButtonColor.opacity(0.5)
+                                    )
+                            )
                         }
-}) {
-    HStack {
-        Text(currentQuestionIndex < questions.count - 1 ? "Next" : "Complete")
-            .font(.system(size: 16, weight: .semibold))
-        Image(systemName: "chevron.right")
-            .font(.system(size: 16, weight: .semibold))
-    }
-    .foregroundColor(.white)
-    .frame(maxWidth: .infinity)
-    .padding(.vertical, 16)
-    .background(
-        RoundedRectangle(cornerRadius: 15)
-            .fill(
-                selectedAnswer != nil ?
-                Color.Evaluate_ButtonColor :
-                    Color.Evaluate_ButtonColor.opacity(0.5)
-            )
-    )
-}
-.disabled(selectedAnswer == nil)
+                        .disabled(selectedAnswer == nil)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)

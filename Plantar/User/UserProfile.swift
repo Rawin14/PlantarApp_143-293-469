@@ -20,6 +20,8 @@ struct ProfileInsert: Encodable {
     let gender: String?
     let birthdate: String?
     let bmi: Double?
+    let evaluate_score: Double?
+    let risk_level: String?
 }
 
 struct ProfileData: Codable {
@@ -30,6 +32,7 @@ struct ProfileData: Codable {
     let weight: Double?
     let gender: String?
     let birthdate: String?
+    let evaluate_score: Double?
     let created_at: String?
     let updated_at: String?
 }
@@ -105,12 +108,12 @@ class UserProfile: ObservableObject {
     var riskSeverity: String {
             let score = totalRiskScore
             // เกณฑ์คะแนน (ปรับตามความเหมาะสมของคะแนนเต็ม ~23)
-            if score <= 8 {
-                return "Low Risk"
-            } else if score <= 15 {
-                return "Medium Risk"
+            if score <= 7 {
+                return "low"
+            } else if score <= 13 {
+                return "medium"
             } else {
-                return "High Risk"
+                return "high"
             }
         }
     // MARK: - Save to Supabase
@@ -134,7 +137,9 @@ class UserProfile: ObservableObject {
                 weight: weight > 0 ? weight : nil,
                 gender: gender.isEmpty ? nil : gender,
                 birthdate: ISO8601DateFormatter().string(from: birthdate),
-                bmi: currentBMI > 0 ? currentBMI : nil
+                bmi: currentBMI > 0 ? currentBMI : nil,
+                evaluate_score: self.evaluateScore,
+                risk_level: self.riskSeverity
             )
             
             // Upsert to Supabase
@@ -183,6 +188,7 @@ class UserProfile: ObservableObject {
                 self.height = profile.height ?? 0.0
                 self.weight = profile.weight ?? 0.0
                 self.gender = profile.gender ?? "female"
+                self.evaluateScore = profile.evaluate_score ?? 0.0
                 
                 if let birthdateString = profile.birthdate,
                    let date = ISO8601DateFormatter().date(from: birthdateString) {

@@ -29,10 +29,11 @@ struct ExerciseStep: Identifiable {
 
 struct VideoView: View {
     // --- รับค่า Risk Level ---
-    var riskLevel: String = "low"
+    var riskLevel: String?
     
     // --- Environment ---
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var userProfile: UserProfile
     
     // --- State Variables ---
     @State private var showVideoPlayer = false
@@ -46,7 +47,7 @@ struct VideoView: View {
     
     // สีตามความเสี่ยง (Risk)
     var themeColor: Color {
-        switch riskLevel {
+        switch userProfile.riskSeverity {
         case "high": return Color.red.opacity(0.8)
         case "medium": return Color.orange.opacity(0.8)
         default: return accentColor // เขียวเดียวกับ HomeView
@@ -55,7 +56,7 @@ struct VideoView: View {
     
     // --- Data (คงเดิม) ---
     var exercises: [ExerciseStep] {
-        switch riskLevel {
+        switch userProfile.riskSeverity {
         case "high":
             return [
                 ExerciseStep(number: "1", title: "ประคบเย็น", description: "ใช้น้ำแข็งประคบบริเวณส้นเท้า 15-20 นาที"),
@@ -79,19 +80,19 @@ struct VideoView: View {
     
     var videos: [VideoExercise] {
         
-        switch riskLevel {
+        switch userProfile.riskSeverity {
             
         case "high":
             
             return [
                 
-                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "0:38", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "1:56", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
                 
                 VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4"),
                 
                 VideoExercise(thumbnail: "video_m1", title: "ยืดกล้ามเนื้อน่อง", duration: "3:22", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/3.mp4"),
                 
-                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "1:56", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
+                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "0:38", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
                 
                 VideoExercise(thumbnail: "video_m3", title: "นวดกดจุดฝ่าเท้า", duration: "4:33", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/5.mp4"),
                 
@@ -113,7 +114,7 @@ struct VideoView: View {
             
             return [
                 
-                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "0:38", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "1:56", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
                 
                 VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4"),
                 
@@ -146,7 +147,7 @@ struct VideoView: View {
                             .font(.title2)
                             .foregroundColor(.white) // ไอคอนขาว
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Current Status: \(riskLevel.capitalized) Risk")
+                            Text("Current Status: \(userProfile.riskSeverity) Risk")
                                 .font(.headline)
                                 .foregroundColor(.white)
                             Text("Recommended daily routine for you")
@@ -434,5 +435,19 @@ struct OnlineVideoPlayer: View {
 }
 
 #Preview {
-    VideoView(riskLevel: "medium")
+    // 1. สร้างข้อมูลจำลอง (Mock Data)
+    let mockProfile = UserProfile()
+    mockProfile.nickname = "สมชาย ใจดี"
+    mockProfile.email = "test@example.com"
+    
+    // 2. จำลองผลสแกน (เลือก risk ได้ตามใจ: "low", "medium", "high")
+    mockProfile.height = 170; mockProfile.weight = 75; // BMI เริ่มอ้วน (2 คะแนน)
+    mockProfile.evaluateScore = 9.0
+    
+    // 3. ส่งข้อมูลจำลองเข้าไปใน Preview
+    return NavigationStack {
+        VideoView()
+            .environmentObject(mockProfile)
+            .environmentObject(AuthManager())
+    }
 }
