@@ -104,7 +104,6 @@ struct ClinicsNearMeView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            
             // MARK: - Map View
             Map(coordinateRegion: $region, annotationItems: clinics) { clinic in
                 MapAnnotation(coordinate: clinic.coordinate) {
@@ -127,7 +126,7 @@ struct ClinicsNearMeView: View {
             VStack(spacing: 0) {
                 topBar
                 searchBar
-                Spacer() // ดัน Search Bar ขึ้นไปข้างบนสุด
+                Spacer()
             }
             
             // MARK: - Current Location Button
@@ -153,19 +152,23 @@ struct ClinicsNearMeView: View {
                                 )
                         }
                         .padding(.trailing, 20)
-                        .padding(.bottom, 30) // ปุ่ม Location ลอยเหนือ Tab Bar นิดหน่อย
+                        .padding(.bottom, 30)
                     }
                 }
             }
             
             // MARK: - Bottom Clinic Detail Sheet (UI ส่วนล่าง)
             if showClinicDetail, let clinic = selectedClinic {
-                            clinicDetailCard(clinic: clinic)
-                                .transition(.move(edge: .bottom))
-                                .zIndex(1) // มั่นใจว่าอยู่บนสุด
-                        }
-            
-        } // ปิด ZStack
+                // ✅ ห่อด้วย VStack และใช้ Spacer() เพื่อดันขึ้นจากด้านล่าง
+                VStack {
+                    Spacer()
+                    clinicDetailCard(clinic: clinic)
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
+                .ignoresSafeArea(edges: .bottom) // ✅ ย้ายมาไว้ที่นี่แทน
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .task {
             await fetchClinics()
@@ -334,9 +337,7 @@ struct ClinicsNearMeView: View {
                             Text(clinic.phone)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            
                             Spacer()
-                            
                             Button(action: {
                                 if let url = URL(string: "tel://\(clinic.phone.replacingOccurrences(of: "-", with: ""))") {
                                     UIApplication.shared.open(url)
@@ -384,10 +385,9 @@ struct ClinicsNearMeView: View {
             }
             .frame(maxHeight: 400)
         }
-        .background(Color.white)
+        .background(Color.white) // ✅ ลบ modifiers ที่เกี่ยวกับ safeArea ออกหมด
         .cornerRadius(24, corners: [.topLeft, .topRight])
         .shadow(color: Color.black.opacity(0.15), radius: 30, x: 0, y: -5)
-        .ignoresSafeArea(edges: .bottom)
     }
     
     // MARK: - Helper Function
