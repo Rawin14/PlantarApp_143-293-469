@@ -5,34 +5,81 @@
 // Created by Jeerapan Chirachanchai on 31/10/2568 BE.
 //
 
-//
-// ClinicsNearMeView.swift
-// Plantar
-//
-// Created by Jeerapan Chirachanchai on 31/10/2568 BE.
-//
-
 import SwiftUI
 import MapKit
 
 // MARK: - Clinic Model
-struct Clinic: Identifiable {
-    let id = UUID()
+struct Clinic: Identifiable, Decodable {
+    let id: UUID
     let name: String
     let address: String
     let phone: String
     let rating: Double
     let reviewCount: Int
-    let distance: String
-    let coordinate: CLLocationCoordinate2D
+    
+    // แยก lat/long เพราะใน DB เก็บแยกกัน
+    let latitude: Double
+    let longitude: Double
+    
     let isOpen: Bool
     let openingHours: String
-}
-
-// MARK: - Clinic Annotation
-struct ClinicAnnotation: Identifiable {
-    let id = UUID()
-    let clinic: Clinic
+    
+    // ✅ ตัวช่วยแปลงชื่อตัวแปร (Snake case -> Camel case)
+    enum CodingKeys: String, CodingKey {
+        case id, name, address, phone, rating
+        case reviewCount = "review_count"
+        case latitude, longitude
+        case isOpen = "is_open"
+        case openingHours = "opening_hours"
+    }
+    
+    // ✅ Computed Property แปลงเป็น Coordinate ให้ MapKit ใช้ได้
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+    
+    // ✅ คำนวณระยะทางหลอกๆ (ของจริงต้องคำนวณจาก Location User)
+    var distance: String {
+        return "Calculating..." // หรือใส่ Logic คำนวณระยะทางจริงที่นี่
+    }
+    
+    var isNowOpen: Bool {
+        // 1. ดึงเวลาปัจจุบันของเครื่อง
+        let calendar = Calendar.current
+        let now = Date()
+        let currentHour = calendar.component(.hour, from: now)
+        let currentMinute = calendar.component(.minute, from: now)
+        let currentTimeValue = (currentHour * 60) + currentMinute // แปลงเป็นนาที (เช่น 10:30 -> 630)
+        
+        // 2. แกะเวลาจาก string (เช่น "เปิด 09:00 - 20:00")
+        // หาตัวเลขชุดที่เป็นเวลา (HH:mm)
+        let pattern = #"(\d{1,2}):(\d{2})"#
+        
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return isOpen }
+        let nsString = openingHours as NSString
+        let results = regex.matches(in: openingHours, options: [], range: NSRange(location: 0, length: nsString.length))
+        
+        // ต้องเจอเวลาอย่างน้อย 2 ชุด (เวลาเปิด และ เวลาปิด)
+        if results.count >= 2 {
+            // เวลาเปิด (Start)
+            let startMatch = results[0]
+            let startHour = Int(nsString.substring(with: startMatch.range(at: 1))) ?? 0
+            let startMin = Int(nsString.substring(with: startMatch.range(at: 2))) ?? 0
+            let startTimeValue = (startHour * 60) + startMin
+            
+            // เวลาปิด (End)
+            let endMatch = results[1]
+            let endHour = Int(nsString.substring(with: endMatch.range(at: 1))) ?? 0
+            let endMin = Int(nsString.substring(with: endMatch.range(at: 2))) ?? 0
+            let endTimeValue = (endHour * 60) + endMin
+            
+            // 3. เปรียบเทียบ: เวลาปัจจุบันต้องอยู่ระหว่าง เริ่ม และ จบ
+            return currentTimeValue >= startTimeValue && currentTimeValue < endTimeValue
+        }
+        
+        // ถ้าแกะเวลาไม่ได้ ให้ยึดค่าตาม DB ไปก่อน
+        return isOpen
+    }
 }
 
 struct ClinicsNearMeView: View {
@@ -40,81 +87,35 @@ struct ClinicsNearMeView: View {
     @Environment(\.dismiss) private var dismiss
     
     // --- State Variables ---
+    // ปักหมุดเริ่มต้นที่กรุงเทพฯ (แถวสยาม/ปทุมวัน เพื่อให้เห็นคลินิกทั่วถึง)
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 13.7563, longitude: 100.5018), // กรุงเทพ
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        center: CLLocationCoordinate2D(latitude: 13.7469, longitude: 100.5349),
+        span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
     )
     @State private var selectedClinic: Clinic?
     @State private var showClinicDetail = false
     @State private var searchText = ""
+    @State private var clinics: [Clinic] = []
     
     // --- Custom Colors ---
     let backgroundColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล
     let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255) // ม่วง
     let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255) // เขียวมะนาว
-    let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255) // ครีม
-    
-    // --- Sample Clinics Data ---
-    let clinics: [Clinic] = [
-        Clinic(
-            name: "คลินิกกายภาพบำบัด เฮลท์แคร์",
-            address: "123 ถนนสุขุมวิท แขวงคลองเตย กรุงเทพฯ 10110",
-            phone: "02-123-4567",
-            rating: 4.5,
-            reviewCount: 128,
-            distance: "0.8 km",
-            coordinate: CLLocationCoordinate2D(latitude: 13.7563, longitude: 100.5018),
-            isOpen: true,
-            openingHours: "เปิด 09:00 - 20:00"
-        ),
-        Clinic(
-            name: "ศูนย์กายภาพบำบัด วิทยาการ",
-            address: "456 ถนนพระราม 4 แขวงคลองเตย กรุงเทพฯ 10110",
-            phone: "02-234-5678",
-            rating: 4.8,
-            reviewCount: 256,
-            distance: "1.2 km",
-            coordinate: CLLocationCoordinate2D(latitude: 13.7463, longitude: 100.5118),
-            isOpen: true,
-            openingHours: "เปิด 08:00 - 19:00"
-        ),
-        Clinic(
-            name: "คลินิกกายภาพ แอดวานซ์",
-            address: "789 ถนนเพชรบุรี แขวงมักกะสัน กรุงเทพฯ 10400",
-            phone: "02-345-6789",
-            rating: 4.3,
-            reviewCount: 89,
-            distance: "2.1 km",
-            coordinate: CLLocationCoordinate2D(latitude: 13.7663, longitude: 100.4918),
-            isOpen: false,
-            openingHours: "ปิด • เปิด 10:00"
-        ),
-        Clinic(
-            name: "ศูนย์ฟื้นฟูสุขภาพ โปร เฮลท์",
-            address: "321 ถนนอโศก แขวงคลองเตย กรุงเทพฯ 10110",
-            phone: "02-456-7890",
-            rating: 4.7,
-            reviewCount: 342,
-            distance: "1.5 km",
-            coordinate: CLLocationCoordinate2D(latitude: 13.7363, longitude: 100.5218),
-            isOpen: true,
-            openingHours: "เปิด 07:00 - 21:00"
-        )
-    ]
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
+            
             // MARK: - Map View
-            Map(coordinateRegion: $region, annotationItems: clinics.map { ClinicAnnotation(clinic: $0) }) { annotation in
-                MapAnnotation(coordinate: annotation.clinic.coordinate) {
+            Map(coordinateRegion: $region, annotationItems: clinics) { clinic in
+                MapAnnotation(coordinate: clinic.coordinate) {
                     ClinicMapPin(
-                        clinic: annotation.clinic,
-                        isSelected: selectedClinic?.id == annotation.clinic.id,
-                        accentColor: accentColor
+                        clinic: clinic,
+                        isSelected: selectedClinic?.id == clinic.id,
+                        accentColor: clinic.isNowOpen ? accentColor : .gray
                     )
                     .onTapGesture {
-                        withAnimation {
-                            selectedClinic = annotation.clinic
+                        withAnimation(.spring()) {
+                            selectedClinic = clinic
                             showClinicDetail = true
                         }
                     }
@@ -122,48 +123,54 @@ struct ClinicsNearMeView: View {
             }
             .ignoresSafeArea()
             
-            // MARK: - Top Overlay
+            // MARK: - Top Overlay (UI ส่วนบน)
             VStack(spacing: 0) {
-                // Top Bar
                 topBar
-                
-                // Search Bar
                 searchBar
-                
-                Spacer()
-                
-                // Bottom Clinic Detail Sheet
-                if showClinicDetail, let clinic = selectedClinic {
-                    clinicDetailCard(clinic: clinic)
-                        .transition(.move(edge: .bottom))
-                }
+                Spacer() // ดัน Search Bar ขึ้นไปข้างบนสุด
             }
             
             // MARK: - Current Location Button
-            VStack {
-                Spacer()
-                HStack {
+            if !showClinicDetail {
+                VStack {
                     Spacer()
-                    Button(action: {
-                        // TODO: Get current location
-                        print("Get current location")
-                    }) {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 56, height: 56)
-                            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-                            .overlay(
-                                Image(systemName: "location.fill")
-                                    .font(.title3)
-                                    .foregroundColor(accentColor)
-                            )
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            withAnimation {
+                                region.center = CLLocationCoordinate2D(latitude: 13.7469, longitude: 100.5349)
+                                region.span = MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
+                            }
+                        }) {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 50, height: 50)
+                                .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
+                                .overlay(
+                                    Image(systemName: "location.fill")
+                                        .font(.title3)
+                                        .foregroundColor(accentColor)
+                                )
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 30) // ปุ่ม Location ลอยเหนือ Tab Bar นิดหน่อย
                     }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, showClinicDetail ? 280 : 100)
                 }
             }
-        }
+            
+            // MARK: - Bottom Clinic Detail Sheet (UI ส่วนล่าง)
+            if showClinicDetail, let clinic = selectedClinic {
+                            clinicDetailCard(clinic: clinic)
+                                .transition(.move(edge: .bottom))
+                                .zIndex(1) // มั่นใจว่าอยู่บนสุด
+                        }
+            
+        } // ปิด ZStack
         .navigationBarBackButtonHidden(true)
+        .task {
+            await fetchClinics()
+        }
+        .toolbar(.hidden, for: .tabBar)
     }
     
     // MARK: - Top Bar
@@ -184,18 +191,17 @@ struct ClinicsNearMeView: View {
             Text("คลินิกกายภาพใกล้ฉัน")
                 .font(.headline)
                 .foregroundColor(backgroundColor)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(Color.white.opacity(0.95))
                 .cornerRadius(20)
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
             Spacer()
-            Circle()
-                .fill(Color.clear)
-                .frame(width: 44, height: 44)
+            // Placeholder เพื่อให้ Title อยู่ตรงกลาง
+            Circle().fill(Color.clear).frame(width: 44, height: 44)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 16)
+        .padding(.top, 16) // ปรับตาม SafeArea
     }
     
     // MARK: - Search Bar
@@ -204,17 +210,19 @@ struct ClinicsNearMeView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             
-            TextField("Search Location", text: $searchText)
+            TextField("ค้นหาคลินิก, โรงพยาบาล...", text: $searchText)
                 .foregroundColor(backgroundColor)
             
-            Button(action: {}) {
-                Image(systemName: "slider.horizontal.3")
-                    .foregroundColor(accentColor)
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                }
             }
         }
         .padding(12)
         .background(Color.white)
-        .cornerRadius(12)
+        .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         .padding(.horizontal, 20)
         .padding(.top, 12)
@@ -231,28 +239,37 @@ struct ClinicsNearMeView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
-                    // Header
-                    HStack(alignment: .top, spacing: 12) {
-                        // Icon
+                    // Header Info
+                    HStack(alignment: .top, spacing: 14) {
+                        // Icon Image
                         ZStack {
-                            Circle()
-                                .fill(accentColor.opacity(0.2))
-                                .frame(width: 60, height: 60)
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(accentColor.opacity(0.15))
+                                .frame(width: 64, height: 64)
                             Image(systemName: "cross.case.fill")
-                                .font(.title2)
+                                .font(.title)
                                 .foregroundColor(accentColor)
                         }
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 6) {
                             Text(clinic.name)
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(backgroundColor)
+                                .fixedSize(horizontal: false, vertical: true)
                             
-                            HStack(spacing: 4) {
-                                Image(systemName: clinic.isOpen ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                    .foregroundColor(clinic.isOpen ? .green : .red)
+                            HStack(spacing: 6) {
+                                Label(clinic.isNowOpen ? "เปิดอยู่" : "ปิดแล้ว", systemImage: "clock.fill")
                                     .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(clinic.isNowOpen ? .green : .red)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        (clinic.isNowOpen ? Color.green : Color.red).opacity(0.1)
+                                    )
+                                    .cornerRadius(6)
+                                
                                 Text(clinic.openingHours)
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -268,129 +285,109 @@ struct ClinicsNearMeView: View {
                                 selectedClinic = nil
                             }
                         }) {
-                            Image(systemName: "xmark")
-                                .font(.body)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    // Rating & Distance
-                    HStack(spacing: 16) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.orange)
-                                .font(.caption)
-                            Text(String(format: "%.1f", clinic.rating))
-                                .font(.body)
-                                .fontWeight(.semibold)
-                            Text("(\(clinic.reviewCount))")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Text("•")
-                            .foregroundColor(.gray)
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "location.fill")
-                                .foregroundColor(accentColor)
-                                .font(.caption)
-                            Text(clinic.distance)
-                                .font(.body)
-                                .foregroundColor(.gray)
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.gray.opacity(0.5))
                         }
                     }
                     
                     Divider()
                     
-                    // Address
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "mappin.circle.fill")
-                            .foregroundColor(primaryColor)
-                            .font(.title3)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("ที่อยู่")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                    // Stats Row
+                    HStack(spacing: 20) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill").foregroundColor(.orange)
+                            Text(String(format: "%.1f", clinic.rating))
+                                .fontWeight(.bold)
+                            Text("(\(clinic.reviewCount))").foregroundColor(.gray)
+                        }
+                        .font(.subheadline)
+                        
+                        ContainerRelativeShape()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 1, height: 16)
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: "location.fill").foregroundColor(accentColor)
+                            Text(clinic.distance).fontWeight(.medium)
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    }
+                    
+                    // Contact Info
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "mappin.and.ellipse")
+                                .foregroundColor(primaryColor)
+                                .frame(width: 24)
                             Text(clinic.address)
-                                .font(.body)
-                                .foregroundColor(backgroundColor)
-                        }
-                        Spacer()
-                    }
-                    
-                    // Phone
-                    HStack(spacing: 12) {
-                        Image(systemName: "phone.circle.fill")
-                            .foregroundColor(accentColor)
-                            .font(.title3)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("โทรศัพท์")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            Text(clinic.phone)
-                                .font(.body)
-                                .foregroundColor(backgroundColor)
-                        }
-                        Spacer()
-                        Button(action: {
-                            // TODO: Call phone
-                            if let url = URL(string: "tel://\(clinic.phone.replacingOccurrences(of: "-", with: ""))") {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            Image(systemName: "phone.fill")
-                                .foregroundColor(.white)
-                                .padding(10)
-                                .background(accentColor)
-                                .clipShape(Circle())
-                        }
-                    }
-                    
-                    // Action Buttons
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            // TODO: Open in Maps
-                            openInMaps(clinic: clinic)
-                        }) {
-                            HStack {
-                                Image(systemName: "map.fill")
-                                Text("เส้นทาง")
-                            }
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(primaryColor)
-                            .cornerRadius(12)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         
-                        Button(action: {
-                            // TODO: Share
-                            print("Share clinic info")
-                        }) {
-                            HStack {
-                                Image(systemName: "square.and.arrow.up")
-                                Text("แชร์")
+                        HStack(alignment: .center, spacing: 12) {
+                            Image(systemName: "phone.fill")
+                                .foregroundColor(accentColor)
+                                .frame(width: 24)
+                            Text(clinic.phone)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                if let url = URL(string: "tel://\(clinic.phone.replacingOccurrences(of: "-", with: ""))") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }) {
+                                Text("โทร")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(accentColor)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(accentColor.opacity(0.1))
+                                    .cornerRadius(12)
                             }
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(primaryColor)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    
+                    // Primary Action Buttons
+                    HStack(spacing: 12) {
+                        Button(action: { openInMaps(clinic: clinic) }) {
+                            HStack {
+                                Image(systemName: "location.circle.fill")
+                                Text("นำทาง")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(primaryColor.opacity(0.1))
-                            .cornerRadius(12)
+                            .padding()
+                            .background(primaryColor)
+                            .cornerRadius(16)
+                        }
+                        
+                        Button(action: { print("Share") }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.headline)
+                                .foregroundColor(primaryColor)
+                                .padding()
+                                .background(primaryColor.opacity(0.1))
+                                .cornerRadius(16)
                         }
                     }
                 }
-                .padding(20)
+                .padding(24)
             }
             .frame(maxHeight: 400)
         }
         .background(Color.white)
-        .cornerRadius(20, corners: [.topLeft, .topRight])
-        .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: -5)
+        .cornerRadius(24, corners: [.topLeft, .topRight])
+        .shadow(color: Color.black.opacity(0.15), radius: 30, x: 0, y: -5)
+        .ignoresSafeArea(edges: .bottom)
     }
     
     // MARK: - Helper Function
@@ -399,6 +396,30 @@ struct ClinicsNearMeView: View {
         let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
         mapItem.name = clinic.name
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
+    }
+    // MARK: - Fetch Function
+    func fetchClinics() async {
+        print("🔄 กำลังโหลดข้อมูลคลินิก...") // 1. เช็คว่าฟังก์ชันถูกเรียกไหม
+        
+        do {
+            let fetchedClinics: [Clinic] = try await UserProfile.supabase
+                .from("clinics")
+                .select()
+                .execute()
+                .value
+            
+            print("✅ โหลดสำเร็จ! เจอคลินิกจำนวน: \(fetchedClinics.count) แห่ง") // 2. เช็คว่าได้ข้อมูลกี่ตัว
+            
+            if let first = fetchedClinics.first {
+                print("📍 ตัวอย่าง: \(first.name) lat: \(first.latitude), long: \(first.longitude)")
+            }
+            
+            await MainActor.run {
+                self.clinics = fetchedClinics
+            }
+        } catch {
+            print("❌ Error fetching clinics: \(error)") // 3. ถ้าพัง ให้ดู error ตรงนี้
+        }
     }
 }
 
@@ -411,28 +432,40 @@ struct ClinicMapPin: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
+                // Outer glow when selected
+                if isSelected {
+                    Circle()
+                        .fill(accentColor.opacity(0.3))
+                        .frame(width: 70, height: 70)
+                }
+                
+                // White border
                 Circle()
                     .fill(Color.white)
-                    .frame(width: isSelected ? 60 : 50, height: isSelected ? 60 : 50)
-                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                    .frame(width: isSelected ? 56 : 44, height: isSelected ? 56 : 44)
+                    .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 3)
                 
+                // Inner color
                 Circle()
-                    .fill(accentColor)
-                    .frame(width: isSelected ? 50 : 40, height: isSelected ? 50 : 40)
+                    .fill(isSelected ? accentColor : Color(red: 94/255, green: 84/255, blue: 68/255)) // สีเขียวเมื่อเลือก สีน้ำตาลเมื่อปกติ
+                    .frame(width: isSelected ? 48 : 36, height: isSelected ? 48 : 36)
                 
+                // Icon
                 Image(systemName: "cross.case.fill")
-                    .font(.system(size: isSelected ? 24 : 20))
+                    .font(.system(size: isSelected ? 22 : 16))
                     .foregroundColor(.white)
             }
             
-            // Pin bottom
+            // Pin Triangle
             Triangle()
                 .fill(Color.white)
-                .frame(width: 20, height: 10)
-                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 2)
+                .frame(width: 16, height: 10)
+                .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+                .offset(y: -4) // ดึงขึ้นนิดนึงให้ติดกับวงกลม
         }
+        .offset(y: -30) // ยก Pin ขึ้นเพื่อให้ปลายแหลมชี้ที่พิกัดพอดี
         .scaleEffect(isSelected ? 1.1 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSelected)
     }
 }
 
@@ -443,7 +476,7 @@ struct Triangle: Shape {
         path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.closeSubpath() // ✅ ใช้ closeSubpath() ตัวพิมพ์เล็ก
+        path.closeSubpath()
         return path
     }
 }

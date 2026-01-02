@@ -234,46 +234,46 @@ struct HomeView: View {
                         }
                     }
                     // 4. Status Snapshot
-                        HStack(spacing: 20) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("YOUR CONDITION")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.gray)
-                                    .tracking(1)
-                                
-                                Text(riskText(severity: userProfile.riskSeverity))
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(riskColor(severity: userProfile.riskSeverity))
-                                
-                                Text("Last scan analysis result")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            ZStack {
-                                Circle()
-                                    .stroke(Color.gray.opacity(0.1), lineWidth: 8)
-                                    .frame(width: 70, height: 70)
-                                Circle()
-                                    .trim(from: 0, to: 0.75)
-                                    .stroke(
-                                        riskColor(severity: userProfile.riskSeverity),
-                                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                                    )
-                                    .rotationEffect(.degrees(-90))
-                                    .frame(width: 70, height: 70)
-                                Image(systemName: "waveform.path.ecg")
-                                    .font(.title2)
-                                    .foregroundColor(riskColor(severity: userProfile.riskSeverity))
-                            }
+                    HStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("YOUR CONDITION")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.gray)
+                                .tracking(1)
+                            
+                            Text(riskText(severity: userProfile.riskSeverity))
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(riskColor(severity: userProfile.riskSeverity))
+                            
+                            Text("Last scan analysis result")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
-                        .padding(20)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                        .padding(.horizontal, 20)
+                        Spacer()
+                        ZStack {
+                            Circle()
+                                .stroke(Color.gray.opacity(0.1), lineWidth: 8)
+                                .frame(width: 70, height: 70)
+                            Circle()
+                                .trim(from: 0, to: 0.75)
+                                .stroke(
+                                    riskColor(severity: userProfile.riskSeverity),
+                                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                                )
+                                .rotationEffect(.degrees(-90))
+                                .frame(width: 70, height: 70)
+                            Image(systemName: "waveform.path.ecg")
+                                .font(.title2)
+                                .foregroundColor(riskColor(severity: userProfile.riskSeverity))
+                        }
+                    }
+                    .padding(20)
+                    .background(Color.white)
+                    .cornerRadius(20)
+                    .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    .padding(.horizontal, 20)
                     
                     
                     // 5. App Features (Grid)
@@ -294,7 +294,16 @@ struct HomeView: View {
                             Button(action: { selectedTab = 2 }) {
                                 OverviewCard(icon: "book.fill", title: "Pain Diary", subtitle: "Daily Log", color: challengeCardColor)
                             }
-                            
+                            if userProfile.riskSeverity == "high" {
+                                NavigationLink(destination: ClinicsNearMeView()) {
+                                    OverviewCard(
+                                        icon: "cross.case.fill",
+                                        title: "Find Clinics",
+                                        subtitle: "Near Me",
+                                        color: .red // ใช้สีแดงสื่อถึงความเร่งด่วน/สำคัญ
+                                    )
+                                }
+                            }
                         }
                         .padding(.horizontal, 20)
                     }

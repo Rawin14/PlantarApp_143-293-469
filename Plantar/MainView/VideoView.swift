@@ -147,7 +147,7 @@ struct VideoView: View {
                             .font(.title2)
                             .foregroundColor(.white) // ไอคอนขาว
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Current Status: \(userProfile.riskSeverity) Risk")
+                            Text("Current Status: \(riskText(severity: userProfile.riskSeverity)) Risk")
                                 .font(.headline)
                                 .foregroundColor(.white)
                             Text("Recommended daily routine for you")
@@ -301,6 +301,7 @@ struct HeroVideoCard: View {
     }
 }
 
+
 struct StepCardStream: View {
     let step: ExerciseStep
     let color: Color
@@ -431,6 +432,15 @@ struct OnlineVideoPlayer: View {
                     .padding(.trailing, 20)
             }
         }
+    }
+}
+
+func riskText(severity: String?) -> String {
+    switch severity {
+    case "high": return "High"
+    case "medium": return "Medium"
+    case "low": return "Low"
+    default: return "No Data"
     }
 }
 
