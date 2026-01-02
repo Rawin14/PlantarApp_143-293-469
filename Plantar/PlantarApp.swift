@@ -4,26 +4,54 @@
 //
 //  Created by Jeerapan Chirachanchai on 7/10/2568 BE.
 //
+//
+//import SwiftUI
+//import FirebaseCore
+//import Supabase
+//
+//class AppDelegate: NSObject, UIApplicationDelegate {
+//  func application(_ application: UIApplication,
+//                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+//    FirebaseApp.configure()
+//    return true
+//  }
+//}
+//
+//@main
+//struct PlantarApp: App {
+//    @UIApplicationDelegateAdaptor(AppDelegate.self) var Delegate
+//    @StateObject var userProfile = UserProfile()
+//
+//    var body: some Scene {
+//        WindowGroup {
+//            NavigationStack{
+//                DiaryTodayView()
+//            }
+//            .environmentObject(userProfile)
+//        }
+//    }
+//}
 
 import SwiftUI
 import FirebaseCore
+import Supabase
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
+        return true
+    }
 }
 
 @main
 struct PlantarApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var Delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var userProfile = UserProfile()
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack{
+            NavigationStack {
                 DiaryTodayView()
             }
             .environmentObject(userProfile)
