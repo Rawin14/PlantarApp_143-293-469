@@ -16,6 +16,7 @@
 		045943A72EE97CF200152150 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A62EE97CF200152150 /* SupabaseManager.swift */; };
 		045943A92EE97F0F00152150 /* DiaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045943A82EE97F0F00152150 /* DiaryService.swift */; };
 		045943AB2EE9814500152150 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 045943AA2EE9814500152150 /* Supabase */; };
+		0485072F2F09778800C08C29 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0485072E2F09778800C08C29 /* NotificationManager.swift */; };
 		048B80A62ECCE47000D6B2D1 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */; };
 		04A630242F081CF000A2D54B /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A630232F081CF000A2D54B /* AuthViewModel.swift */; };
 		3927973B2EB356A8002C3E26 /* HighRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927973A2EB356A8002C3E26 /* HighRisk.swift */; };
@@ -61,6 +62,8 @@
 		045943A42EE97CCF00152150 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
 		045943A62EE97CF200152150 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		045943A82EE97F0F00152150 /* DiaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryService.swift; sourceTree = "<group>"; };
+		0485072D2F0973D300C08C29 /* Plantar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Plantar.entitlements; sourceTree = "<group>"; };
+		0485072E2F09778800C08C29 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		048B80A52ECCE47000D6B2D1 /* DiarychartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarychartView.swift; sourceTree = "<group>"; };
 		04A630232F081CF000A2D54B /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		3927973A2EB356A8002C3E26 /* HighRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRisk.swift; sourceTree = "<group>"; };
@@ -156,6 +159,7 @@
 				3927974C2EB4AAA3002C3E26 /* VideoViewMediumRisk.swift */,
 				3927974E2EB4AABE002C3E26 /* VideoViewHighRisk.swift */,
 				392797482EB47873002C3E26 /* NotificationView.swift */,
+				0485072E2F09778800C08C29 /* NotificationManager.swift */,
 			);
 			path = MainView;
 			sourceTree = "<group>";
@@ -216,6 +220,7 @@
 		39D732D02EAECAEE00BDA8A5 /* Plantar */ = {
 			isa = PBXGroup;
 			children = (
+				0485072D2F0973D300C08C29 /* Plantar.entitlements */,
 				394689622EB8ADC8005BC4E7 /* User */,
 				3927975E2EB88F37002C3E26 /* MainView */,
 				3927975D2EB7C46A002C3E26 /* StartView */,
@@ -361,6 +366,7 @@
 				045943A52EE97CCF00152150 /* DiaryModels.swift in Sources */,
 				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
 				392797492EB47873002C3E26 /* NotificationView.swift in Sources */,
+				0485072F2F09778800C08C29 /* NotificationManager.swift in Sources */,
 				392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */,
 				045943A72EE97CF200152150 /* SupabaseManager.swift in Sources */,
 			);
@@ -493,6 +499,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Plantar/Plantar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
@@ -524,6 +531,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Plantar/Plantar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";

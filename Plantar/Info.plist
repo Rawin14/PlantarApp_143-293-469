@@ -9,6 +9,10 @@
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>plantarapp</string>
+            <key>UIBackgroundModes</key>
+            <array>
+                <string>remote-notification</string>
+            </array>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>plantarapp</string>

@@ -300,13 +300,12 @@ struct LoginView: View {
                             HStack(spacing: 16) {
                                 
                                 // MARK: Google Login
-                                Button(action: {
-                                    Task {
-                                        await authVM.signInWithGoogle()
-                                    }
-                                }) {
+                                Button {
+                                    authVM.signInWithGoogle()
+                                } label: {
                                     socialButton(image: "google", color: .white)
                                 }
+
                                 
                                 // ถ้าต้องเพิ่ม Facebook ในอนาคต เพิ่มตรงนี้ได้
                             }
@@ -374,3 +373,4 @@ struct LoginView: View {
 #Preview {
     LoginView().environmentObject(AuthViewModel())
 }
+

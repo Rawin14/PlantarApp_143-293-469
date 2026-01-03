@@ -16,11 +16,16 @@ class SupabaseManager {
     private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZHZ5anZ6aXVqeWF5bXdtcmNyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzM4MTI2NiwiZXhwIjoyMDc4OTU3MjY2fQ.1vCot8-iIXvsmBIkDxPZQ4vPP-OuSHgYvfhAIUeJfwY"
     
     let client: SupabaseClient
-    
-    private init() {
-        client = SupabaseClient(
-            supabaseURL: URL(string: supabaseURL)!,
-            supabaseKey: supabaseKey
-        )
+        
+        private init() {
+            client = SupabaseClient(
+                supabaseURL: URL(string: supabaseURL)!,
+                supabaseKey: supabaseKey,
+                options: SupabaseClientOptions(
+                    auth: .init(
+                        emitLocalSessionAsInitialSession: true
+                    )
+                )
+            )
+        }
     }
-}

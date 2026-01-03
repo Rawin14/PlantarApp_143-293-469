@@ -211,7 +211,8 @@ struct RegisterView: View {
     @State private var isLoading = false
     @State private var errorMessage = ""
     
-    @StateObject private var authVM = AuthViewModel()
+//    @StateObject private var authVM = AuthViewModel()
+    @EnvironmentObject var authVM: AuthViewModel
     
     var body: some View {
         if isgotoLogin {
@@ -441,3 +442,4 @@ struct RegisterView: View {
 #Preview {
     RegisterView()
 }
+
