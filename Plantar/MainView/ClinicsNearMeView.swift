@@ -59,7 +59,6 @@ struct Clinic: Identifiable, Decodable {
     let isOpen: Bool
     let openingHours: String
     
-    // ✅ ตัวช่วยแปลงชื่อตัวแปร (Snake case -> Camel case)
     enum CodingKeys: String, CodingKey {
         case id, name, address, phone, rating
         case reviewCount = "review_count"
@@ -68,14 +67,28 @@ struct Clinic: Identifiable, Decodable {
         case openingHours = "opening_hours"
     }
     
-    // ✅ Computed Property แปลงเป็น Coordinate ให้ MapKit ใช้ได้
+    
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
     
-    // ✅ คำนวณระยะทางหลอกๆ (ของจริงต้องคำนวณจาก Location User)
-    var distance: String {
-        return "Calculating..." // หรือใส่ Logic คำนวณระยะทางจริงที่นี่
+    
+    
+    func calculateDistance(from userLocation: CLLocationCoordinate2D?) -> String {
+        guard let userLoc = userLocation else { return "..." } // ถ้ายังไม่มีพิกัดผู้ใช้ ให้โชว์ ...
+        
+        let clinicLocation = CLLocation(latitude: latitude, longitude: longitude)
+        let myLocation = CLLocation(latitude: userLoc.latitude, longitude: userLoc.longitude)
+        
+        // คำนวณระยะทางเป็นเมตร
+        let distanceInMeters = clinicLocation.distance(from: myLocation)
+        
+        // จัดรูปแบบการแสดงผล
+        if distanceInMeters < 1000 {
+            return String(format: "%.0f ม.", distanceInMeters) // ถ้าน้อยกว่า 1 กม. โชว์เป็นเมตร
+        } else {
+            return String(format: "%.1f กม.", distanceInMeters / 1000) // ถ้าเกิน 1 กม. โชว์เป็นกิโลเมตร
+        }
     }
     
     var isNowOpen: Bool {
@@ -356,7 +369,8 @@ struct ClinicsNearMeView: View {
                         
                         HStack(spacing: 4) {
                             Image(systemName: "location.fill").foregroundColor(accentColor)
-                            Text(clinic.distance).fontWeight(.medium)
+                            Text(clinic.calculateDistance(from: locationManager.userLocation))
+                                .fontWeight(.medium)
                         }
                         .font(.subheadline)
                         .foregroundColor(.gray)
