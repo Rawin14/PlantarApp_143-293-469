@@ -15,6 +15,7 @@ class AuthManager: ObservableObject {
     @Published var currentUser: User?
     @Published var errorMessage: String?
     @State private var isLoading = false
+    @Published var isDataComplete: Bool = false
     
     // ใช้ Client เดิมที่มีอยู่แล้วในโปรเจกต์
     private let supabase = UserProfile.supabase
@@ -35,6 +36,8 @@ class AuthManager: ObservableObject {
             let session = try await supabase.auth.session
             self.currentUser = session.user
             self.isAuthenticated = true
+            
+            await checkUserStatus()
             print("✅ User already logged in: \(session.user.email ?? "")")
         } catch {
             self.isAuthenticated = false
@@ -108,29 +111,22 @@ class AuthManager: ObservableObject {
             )
             
             // 2. เปิด Web Browser ภายในแอปเพื่อ Login
-            let session = ASWebAuthenticationSession(
-                url: authURL,
-                callbackURLScheme: "plantarapp"
-            ) { callbackURL, error in
-                
-                // 3. เมื่อ Login เสร็จ Google จะส่ง URL กลับมา
-                guard let url = callbackURL else {
-                    print("❌ Web Auth Error: \(error?.localizedDescription ?? "Unknown")")
-                    return
-                }
-                
-                // 4. เอา URL ที่ได้ไปแลกเป็น Session ของ User
-                Task {
-                    do {
-                        let session = try await self.supabase.auth.session(from: url)
-                        
-                        await MainActor.run {
-                            self.currentUser = session.user
-                            self.isAuthenticated = true
-                            self.errorMessage = nil
-                        }
-                        print("✅ Google login success")
-                    } catch {
+            let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "plantarapp") { callbackURL, error in
+                            guard let url = callbackURL else { return }
+                            
+                            Task {
+                                do {
+                                    // ได้ Session แล้ว
+                                    let session = try await self.supabase.auth.session(from: url)
+                                    
+                                    await MainActor.run {
+                                        self.currentUser = session.user
+                                        self.isAuthenticated = true
+                                    }
+                                    
+                                    // ✅ เช็คข้อมูล Profile ทันที!
+                                    await self.checkUserStatus()}
+                                catch {
                         print("❌ Failed to parse session: \(error)")
                         await MainActor.run {
                             self.errorMessage = "Login Google ไม่สำเร็จ: \(error.localizedDescription)"
@@ -153,6 +149,26 @@ class AuthManager: ObservableObject {
             errorMessage = "Google sign in failed: \(error.localizedDescription)"
         }
     }
+    
+        func checkUserStatus() async {
+                do {
+                    // เรียกใช้ UserProfile เพื่อดึงข้อมูลมาเช็ค
+                    // ต้องแน่ใจว่า UserProfile มีฟังก์ชัน fetchCurrentProfile ตามที่แก้ไปรอบก่อน
+                    let profile = try await UserProfile.shared.fetchCurrentProfile()
+                    
+                    await MainActor.run {
+                        // ถ้าข้อมูลครบ (isComplete == true) ให้ isDataComplete เป็น true
+                        self.isDataComplete = profile.isComplete
+                        
+                        print("👤 Profile Status: \(profile.isComplete ? "Complete" : "Incomplete")")
+                    }
+                } catch {
+                    print("ℹ️ Profile fetch failed (New User): \(error)")
+                    await MainActor.run {
+                        self.isDataComplete = false // ยังไม่มีข้อมูล
+                    }
+                }
+            }
     
     // MARK: - Sign In with Apple
     func signInWithApple(idToken: String, nonce: String) async {

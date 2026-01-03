@@ -5,7 +5,6 @@
 //  Created by Jeerapan Chirachanchai on 3/11/2568 BE.
 //
 
-
 import SwiftUI
 import Supabase
 
@@ -37,6 +36,14 @@ struct ProfileData: Codable {
     let updated_at: String?
 }
 
+// ✅ [เพิ่ม] Extension เพื่อเช็คว่าข้อมูลครบไหม
+extension ProfileData {
+    var isComplete: Bool {
+        // ถ้าน้ำหนัก ส่วนสูง อายุ มีค่าและมากกว่า 0 ถือว่าครบ
+        return (weight ?? 0) > 0 && (height ?? 0) > 0 && (age ?? 0) > 0
+    }
+}
+
 struct DiaryEntryModel: Codable, Identifiable {
     let id: UUID
     let user_id: UUID
@@ -58,15 +65,16 @@ struct FootScanModel: Codable {
 @MainActor
 class UserProfile: ObservableObject {
     
-    // Supabase Client
-    // ในไฟล์ UserProfile.swift
+    // Singleton (ถ้าต้องการเรียกใช้ง่ายๆ)
+    static let shared = UserProfile()
     
+    // Supabase Client
     static let supabase = SupabaseClient(
         supabaseURL: URL(string: AppConfig.supabaseURL)!,
         supabaseKey: AppConfig.supabaseAnonKey,
         options: SupabaseClientOptions(
             auth: .init(
-                emitLocalSessionAsInitialSession: true // 👈 เพิ่มบรรทัดนี้เพื่อแก้ Warning
+                emitLocalSessionAsInitialSession: true
             )
         )
     )
@@ -83,39 +91,57 @@ class UserProfile: ObservableObject {
     @Published var evaluateScore: Double = 0.0
     
     // App Data
-    @Published var latestScan: FootScanModel? // เก็บผลสแกนล่าสุด
-    @Published var diaryEntries: [DiaryEntryModel] = [] // เก็บไดอารี่
+    @Published var latestScan: FootScanModel?
+    @Published var diaryEntries: [DiaryEntryModel] = []
     
     // Loading States
     @Published var isLoading = false
     @Published var errorMessage: String?
     
     var bmiScore: Int {
-            let bmi = calculateBMI()
-            if bmi < 25.0 {
-                return 1 // ต่ำ/ปกติ (Low Risk)
-            } else if bmi < 30.0 {
-                return 2 // เริ่มอ้วน (Medium Risk)
-            } else {
-                return 3 // อ้วน (High Risk)
-            }
-        }
+        let bmi = calculateBMI()
+        if bmi < 25.0 { return 1 }
+        else if bmi < 30.0 { return 2 }
+        else { return 3 }
+    }
     
     var totalRiskScore: Double {
-            return evaluateScore + Double(bmiScore)
-        }
+        return evaluateScore + Double(bmiScore)
+    }
     
     var riskSeverity: String {
-            let score = totalRiskScore
-            // เกณฑ์คะแนน (ปรับตามความเหมาะสมของคะแนนเต็ม ~23)
-            if score <= 7 {
-                return "low"
-            } else if score <= 13 {
-                return "medium"
-            } else {
-                return "high"
-            }
+        let score = totalRiskScore
+        if score <= 7 { return "low" }
+        else if score <= 13 { return "medium" }
+        else { return "high" }
+    }
+    
+    // ✅ [เพิ่มใหม่] ฟังก์ชันสำหรับ AuthManager เพื่อดึงข้อมูลมาเช็คสถานะ
+    func fetchCurrentProfile() async throws -> ProfileData {
+        let session = try await Self.supabase.auth.session
+        let uid = session.user.id.uuidString
+        
+        let profile: ProfileData = try await Self.supabase
+            .from("profiles")
+            .select()
+            .eq("id", value: uid)
+            .single()
+            .execute()
+            .value
+            
+        // อัปเดตข้อมูลใน State ด้วยเลย (Optional)
+        await MainActor.run {
+            self.userId = profile.id
+            self.nickname = profile.nickname ?? ""
+            self.age = profile.age ?? 0
+            self.height = profile.height ?? 0.0
+            self.weight = profile.weight ?? 0.0
+            self.gender = profile.gender ?? "female"
         }
+        
+        return profile
+    }
+
     // MARK: - Save to Supabase
     
     func saveToSupabase() async {
@@ -128,7 +154,6 @@ class UserProfile: ObservableObject {
             
             let currentBMI = calculateBMI()
             
-            // สร้าง ProfileInsert struct
             let profileData = ProfileInsert(
                 id: userId,
                 nickname: nickname,
@@ -142,18 +167,12 @@ class UserProfile: ObservableObject {
                 risk_level: self.riskSeverity
             )
             
-            // Upsert to Supabase
             try await Self.supabase
                 .from("profiles")
                 .upsert(profileData)
                 .execute()
             
-            print("✅ Profile saved to Supabase")
-            print("   - Nickname: \(nickname)")
-            print("   - Age: \(age)")
-            print("   - Height: \(height)")
-            print("   - Weight: \(weight)")
-            print("✅ Profile saved (with BMI: \(String(format: "%.1f", currentBMI)))")
+            print("✅ Profile saved to Supabase (BMI: \(String(format: "%.1f", currentBMI)))")
             
         } catch {
             errorMessage = "บันทึกข้อมูลล้มเหลว: \(error.localizedDescription)"
@@ -173,7 +192,6 @@ class UserProfile: ObservableObject {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
             
-            // Query profile
             let response: [ProfileData] = try await Self.supabase
                 .from("profiles")
                 .select()
@@ -208,15 +226,11 @@ class UserProfile: ObservableObject {
         isLoading = false
     }
     
-    // MARK: - Calculate BMI
-    
     func calculateBMI() -> Double {
         guard height > 0, weight > 0 else { return 0 }
         let heightInMeters = height / 100
         return weight / (heightInMeters * heightInMeters)
     }
-    
-    // MARK: - Delete Profile
     
     func deleteFromSupabase() async {
         do {
@@ -235,7 +249,7 @@ class UserProfile: ObservableObject {
             errorMessage = "ลบข้อมูลล้มเหลว: \(error.localizedDescription)"
         }
     }
-    // เพิ่มฟังก์ชันดึงข้อมูล Scan ล่าสุด
+    
     func fetchLatestScan() async {
         do {
             let session = try await Self.supabase.auth.session
@@ -258,14 +272,13 @@ class UserProfile: ObservableObject {
         }
     }
     
-    // เพิ่มฟังก์ชันดึง Diary
     func fetchDiaryEntries() async {
         do {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
             
             let response: [DiaryEntryModel] = try await Self.supabase
-                .from("diary_entries") // สมมติว่ามีตารางนี้
+                .from("diary_entries")
                 .select()
                 .eq("user_id", value: userId)
                 .order("date", ascending: false)
@@ -274,11 +287,10 @@ class UserProfile: ObservableObject {
             
             self.diaryEntries = response
         } catch {
-            print("ℹ️ Diary fetch info: \(error.localizedDescription) (Table might not exist yet)")
+            print("ℹ️ Diary fetch info: \(error.localizedDescription)")
         }
     }
     
-    // เพิ่มฟังก์ชันบันทึก Diary
     func saveDiaryEntry(date: Date, feeling: Int, note: String) async {
         do {
             let session = try await Self.supabase.auth.session
@@ -298,21 +310,19 @@ class UserProfile: ObservableObject {
                 .insert(newEntry)
                 .execute()
             
-            await fetchDiaryEntries() // รีโหลดข้อมูล
+            await fetchDiaryEntries()
             print("✅ Diary saved")
         } catch {
             print("❌ Error saving diary: \(error)")
         }
     }
     
-    // Helper สำหรับดึง Email (เรียกตอน Login สำเร็จ)
     func setEmail(_ email: String) {
         self.email = email
     }
 }
 
 // MARK: - Preview Data
-
 #if DEBUG
 extension UserProfile {
     static var preview: UserProfile {
