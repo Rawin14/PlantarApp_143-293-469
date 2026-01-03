@@ -58,6 +58,8 @@ struct DiaryEntry: Identifiable {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         self.date = formatter.date(from: dbEntry.entryDate) ?? Date()
     }
     
