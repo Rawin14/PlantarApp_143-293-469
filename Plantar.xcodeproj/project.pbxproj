@@ -25,7 +25,6 @@
 		392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */; };
 		392797592EB50AE8002C3E26 /* BMIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797582EB50AE8002C3E26 /* BMIView.swift */; };
 		3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927975A2EB50D2F002C3E26 /* ProfileView.swift */; };
-		39442CC72F0992660009B2CD /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39442CC62F0992660009B2CD /* NotificationManager.swift */; };
 		394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394689632EB8AE08005BC4E7 /* UserProfile.swift */; };
 		394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81542E96150E004CB2AB /* WelcomeView.swift */; };
 		394B81572E96150E004CB2AB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394B81502E96150E004CB2AB /* LoginView.swift */; };
@@ -63,7 +62,6 @@
 		392797562EB4E952002C3E26 /* ClinicsNearMeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClinicsNearMeView.swift; sourceTree = "<group>"; };
 		392797582EB50AE8002C3E26 /* BMIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIView.swift; sourceTree = "<group>"; };
 		3927975A2EB50D2F002C3E26 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		39442CC62F0992660009B2CD /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		394689632EB8AE08005BC4E7 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		394B814C2E96150E004CB2AB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		394B814E2E96150E004CB2AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -151,7 +149,6 @@
 			children = (
 				394689632EB8AE08005BC4E7 /* UserProfile.swift */,
 				391889DB2ECCF1F20045549E /* AuthManager.swift */,
-				39442CC62F0992660009B2CD /* NotificationManager.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -330,7 +327,6 @@
 				39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */,
 				39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */,
 				392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */,
-				39442CC72F0992660009B2CD /* NotificationManager.swift in Sources */,
 				399A9CD22EE1844200A54BED /* EntryView.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
