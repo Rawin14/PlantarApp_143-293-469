@@ -2,7 +2,7 @@
 //  DiaryModels.swift
 //  Plantar
 //
-//  Created by ncp on 10/12/2568 BE.
+//  Created by Jeerapan Chirachanchai on 5/1/2569 BE.
 //
 
 import Foundation

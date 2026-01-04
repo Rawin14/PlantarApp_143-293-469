@@ -36,27 +36,13 @@ struct ProfileData: Codable {
     let updated_at: String?
 }
 
-// ✅ [เพิ่ม] Extension เพื่อเช็คว่าข้อมูลครบไหม
-extension ProfileData {
-    var isComplete: Bool {
-        // ถ้าน้ำหนัก ส่วนสูง อายุ มีค่าและมากกว่า 0 ถือว่าครบ
-        return (weight ?? 0) > 0 && (height ?? 0) > 0 && (age ?? 0) > 0
-    }
-}
-
-struct DiaryEntryModel: Codable, Identifiable {
-    let id: UUID
-    let user_id: UUID
-    let date: String // ISO String
-    let feeling_level: Int
-    let note: String?
-    let created_at: String?
-}
+// ⚠️ ลบ struct DiaryEntryModel ออกแล้ว
 
 struct FootScanModel: Codable {
     let id: String
     let pf_severity: String?
     let pf_score: Double?
+    let image_url: String?
     let created_at: String?
 }
 
@@ -65,7 +51,7 @@ struct FootScanModel: Codable {
 @MainActor
 class UserProfile: ObservableObject {
     
-    // Singleton (ถ้าต้องการเรียกใช้ง่ายๆ)
+    // Singleton Access
     static let shared = UserProfile()
     
     // Supabase Client
@@ -91,18 +77,20 @@ class UserProfile: ObservableObject {
     @Published var evaluateScore: Double = 0.0
     
     // App Data
-    @Published var latestScan: FootScanModel?
-    @Published var diaryEntries: [DiaryEntryModel] = []
+    @Published var latestScan: FootScanModel? // เก็บผลสแกนล่าสุด
+    // ⚠️ ลบ diaryEntries ออกแล้ว (ใช้ DiaryService แทน)
     
     // Loading States
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    // MARK: - Computed Properties (Risk Level)
+    
     var bmiScore: Int {
         let bmi = calculateBMI()
-        if bmi < 25.0 { return 1 }
-        else if bmi < 30.0 { return 2 }
-        else { return 3 }
+        if bmi < 25.0 { return 1 } // ต่ำ/ปกติ
+        else if bmi < 30.0 { return 2 } // เริ่มอ้วน
+        else { return 3 } // อ้วน
     }
     
     var totalRiskScore: Double {
@@ -116,33 +104,48 @@ class UserProfile: ObservableObject {
         else { return "high" }
     }
     
-    // ✅ [เพิ่มใหม่] ฟังก์ชันสำหรับ AuthManager เพื่อดึงข้อมูลมาเช็คสถานะ
-    func fetchCurrentProfile() async throws -> ProfileData {
+    // MARK: - Helper Functions
+    
+    // ฟังก์ชันสำหรับ AuthManager เพื่อดึงข้อมูลมาเช็คสถานะ
+    func fetchCurrentProfile() async throws -> ProfileData? {
         let session = try await Self.supabase.auth.session
         let uid = session.user.id.uuidString
         
-        let profile: ProfileData = try await Self.supabase
+        let response: [ProfileData] = try await Self.supabase
             .from("profiles")
             .select()
             .eq("id", value: uid)
-            .single()
+            .limit(1)
             .execute()
             .value
             
-        // อัปเดตข้อมูลใน State ด้วยเลย (Optional)
-        await MainActor.run {
-            self.userId = profile.id
-            self.nickname = profile.nickname ?? ""
-            self.age = profile.age ?? 0
-            self.height = profile.height ?? 0.0
-            self.weight = profile.weight ?? 0.0
-            self.gender = profile.gender ?? "female"
-        }
+        let profile = response.first
         
+        if let profile = profile {
+            await MainActor.run {
+                self.userId = profile.id
+                self.nickname = profile.nickname ?? ""
+                self.age = profile.age ?? 0
+                self.height = profile.height ?? 0.0
+                self.weight = profile.weight ?? 0.0
+                self.gender = profile.gender ?? "female"
+                self.evaluateScore = profile.evaluate_score ?? 0.0
+            }
+        }
         return profile
     }
+    
+    func calculateBMI() -> Double {
+        guard height > 0, weight > 0 else { return 0 }
+        let heightInMeters = height / 100
+        return weight / (heightInMeters * heightInMeters)
+    }
+    
+    func setEmail(_ email: String) {
+        self.email = email
+    }
 
-    // MARK: - Save to Supabase
+    // MARK: - Save/Load Profile
     
     func saveToSupabase() async {
         isLoading = true
@@ -172,7 +175,7 @@ class UserProfile: ObservableObject {
                 .upsert(profileData)
                 .execute()
             
-            print("✅ Profile saved to Supabase (BMI: \(String(format: "%.1f", currentBMI)))")
+            print("✅ Profile saved to Supabase")
             
         } catch {
             errorMessage = "บันทึกข้อมูลล้มเหลว: \(error.localizedDescription)"
@@ -182,54 +185,19 @@ class UserProfile: ObservableObject {
         isLoading = false
     }
     
-    // MARK: - Load from Supabase
-    
     func loadFromSupabase() async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let session = try await Self.supabase.auth.session
-            let userId = session.user.id.uuidString
-            
-            let response: [ProfileData] = try await Self.supabase
-                .from("profiles")
-                .select()
-                .eq("id", value: userId)
-                .execute()
-                .value
-            
-            if let profile = response.first {
-                self.userId = profile.id
-                self.nickname = profile.nickname ?? ""
-                self.age = profile.age ?? 0
-                self.height = profile.height ?? 0.0
-                self.weight = profile.weight ?? 0.0
-                self.gender = profile.gender ?? "female"
-                self.evaluateScore = profile.evaluate_score ?? 0.0
-                
-                if let birthdateString = profile.birthdate,
-                   let date = ISO8601DateFormatter().date(from: birthdateString) {
-                    self.birthdate = date
-                }
-                
-                print("✅ Profile loaded from Supabase")
-            } else {
-                print("ℹ️ No profile found, will create new one")
-            }
-            
+            let _ = try await fetchCurrentProfile()
+            print("✅ Profile loaded via fetchCurrentProfile")
         } catch {
             errorMessage = "โหลดข้อมูลล้มเหลว: \(error.localizedDescription)"
             print("❌ Error loading: \(error)")
         }
         
         isLoading = false
-    }
-    
-    func calculateBMI() -> Double {
-        guard height > 0, weight > 0 else { return 0 }
-        let heightInMeters = height / 100
-        return weight / (heightInMeters * heightInMeters)
     }
     
     func deleteFromSupabase() async {
@@ -249,6 +217,8 @@ class UserProfile: ObservableObject {
             errorMessage = "ลบข้อมูลล้มเหลว: \(error.localizedDescription)"
         }
     }
+    
+    // MARK: - Foot Scan (ยังเก็บไว้ที่นี่ได้)
     
     func fetchLatestScan() async {
         do {
@@ -272,53 +242,18 @@ class UserProfile: ObservableObject {
         }
     }
     
-    func fetchDiaryEntries() async {
-        do {
-            let session = try await Self.supabase.auth.session
-            let userId = session.user.id.uuidString
-            
-            let response: [DiaryEntryModel] = try await Self.supabase
-                .from("diary_entries")
-                .select()
-                .eq("user_id", value: userId)
-                .order("date", ascending: false)
-                .execute()
-                .value
-            
-            self.diaryEntries = response
-        } catch {
-            print("ℹ️ Diary fetch info: \(error.localizedDescription)")
+    func updateNickname(_ newName: String) async {
+            self.nickname = newName
+            await saveToSupabase()
         }
-    }
-    
-    func saveDiaryEntry(date: Date, feeling: Int, note: String) async {
-        do {
-            let session = try await Self.supabase.auth.session
-            let userId = session.user.id
-            
-            let newEntry = DiaryEntryModel(
-                id: UUID(),
-                user_id: userId,
-                date: ISO8601DateFormatter().string(from: date),
-                feeling_level: feeling,
-                note: note,
-                created_at: nil
-            )
-            
-            try await Self.supabase
-                .from("diary_entries")
-                .insert(newEntry)
-                .execute()
-            
-            await fetchDiaryEntries()
-            print("✅ Diary saved")
-        } catch {
-            print("❌ Error saving diary: \(error)")
-        }
-    }
-    
-    func setEmail(_ email: String) {
-        self.email = email
+    // ⚠️ ลบฟังก์ชัน fetchDiaryEntries และ saveDiaryEntry ออกแล้ว
+    // ให้เรียกใช้จาก DiaryService แทน
+}
+
+// MARK: - Extension Check Profile
+extension ProfileData {
+    var isComplete: Bool {
+        return (weight ?? 0) > 0 && (height ?? 0) > 0 && (age ?? 0) > 0
     }
 }
 
@@ -340,3 +275,4 @@ extension UserProfile {
     }
 }
 #endif
+

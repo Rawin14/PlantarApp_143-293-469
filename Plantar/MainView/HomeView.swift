@@ -286,7 +286,7 @@ struct HomeView: View {
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             NavigationLink(destination: DashboardView()) {
-                                OverviewCard(icon: "doc.text.magnifyingglass", title: "Scan History", subtitle: "See details", color: primaryColor)
+                                OverviewCard(icon: "doc.text.magnifyingglass", title: "Dashboard", subtitle: "See details", color: primaryColor)
                             }
                             Button(action: { selectedTab = 1 }) {
                                 OverviewCard(icon: "play.rectangle.fill", title: "Therapy Videos", subtitle: "Guided Exercise", color: accentColor)

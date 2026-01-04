@@ -96,12 +96,6 @@ struct DiarychartView: View {
                     }
                     .frame(height: 250)
                     .padding()
-                    
-                    Text("ระดับ 3 (ปวดมากขึ้น) บ่งบอกถึงอาการที่แย่ลง")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
-                    
                 }
                 .padding(.vertical, 10)
                 .background(backgroundColor)

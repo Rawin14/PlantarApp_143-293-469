@@ -12,7 +12,7 @@ struct DashboardView: View {
     @Environment(\.dismiss) private var dismiss
     
     // --- State Variables ---
-    @State private var videoProgress: Double = 0.65 // 65%
+    @State private var videoProgress: Double = 0.10
     @State private var moodProgress: Double = 0.75 // 75%
     @State private var consecutiveDays: Int = 12
     @State private var totalDays: Int = 30

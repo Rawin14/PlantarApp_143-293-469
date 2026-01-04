@@ -11,6 +11,8 @@ import AuthenticationServices // 1. เพิ่มตัวนี้เข้�
 
 @MainActor
 class AuthManager: ObservableObject {
+    
+    static let shared = AuthManager()
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var errorMessage: String?
@@ -150,25 +152,32 @@ class AuthManager: ObservableObject {
         }
     }
     
-        func checkUserStatus() async {
-                do {
-                    // เรียกใช้ UserProfile เพื่อดึงข้อมูลมาเช็ค
-                    // ต้องแน่ใจว่า UserProfile มีฟังก์ชัน fetchCurrentProfile ตามที่แก้ไปรอบก่อน
-                    let profile = try await UserProfile.shared.fetchCurrentProfile()
+    func checkUserStatus() async {
+            do {
+                // 1. เรียกแบบรองรับค่า nil
+                let profile = try await UserProfile.shared.fetchCurrentProfile()
+                
+                await MainActor.run {
+                    self.isAuthenticated = true
                     
-                    await MainActor.run {
-                        // ถ้าข้อมูลครบ (isComplete == true) ให้ isDataComplete เป็น true
+                    if let profile = profile {
+                        // ✅ กรณีมี Profile แล้ว -> เช็คว่ากรอกครบไหม
                         self.isDataComplete = profile.isComplete
-                        
-                        print("👤 Profile Status: \(profile.isComplete ? "Complete" : "Incomplete")")
-                    }
-                } catch {
-                    print("ℹ️ Profile fetch failed (New User): \(error)")
-                    await MainActor.run {
-                        self.isDataComplete = false // ยังไม่มีข้อมูล
+                        print("👤 Old User: \(profile.isComplete ? "Complete" : "Incomplete")")
+                    } else {
+                        // 🆕 กรณีเป็น User ใหม่ (Profile เป็น nil) -> ให้ไปหน้ากรอกข้อมูล
+                        self.isDataComplete = false
+                        print("🆕 New User: No profile found (Go to setup)")
                     }
                 }
+            } catch {
+                print("❌ System Error: \(error)")
+                await MainActor.run {
+                    self.isAuthenticated = true // ให้เข้าได้แต่ไปหน้า Setup
+                    self.isDataComplete = false
+                }
             }
+        }
     
     // MARK: - Sign In with Apple
     func signInWithApple(idToken: String, nonce: String) async {

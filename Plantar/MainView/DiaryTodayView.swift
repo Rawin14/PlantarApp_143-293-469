@@ -350,10 +350,10 @@ struct DiaryTodayView: View {
         } message: {
             Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
         }
-        .alert("เกิดข้อผิดพลาด", isPresented: $showErrorAlert) {
+        .alert("คุณเคยบันทึกข้อมูลแล้ว", isPresented: $showErrorAlert) {
             Button("ตกลง", role: .cancel) {}
         } message: {
-            Text(errorMessage)
+            Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
         }
     }
     

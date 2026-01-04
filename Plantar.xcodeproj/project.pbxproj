@@ -14,6 +14,8 @@
 		391889DA2ECCF10B0045549E /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889D92ECCF10B0045549E /* Config.swift */; };
 		391889DC2ECCF1F20045549E /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889DB2ECCF1F20045549E /* AuthManager.swift */; };
 		391889DE2ECD15970045549E /* PFResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391889DD2ECD15970045549E /* PFResultView.swift */; };
+		391ABE4F2F0B279C00431322 /* DiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391ABE4E2F0B279C00431322 /* DiaryModels.swift */; };
+		391ABE512F0B2A1A00431322 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391ABE502F0B2A1A00431322 /* NotificationManager.swift */; };
 		392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797422EB360E6002C3E26 /* EvaluateView.swift */; };
 		392797452EB3648B002C3E26 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797442EB3648B002C3E26 /* Profile.swift */; };
 		392797472EB366C3002C3E26 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392797462EB366C3002C3E26 /* HomeView.swift */; };
@@ -43,7 +45,6 @@
 		39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608692EAA1EE60070B69C /* ScanView.swift */; };
 		39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39F4D0F02EAA3918009FEBDD /* ModelIO.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */; };
-		39F7F9AB2EEAA34A00FDB353 /* DiaryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */; };
 		39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,8 @@
 		391889D92ECCF10B0045549E /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		391889DB2ECCF1F20045549E /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		391889DD2ECD15970045549E /* PFResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PFResultView.swift; sourceTree = "<group>"; };
+		391ABE4E2F0B279C00431322 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
+		391ABE502F0B2A1A00431322 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		392797422EB360E6002C3E26 /* EvaluateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateView.swift; sourceTree = "<group>"; };
 		392797442EB3648B002C3E26 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		392797462EB366C3002C3E26 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -111,6 +114,14 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		391ABE4D2F0B258300431322 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		3927975D2EB7C46A002C3E26 /* StartView */ = {
 			isa = PBXGroup;
 			children = (
@@ -136,7 +147,6 @@
 				392797502EB4B363002C3E26 /* DiaryTodayView.swift */,
 				392797522EB4B37B002C3E26 /* DiaryHistoryView.swift */,
 				39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */,
-				39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */,
 				3927974A2EB48277002C3E26 /* VideoView.swift */,
 				392797482EB47873002C3E26 /* NotificationView.swift */,
 				392797462EB366C3002C3E26 /* HomeView.swift */,
@@ -149,6 +159,8 @@
 			children = (
 				394689632EB8AE08005BC4E7 /* UserProfile.swift */,
 				391889DB2ECCF1F20045549E /* AuthManager.swift */,
+				391ABE4E2F0B279C00431322 /* DiaryModels.swift */,
+				391ABE502F0B2A1A00431322 /* NotificationManager.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -159,6 +171,7 @@
 				39D732D02EAECAEE00BDA8A5 /* Plantar */,
 				39A608582EA1E5AF0070B69C /* Plantar.app */,
 				39F4D0EF2EAA3918009FEBDD /* Frameworks */,
+				391ABE4D2F0B258300431322 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -311,7 +324,6 @@
 				3927974B2EB48277002C3E26 /* VideoView.swift in Sources */,
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
-				39F7F9AB2EEAA34A00FDB353 /* DiaryModels.swift in Sources */,
 				39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */,
 				394689642EB8AE08005BC4E7 /* UserProfile.swift in Sources */,
 				392797552EB4E5FC002C3E26 /* DashboardView.swift in Sources */,
@@ -327,11 +339,13 @@
 				39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */,
 				39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */,
 				392797532EB4B37B002C3E26 /* DiaryHistoryView.swift in Sources */,
+				391ABE512F0B2A1A00431322 /* NotificationManager.swift in Sources */,
 				399A9CD22EE1844200A54BED /* EntryView.swift in Sources */,
 				394B815A2E96150E004CB2AB /* ContentView.swift in Sources */,
 				39A608622EA397780070B69C /* WeightView.swift in Sources */,
 				39A608662EA3A1C20070B69C /* AgeView.swift in Sources */,
 				394B815B2E96150E004CB2AB /* RegisterView.swift in Sources */,
+				391ABE4F2F0B279C00431322 /* DiaryModels.swift in Sources */,
 				391889DE2ECD15970045549E /* PFResultView.swift in Sources */,
 				392797492EB47873002C3E26 /* NotificationView.swift in Sources */,
 				392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */,
