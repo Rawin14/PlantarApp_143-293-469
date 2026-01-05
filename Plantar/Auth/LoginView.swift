@@ -36,9 +36,12 @@ struct LoginView: View {
                         .fill(Color(red: 0.82, green: 0.84, blue: 0.36))
                         .frame(width: 100, height: 100)
                     
-                    Image(systemName: "leaf.fill")
-                        .font(.system(size: 50))
-                        .foregroundColor(.white)
+                    Image("Smile")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 130, height: 130)
+                        .clipShape(Circle())
+                    
                 }
                 .padding(.top, 40)
                 

@@ -310,15 +310,14 @@ struct ScanView: View {
             }
         }
         // ✅ 4. Logic เมื่อเลือกรูปเสร็จ
-        .onChange(of: selectedItem) { newItem in
+        .onChange(of: selectedItem) { _, newItem in
             Task {
                 if let newItem = newItem,
                    let data = try? await newItem.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    // ส่งรูปที่เลือกเข้าสู่กระบวนการวิเคราะห์
                     await uploadAndProcess(images: [image])
                 }
-                selectedItem = nil // รีเซ็ตค่าเพื่อเลือกรอบหน้าได้ใหม่
+                selectedItem = nil
             }
         }
     }

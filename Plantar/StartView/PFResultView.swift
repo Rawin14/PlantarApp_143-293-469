@@ -107,6 +107,7 @@ struct PFResultView: View {
             if scanResult == nil {
                 await loadScanResult()
             }
+            await markUserAsScanned()
         }
     }
     
@@ -321,14 +322,29 @@ struct PFResultView: View {
     }
     
     // Helper Functions
-    func archTypeText(_ type: String) -> String {
-        switch type.lowercased() {
-        case "flat": return "เท้าแบน (Flat)"
-        case "high": return "อุ้งเท้าสูง (High Arch)"
-        case "normal": return "เท้าปกติ (Normal)"
-        default: return type.capitalized
+        func archTypeText(_ type: String) -> String {
+            switch type.lowercased() {
+            // กรณีเท้าแบน (รับทั้ง flat และ flat_foot)
+            case "flat", "flat_foot":
+                return "เท้าแบน (Flat Foot)"
+                
+            // กรณีอุ้งเท้าสูง (รับทั้ง high และ high_arch)
+            case "high", "high_arch":
+                return "อุ้งเท้าสูง (High Arch)"
+                
+            // กรณีอุ้งเท้าสูงมาก (เพิ่มใหม่)
+            case "severe_high_arch":
+                return "อุ้งเท้าสูงมาก (Severe High Arch)"
+                
+            // กรณีเท้าปกติ
+            case "normal":
+                return "เท้าปกติ (Normal)"
+                
+            // กรณีอื่นๆ
+            default:
+                return type.capitalized
+            }
         }
-    }
     
     func riskColor(_ severity: String) -> Color {
         switch severity.lowercased() {
@@ -338,6 +354,28 @@ struct PFResultView: View {
         default: return .gray
         }
     }
+    
+    func markUserAsScanned() async {
+            let userId = userProfile.userId
+            
+            do {
+                // อัปเดตตาราง profiles
+                try await UserProfile.supabase
+                    .from("profiles")
+                    .update(["has_completed_scan": true])
+                    .eq("id", value: userId)
+                    .execute()
+                    
+                print("✅ Updated user scan status to TRUE")
+                
+                // อัปเดตค่าใน Local State ด้วย เพื่อให้ AuthManager รู้ทันที
+                // (ถ้า userProfile มีตัวแปร profileData ให้แก้ตรงนั้นด้วย)
+                // userProfile.profileData?.hasCompletedScan = true
+                
+            } catch {
+                print("⚠️ Failed to update scan status: \(error)")
+            }
+        }
 }
 
 // MARK: - 3D View Helper

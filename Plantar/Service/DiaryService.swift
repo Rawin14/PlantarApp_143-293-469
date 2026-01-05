@@ -33,13 +33,13 @@ class DiaryService {
     
     
     private var dbDateFormatter: DateFormatter {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            formatter.calendar = Calendar(identifier: .gregorian)
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.timeZone = TimeZone.current
-            return formatter
-        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        return formatter
+    }
     
     // MARK: - Helper: Get Current User ID
     // ฟังก์ชันช่วยดึง User ID จาก Supabase Auth Session
@@ -54,7 +54,7 @@ class DiaryService {
     
     // MARK: - Save Diary Entry
     func saveDiaryEntry(date: Date, feelingLevel: Int, note: String?) async throws {
-        let userId = try await getCurrentUserId() 
+        let userId = try await getCurrentUserId()
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -83,22 +83,26 @@ class DiaryService {
     
     // MARK: - Fetch Entries for Month
     func fetchEntriesForMonth(date: Date) async throws -> [DiaryEntry] {
-        let userId = try await getCurrentUserId() // ✅ ดึง ID จริง
+        let userId = try await getCurrentUserId()
         
-        let calendar = Calendar.current
+        // ✅ ใช้ Gregorian เสมอในการคำนวณวันต้นเดือน/ท้ายเดือน เพื่อให้ตรงกับ DB
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone.current
+        
         let components = calendar.dateComponents([.year, .month], from: date)
         
         guard let startOfMonth = calendar.date(from: components),
               let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)
         else { return [] }
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
+        // ✅ ใช้ Formatter ตัวเดิม (ที่เป็น Gregorian อยู่แล้ว)
         let startDate = dbDateFormatter.string(from: startOfMonth)
         let endDate = dbDateFormatter.string(from: endOfMonth)
         
+        print("Fetching range: \(startDate) - \(endDate)") // Debug ดูช่วงเวลา
+        
         do {
-            let response: [DiaryEntryDB] = try await UserProfile.supabase // ✅ แก้ไข Syntax
+            let response: [DiaryEntryDB] = try await UserProfile.supabase
                 .from("diary_entries")
                 .select()
                 .eq("user_id", value: userId.uuidString)

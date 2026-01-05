@@ -138,13 +138,14 @@ struct TermsView: View {
                     // Accept Button
                     Button(action: {
                         if isAccepted {
-                            // ✅ 2. สั่งเปลี่ยนค่า AppStorage
-                            // PlantarApp จะรู้ทันทีและสลับหน้าไป Profile() ให้
                             withAnimation {
-                                isTermsAccepted = true
-                            }
+                                    isTermsAccepted = true
+                                }
                         } else {
-                            // แจ้งเตือนให้กด Checkbox
+                            // ⚠️ แจ้งเตือนให้กด Checkbox (จะทำงานได้แล้วเพราะปุ่มไม่ Disable)
+                            let generator = UINotificationFeedbackGenerator()
+                            generator.notificationOccurred(.warning) // เพิ่มสั่นเตือนนิดนึง
+                            
                             showBounceAnimation = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                 showBounceAnimation = false
@@ -160,7 +161,6 @@ struct TermsView: View {
                             .cornerRadius(15)
                             .shadow(color: isAccepted ? primaryColor.opacity(0.3) : .clear, radius: 5, x: 0, y: 5)
                     }
-                    .disabled(!isAccepted)
                 }
                 .padding(24)
                 .background(Color.white.ignoresSafeArea(edges: .bottom))

@@ -270,9 +270,9 @@ struct DiaryTodayView: View {
     
     // --- Feeling Data ---
     let feelings: [Feeling] = [
-        Feeling(imageName: "feeling_better", title: "ดีขึ้น", level: 1),
-        Feeling(imageName: "feeling_same", title: "เหมือนเดิม", level: 2),
-        Feeling(imageName: "feeling_worse", title: "ปวดมากขึ้น", level: 3)
+        Feeling(imageName: "Smile", title: "ดีขึ้น", level: 1),
+        Feeling(imageName: "Normal", title: "เหมือนเดิม", level: 2),
+        Feeling(imageName: "Sad", title: "ปวดมากขึ้น", level: 3)
     ]
     
     var body: some View {
@@ -282,21 +282,11 @@ struct DiaryTodayView: View {
             VStack(spacing: 0) {
                 // MARK: - Top Navigation Bar
                 HStack {
-//                    Button(action: { dismiss() }) {
-//                        Image(systemName: "chevron.left")
-//                            .font(.title3)
-//                            .foregroundColor(.white)
-//                    }
                     Spacer()
                     Text("Pain Diary")
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-//                    Button(action: {}) {
-//                        Image(systemName: "gear")
-//                            .font(.title3)
-//                            .foregroundColor(.white)
-//                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -338,11 +328,11 @@ struct DiaryTodayView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        // ✅ เช็คว่ามีข้อมูลวันนี้หรือยัง
-        .task {
-            await checkExistingEntry()
+        .onAppear {
+            Task {
+                await checkExistingEntry()
+            }
         }
-        // ✅ Alert สำหรับแจ้งผลลัพธ์
         .alert("บันทึกสำเร็จ", isPresented: $showSuccessAlert) {
             Button("ตกลง") {
                 // สามารถเพิ่ม action เช่น refresh data
@@ -350,10 +340,19 @@ struct DiaryTodayView: View {
         } message: {
             Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
         }
-        .alert("คุณเคยบันทึกข้อมูลแล้ว", isPresented: $showErrorAlert) {
+        .alert("คุณบันทึกข้อมูลเรียบร้อยแล้ว", isPresented: $showErrorAlert) {
             Button("ตกลง", role: .cancel) {}
         } message: {
-            Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
+            // ✅ ดึงข้อมูลที่เลือกมาแสดง
+            let selectedFeeling = feelings[currentFeelingIndex].title
+            let note = noteText.isEmpty ? "-" : noteText
+            
+            Text("""
+            บันทึกข้อมูลเรียบร้อยแล้ว
+            
+            ความรู้สึก: \(selectedFeeling)
+            บันทึกเพิ่มเติม: \(note)
+            """)
         }
     }
     
@@ -397,6 +396,7 @@ struct DiaryTodayView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 180, height: 180)
+                                        .clipShape(Circle())
                                 } else {
                                     Circle()
                                         .fill(getFeelingColor(feelings[index].level))
@@ -534,10 +534,10 @@ struct DiaryTodayView: View {
     
     func getFeelingIcon(_ level: Int) -> String {
         switch level {
-        case 1: return "face.smiling"
-        case 2: return "face.dashed"
-        case 3: return "face.dashed.fill"
-        default: return "face.smiling"
+        case 1: return "Smile"
+        case 2: return "Normal"
+        case 3: return "Sad"
+        default: return "Smile"
         }
     }
 }

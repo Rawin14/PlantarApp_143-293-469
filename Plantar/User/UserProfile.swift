@@ -21,6 +21,7 @@ struct ProfileInsert: Encodable {
     let bmi: Double?
     let evaluate_score: Double?
     let risk_level: String?
+    let has_completed_scan: Bool?
 }
 
 struct ProfileData: Codable {
@@ -32,6 +33,7 @@ struct ProfileData: Codable {
     let gender: String?
     let birthdate: String?
     let evaluate_score: Double?
+    let has_completed_scan: Bool?
     let created_at: String?
     let updated_at: String?
 }
@@ -103,6 +105,7 @@ class UserProfile: ObservableObject {
     @Published var gender: String = "female"
     @Published var birthdate: Date = Date()
     @Published var evaluateScore: Double = 0.0
+    @Published var hasCompletedScan: Bool = false
     
     // App Data
     @Published var latestScan: FootScanModel?
@@ -295,6 +298,7 @@ class UserProfile: ObservableObject {
                 self.weight = profile.weight ?? 0.0
                 self.gender = profile.gender ?? "female"
                 self.evaluateScore = profile.evaluate_score ?? 0.0
+                self.hasCompletedScan = profile.has_completed_scan ?? false
                 
                 self.loadWatchedVideos()
             }
@@ -327,7 +331,7 @@ class UserProfile: ObservableObject {
                 id: userId, nickname: nickname, age: age > 0 ? age : nil, height: height > 0 ? height : nil,
                 weight: weight > 0 ? weight : nil, gender: gender.isEmpty ? nil : gender,
                 birthdate: ISO8601DateFormatter().string(from: birthdate), bmi: currentBMI > 0 ? currentBMI : nil,
-                evaluate_score: self.evaluateScore, risk_level: self.riskSeverity
+                evaluate_score: self.evaluateScore, risk_level: self.riskSeverity, has_completed_scan: self.hasCompletedScan
             )
             try await Self.supabase.from("profiles").upsert(profileData).execute()
             print("✅ Profile saved")
@@ -410,15 +414,34 @@ class UserProfile: ObservableObject {
             print("ℹ️ Diary fetch info: \(error.localizedDescription)")
         }
     }
+    
+    func updateScanStatus(isCompleted: Bool) async {
+            self.hasCompletedScan = isCompleted
+            // อัปเดตเฉพาะ field นี้ใน DB เพื่อความรวดเร็ว
+            do {
+                let session = try await Self.supabase.auth.session
+                let userId = session.user.id.uuidString
+                try await Self.supabase.from("profiles")
+                    .update(["has_completed_scan": isCompleted])
+                    .eq("id", value: userId)
+                    .execute()
+                print("✅ Updated scan status to: \(isCompleted)")
+            } catch {
+                print("❌ Failed to update scan status: \(error)")
+            }
+        }
 }
 
 // MARK: - Extension Check Profile
 extension ProfileData {
     var isComplete: Bool {
-        return (weight ?? 0) > 0 && (height ?? 0) > 0 && (age ?? 0) > 0
+        // ✅ ต้องกรอกข้อมูลครบ AND สแกนเสร็จแล้ว
+        return (weight ?? 0) > 0
+            && (height ?? 0) > 0
+            && (age ?? 0) > 0
+            && (has_completed_scan == true)
     }
 }
-
 // MARK: - Preview Data
 #if DEBUG
 extension UserProfile {

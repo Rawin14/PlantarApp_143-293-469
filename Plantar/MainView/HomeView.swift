@@ -291,9 +291,6 @@ struct HomeView: View {
                             Button(action: { selectedTab = 1 }) {
                                 OverviewCard(icon: "play.rectangle.fill", title: "Therapy Videos", subtitle: "Guided Exercise", color: accentColor)
                             }
-                            Button(action: { selectedTab = 2 }) {
-                                OverviewCard(icon: "book.fill", title: "Pain Diary", subtitle: "Daily Log", color: challengeCardColor)
-                            }
                             if userProfile.riskSeverity == "high" {
                                 NavigationLink(destination: ClinicsNearMeView()) {
                                     OverviewCard(

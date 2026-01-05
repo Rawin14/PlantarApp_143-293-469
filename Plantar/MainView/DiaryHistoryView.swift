@@ -18,20 +18,20 @@ struct DiaryHistoryView: View {
     private let diaryService = DiaryService()
     
     // --- Custom Colors ---
-    let backgroundColor = Color(red: 94/255, green: 84/255, blue: 68/255) // น้ำตาล
-    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255) // เขียว
-    let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255) // ครีม
+    let backgroundColor = Color(red: 94/255, green: 84/255, blue: 68/255)
+    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)
+    let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255)
     
-    // Formatter ที่ตรงกันกับ Database
+    // ✅ 1. Calendar Setup: บังคับใช้ Gregorian และ Locale ไทย เพื่อความแม่นยำ
     private var calendar: Calendar {
         var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone.current
+        cal.locale = Locale(identifier: "th_TH")
+        cal.firstWeekday = 2 // เริ่มวันจันทร์ (1=Sun, 2=Mon)
         return cal
     }
     
     var body: some View {
         ZStack {
-            // พื้นหลังของทั้งหน้า (สีน้ำตาลเข้มตาม Theme หรือจะใช้ cardBackground ก็ได้)
             backgroundColor.ignoresSafeArea()
             
             if isLoading {
@@ -42,8 +42,10 @@ struct DiaryHistoryView: View {
             }
         }
         .task { await loadEntries() }
-        .onChange(of: selectedMonth) { _ in Task { await loadEntries() } }
-        .onAppear { Task { await loadEntries() } }
+        // ✅ 2. โหลดข้อมูลใหม่เมื่อเปลี่ยนเดือน
+        .onChange(of: selectedMonth) {
+            Task { await loadEntries() }
+        }
     }
     
     var contentView: some View {
@@ -56,7 +58,8 @@ struct DiaryHistoryView: View {
                         Image(systemName: "chevron.left").font(.title3).foregroundColor(.white)
                     }
                     Spacer()
-                    Text(monthYearFormatter.string(from: selectedMonth))
+                    // แสดงเดือนและปี
+                    Text(monthYearString(from: selectedMonth))
                         .font(.title3).fontWeight(.semibold).foregroundColor(.white)
                     Spacer()
                     Button(action: { changeMonth(1) }) {
@@ -70,121 +73,103 @@ struct DiaryHistoryView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 
-                // Error Message
-                if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.red.opacity(0.5))
-                        .cornerRadius(8)
-                        .padding(.horizontal, 20)
+                // MARK: - Calendar Grid
+                VStack(alignment: .leading, spacing: 12) {
+                    // หัวตาราง (จันทร์ - อาทิตย์)
+                    HStack {
+                        ForEach(["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."], id: \.self) { day in
+                            Text(day)
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    
+                    // ตารางวันที่
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+                        let days = getDaysInMonth()
+                        
+                        ForEach(days.indices, id: \.self) { index in
+                            if let date = days[index] {
+                                DayCell(date: date, entry: getEntry(for: date))
+                            } else {
+                                Color.clear.frame(height: 60)
+                            }
+                        }
+                    }
                 }
+                .padding(20)
+                .background(cardBackground)
+                .cornerRadius(15)
+                .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+                .padding(.horizontal, 20)
                 
-                // Empty State
-                if entries.isEmpty && !isLoading {
-                    VStack(spacing: 16) {
-                        Image(systemName: "calendar.badge.exclamationmark")
-                            .font(.system(size: 50)).foregroundColor(.white.opacity(0.5))
-                        Text("ยังไม่มีข้อมูลในเดือนนี้")
-                            .font(.headline).foregroundColor(.white.opacity(0.7))
-                    }
-                    .padding(.vertical, 50)
-                } else if !entries.isEmpty {
-                    
-                    // MARK: - Statistics Card (สรุปเดือนนี้)
-                    // ✅ เพิ่มพื้นหลังสีขาวตรงนี้
-                    VStack(spacing: 16) {
-                        // Header: สรุปเดือนนี้ + จำนวนวัน
-                        HStack {
-                            Text("สรุปเดือนนี้")
-                                .font(.title3).fontWeight(.bold).foregroundColor(.black)
-                            Spacer()
-                            Text("\(filteredEntries().count) วัน")
-                                .font(.caption).foregroundColor(.gray)
-                                .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(Color.gray.opacity(0.1)).cornerRadius(12)
-                        }
-                        
-                        // Most Frequent Feeling (ความรู้สึกที่พบบ่อยสุด)
-                        if let mostFeeling = getMostFrequentFeeling() {
-                            HStack(spacing: 12) {
-                                // Image/Icon
-                                if UIImage(named: getFeelingImageName(mostFeeling)) != nil {
-                                    Image(getFeelingImageName(mostFeeling))
-                                        .resizable().scaledToFit().frame(width: 80, height: 80)
-                                } else {
-                                    Circle().fill(getFeelingColor(mostFeeling))
-                                        .frame(width: 80, height: 80)
-                                        .overlay(Image(systemName: getFeelingIcon(mostFeeling)).font(.largeTitle).foregroundColor(.white))
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("ความรู้สึกที่พบบ่อยสุด:")
-                                        .font(.caption).foregroundColor(.gray)
-                                    Text(getFeelingTitle(mostFeeling))
-                                        .font(.title2).fontWeight(.bold).foregroundColor(.black)
-                                }
-                                Spacer()
-                            }
-                        }
-                        
-                        Divider()
-                        
-                        // Percentages Rows
-                        VStack(spacing: 12) {
-                            FeelingPercentageRow(title: "ดีขึ้น", color: .green, percentage: getFeelingPercentage(1))
-                            FeelingPercentageRow(title: "เหมือนเดิม", color: .yellow, percentage: getFeelingPercentage(2))
-                            FeelingPercentageRow(title: "ปวดมากขึ้น", color: .red, percentage: getFeelingPercentage(3))
-                        }
-                    }
-                    .padding(20)
-                    .background(Color.white) // ✅ พื้นหลังสีขาว
-                    .cornerRadius(16) // ✅ มุมโค้ง
-                    .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4) // ✅ เงาเพื่อให้ดูมิติ
-                    .padding(.horizontal, 20) // ✅ เว้นขอบซ้ายขวา
-                    
-                    
-                    // MARK: - Calendar Grid
-                    VStack(alignment: .leading, spacing: 12) {
-                        // Days Header
-                        HStack {
-                            ForEach(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], id: \.self) { day in
-                                Text(day).font(.caption2).foregroundColor(.gray).frame(maxWidth: .infinity)
-                            }
-                        }
-                        
-                        // Days Grid
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
-                            ForEach(getDaysInMonth(), id: \.self) { date in
-                                if let date = date {
-                                    DayCell(date: date, entry: getEntry(for: date))
-                                } else {
-                                    Color.clear.frame(height: 70)
-                                }
-                            }
-                        }
-                    }
-                    .padding(20)
-                    .background(cardBackground) // ส่วนปฏิทินใช้สีครีม (หรือจะเปลี่ยนเป็น white ก็ได้ถ้าชอบ)
-                    .cornerRadius(15)
-                    .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
+                // ส่วนสรุป (Statistics)
+                if !entries.isEmpty {
+                    statisticsSection
                 }
             }
+            .padding(.bottom, 40)
         }
     }
     
-    // MARK: - Functions
+    // MARK: - Statistics Section
+    var statisticsSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("สรุปเดือนนี้")
+                    .font(.title3).fontWeight(.bold).foregroundColor(.black)
+                Spacer()
+                Text("\(entries.count) วัน")
+                    .font(.caption).foregroundColor(.gray)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(Color.gray.opacity(0.1)).cornerRadius(12)
+            }
+            
+            if let mostFeeling = getMostFrequentFeeling() {
+                HStack(spacing: 12) {
+                    if let img = UIImage(named: getFeelingImageName(mostFeeling)) {
+                        Image(uiImage: img)
+                            .resizable().scaledToFit().frame(width: 60, height: 60)
+                    } else {
+                        Image(systemName: "face.smiling")
+                            .resizable().scaledToFit().frame(width: 60, height: 60)
+                            .foregroundColor(getFeelingColor(mostFeeling))
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("รู้สึกบ่อยที่สุด:")
+                            .font(.caption).foregroundColor(.gray)
+                        Text(getFeelingTitle(mostFeeling))
+                            .font(.title3).fontWeight(.bold).foregroundColor(.black)
+                    }
+                    Spacer()
+                }
+            }
+            
+            Divider()
+            
+            VStack(spacing: 12) {
+                FeelingPercentageRow(title: "ดีขึ้น", color: .green, percentage: getFeelingPercentage(1))
+                FeelingPercentageRow(title: "เหมือนเดิม", color: .yellow, percentage: getFeelingPercentage(2))
+                FeelingPercentageRow(title: "ปวดมากขึ้น", color: .red, percentage: getFeelingPercentage(3))
+            }
+        }
+        .padding(20)
+        .background(Color.white)
+        .cornerRadius(16)
+        .padding(.horizontal, 20)
+    }
+    
+    // MARK: - Logic Functions
     
     private func loadEntries() async {
         isLoading = true
-        errorMessage = nil
         do {
             entries = try await diaryService.fetchEntriesForMonth(date: selectedMonth)
         } catch {
-            errorMessage = "โหลดข้อมูลไม่สำเร็จ"
-            print("Error: \(error)")
+            print("Error loading entries: \(error)")
         }
         isLoading = false
     }
@@ -195,42 +180,43 @@ struct DiaryHistoryView: View {
         }
     }
     
-    private func filteredEntries() -> [DiaryEntry] {
-        return entries
-    }
-    
+    // ✅ 3. คำนวณวันที่ในปฏิทิน (แก้ Bug วันที่เลื่อน)
     private func getDaysInMonth() -> [Date?] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedMonth),
-              let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth))
-        else { return [] }
-        
-        let firstWeekday = calendar.component(.weekday, from: firstDay)
-        // Offset ให้เริ่มวันจันทร์ (Mon=0, Tue=1...)
-        // Weekday: Sun=1, Mon=2, ...
-        let offset = (firstWeekday + 5) % 7
-        
-        var days: [Date?] = Array(repeating: nil, count: offset)
-        
-        for day in range {
-            if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDay) {
-                days.append(date)
+            guard let range = calendar.range(of: .day, in: .month, for: selectedMonth),
+                  let firstDayOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth))
+            else { return [] }
+            
+            let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+            
+            // สูตร Offset สำหรับวันจันทร์ (Mon=2): (weekday - 2 + 7) % 7
+            let offset = (firstWeekday - 2 + 7) % 7
+            
+            var days: [Date?] = Array(repeating: nil, count: offset)
+            
+            for day in 1...range.count {
+                if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDayOfMonth) {
+                    days.append(date)
+                }
             }
+            return days
         }
-        return days
-    }
     
+    // ✅ 4. ดึงข้อมูล Entry ของวันนั้น (เทียบวันต่อวัน ไม่สนเวลา)
     private func getEntry(for date: Date) -> DiaryEntry? {
-        return entries.first { calendar.isDate($0.date, inSameDayAs: date) }
+        return entries.first { entry in
+            calendar.isDate(entry.date, inSameDayAs: date)
+        }
     }
     
-    private var monthYearFormatter: DateFormatter {
+    private func monthYearString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        formatter.calendar = calendar // ใช้ปฏิทินเดียวกัน
         formatter.locale = Locale(identifier: "th_TH")
-        return formatter
+        return formatter.string(from: date)
     }
     
-    // Feeling Helpers
+    // Helpers
     private func getFeelingPercentage(_ level: Int) -> Int {
         guard !entries.isEmpty else { return 0 }
         let count = entries.filter { $0.feelingLevel == level }.count
@@ -248,7 +234,7 @@ struct DiaryHistoryView: View {
     }
     
     private func getFeelingImageName(_ level: Int) -> String {
-        switch level { case 1: return "feeling_better"; case 2: return "feeling_same"; case 3: return "feeling_worse"; default: return "" }
+        switch level { case 1: return "Smile"; case 2: return "Normal"; case 3: return "Sad"; default: return "" }
     }
     
     private func getFeelingColor(_ level: Int) -> Color {
@@ -256,7 +242,7 @@ struct DiaryHistoryView: View {
     }
     
     private func getFeelingIcon(_ level: Int) -> String {
-        switch level { case 1: return "face.smiling"; case 2: return "face.dashed"; default: return "exclamationmark.circle" }
+        switch level { case 1: return "Smile"; case 2: return "Normal"; default: return "exclamationmark.circle" }
     }
 }
 

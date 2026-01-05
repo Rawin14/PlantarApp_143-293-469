@@ -1,45 +1,3 @@
-////
-////  PlantarApp.swift
-////  Plantar
-////
-////  Created by Jeerapan Chirachanchai on 7/10/2568 BE.
-////
-//
-//import SwiftUI
-//
-//@main
-//struct PlantarApp: App {
-//    @StateObject var userProfile = UserProfile()
-//    @StateObject var authManager = AuthManager()
-//    
-//    // ตัวแปรเช็คว่าเปิดแอปครั้งแรกไหม (หน้า Welcome)
-//    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
-//    
-//    
-//    var body: some Scene {
-//        WindowGroup {
-//            NavigationStack {
-//                // เช็คสถานะตามลำดับ
-//                if isFirstLaunch {
-//                    ContentView() // หน้า Splash -> Welcome
-//                } else if authManager.isAuthenticated {
-//                    // ล็อกอินแล้ว -> เช็คว่ากรอกประวัติเสร็จยัง?
-//                    if authManager.isDataComplete {
-//                        HomeView() // ถ้าครบแล้ว ไปหน้า Home เลย (ไม่ว่า Login ด้วยวิธีไหน)
-//                    } else {
-//                        Profile() // ถ้าไม่ครบ ไปหน้ากรอกข้อมูล
-//                    }
-//                } else {
-//                    LoginView() // ยังไม่ล็อกอิน
-//                }
-//            }
-//            .id(authManager.isAuthenticated) // รีเฟรชเมื่อสถานะล็อกอินเปลี่ยน
-//            .environmentObject(userProfile)
-//            .environmentObject(authManager)
-//        }
-//    }
-//}
-
 //
 //  PlantarApp.swift
 //  Plantar
@@ -51,40 +9,41 @@ import SwiftUI
 
 @main
 struct PlantarApp: App {
-    // ใช้ Shared Instance เพื่อให้ข้อมูลตรงกันทั้งแอป (แนะนำให้ใช้ .shared ถ้ามี)
-    @StateObject var userProfile = UserProfile.shared
-    @StateObject var authManager = AuthManager.shared
+    @StateObject var userProfile = UserProfile()
+    @StateObject var authManager = AuthManager()
     
-    // ตัวแปรเช็คว่าเปิดแอปครั้งแรกไหม (หน้า Welcome)
+    // 1. สถานะเปิดแอปครั้งแรก (Welcome Screen)
     @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
     
-    // ✅ 1. เพิ่มตัวแปรเช็คสถานะการยอมรับเงื่อนไข (เก็บในเครื่อง)
+    // 2. ✅ เพิ่มสถานะการยอมรับเงื่อนไข (Terms)
     @AppStorage("isTermsAccepted") var isTermsAccepted: Bool = false
     
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                // เช็คสถานะตามลำดับ Priority
+                // เช็คสถานะตามลำดับ (Flow ของแอป)
                 if isFirstLaunch {
-                    ContentView() // หน้า Splash -> Welcome
+                    // ด่านที่ 1: หน้า Welcome
+                    ContentView()
+                } else if !isTermsAccepted {
+                    // ด่านที่ 2: ✅ ถ้ายังไม่ยอมรับเงื่อนไข -> ไปหน้า Terms
+                    // (พอ User กดปุ่มยอมรับ ตัวแปรนี้จะเป็น true แล้วแอปจะดีดไป LoginView เอง)
+                    TermsView()
                 } else if authManager.isAuthenticated {
-                    
-                    // ✅ 2. เพิ่ม Logic: ต้องยอมรับ Terms ก่อน ถึงจะไปต่อได้
-                    if !isTermsAccepted {
-                        TermsView() // แสดงหน้าเงื่อนไข
-                    }
-                    // ถ้า Login และ ยอมรับ Terms แล้ว -> เช็คว่ากรอกประวัติเสร็จยัง?
-                    else if authManager.isDataComplete {
-                        HomeView() // ข้อมูลครบ -> ไปหน้า Home
+                    // ด่านที่ 4: ล็อกอินแล้ว -> เช็คว่ากรอกประวัติครบไหม?
+                    if authManager.isDataComplete {
+                        HomeView() // ครบจบ -> หน้าหลัก
                     } else {
-                        Profile() // ข้อมูลไม่ครบ -> ไปหน้ากรอกประวัติ (Profile Setup)
+                        Profile() // ยังไม่ครบ -> หน้ากรอกประวัติ
                     }
-                    
                 } else {
-                    LoginView() // ยังไม่ล็อกอิน
+                    // ด่านที่ 3: ✅ ผ่าน Terms มาแล้ว แต่ยังไม่ล็อกอิน -> หน้า Login
+                    LoginView()
                 }
             }
             .id(authManager.isAuthenticated) // รีเฟรชเมื่อสถานะล็อกอินเปลี่ยน
+            .animation(.easeInOut, value: isFirstLaunch) // เพิ่ม Animation เปลี่ยนหน้าให้นุ่มนวล
+            .animation(.easeInOut, value: isTermsAccepted)
             .environmentObject(userProfile)
             .environmentObject(authManager)
         }

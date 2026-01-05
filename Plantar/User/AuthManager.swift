@@ -63,21 +63,35 @@ class AuthManager: ObservableObject {
             )
             
             if let session = response.session {
-                let profileData: [String: String] = [
-                    "id": session.user.id.uuidString,
-                    "nickname": nickname
-                ]
-                try await supabase.from("profiles").insert(profileData).execute()
+                // ... (โค้ด Insert Profile เดิม) ...
                 
                 await MainActor.run {
                     self.currentUser = session.user
                     self.isAuthenticated = true
+                    self.isDataComplete = false
                 }
+                
+                // (Optional) เพื่อความชัวร์ที่สุด ให้เช็คสถานะจริงจาก DB อีกรอบก็ได้
+                // await checkUserStatus()
+                
                 print("✅ Sign up successful -> Switching View")
             }
         } catch {
-            print("❌ Error: \(error)")
-            await MainActor.run { self.errorMessage = error.localizedDescription }
+            await MainActor.run {
+                // แปลง Error ของ Supabase เป็นภาษาไทยที่เข้าใจง่าย
+                if error.localizedDescription.contains("User already registered") {
+                    self.errorMessage = "อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่น"
+                } else if error.localizedDescription.contains("Password should be at least") {
+                    self.errorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร"
+                } else if error.localizedDescription.contains("invalid email") {
+                    self.errorMessage = "รูปแบบอีเมลไม่ถูกต้อง"
+                } else {
+                    // กรณี Error อื่นๆ
+                    self.errorMessage = "เกิดข้อผิดพลาด: \(error.localizedDescription)"
+                }
+                
+                print("❌ Sign up error: \(error)")
+            }
         }
     }
     
@@ -115,21 +129,21 @@ class AuthManager: ObservableObject {
             
             // 2. เปิด Web Browser ภายในแอปเพื่อ Login
             let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "plantarapp") { callbackURL, error in
-                            guard let url = callbackURL else { return }
-                            
-                            Task {
-                                do {
-                                    // ได้ Session แล้ว
-                                    let session = try await self.supabase.auth.session(from: url)
-                                    
-                                    await MainActor.run {
-                                        self.currentUser = session.user
-                                        self.isAuthenticated = true
-                                    }
-                                    
-                                    // ✅ เช็คข้อมูล Profile ทันที!
-                                    await self.checkUserStatus()}
-                                catch {
+                guard let url = callbackURL else { return }
+                
+                Task {
+                    do {
+                        // ได้ Session แล้ว
+                        let session = try await self.supabase.auth.session(from: url)
+                        
+                        await MainActor.run {
+                            self.currentUser = session.user
+                            self.isAuthenticated = true
+                        }
+                        
+                        // ✅ เช็คข้อมูล Profile ทันที!
+                        await self.checkUserStatus()}
+                    catch {
                         print("❌ Failed to parse session: \(error)")
                         await MainActor.run {
                             self.errorMessage = "Login Google ไม่สำเร็จ: \(error.localizedDescription)"
@@ -154,31 +168,31 @@ class AuthManager: ObservableObject {
     }
     
     func checkUserStatus() async {
-            do {
-                // 1. เรียกแบบรองรับค่า nil
-                let profile = try await UserProfile.shared.fetchCurrentProfile()
+        do {
+            // 1. เรียกแบบรองรับค่า nil
+            let profile = try await UserProfile.shared.fetchCurrentProfile()
+            
+            await MainActor.run {
+                self.isAuthenticated = true
                 
-                await MainActor.run {
-                    self.isAuthenticated = true
-                    
-                    if let profile = profile {
-                        // ✅ กรณีมี Profile แล้ว -> เช็คว่ากรอกครบไหม
-                        self.isDataComplete = profile.isComplete
-                        print("👤 Old User: \(profile.isComplete ? "Complete" : "Incomplete")")
-                    } else {
-                        // 🆕 กรณีเป็น User ใหม่ (Profile เป็น nil) -> ให้ไปหน้ากรอกข้อมูล
-                        self.isDataComplete = false
-                        print("🆕 New User: No profile found (Go to setup)")
-                    }
-                }
-            } catch {
-                print("❌ System Error: \(error)")
-                await MainActor.run {
-                    self.isAuthenticated = true // ให้เข้าได้แต่ไปหน้า Setup
+                if let profile = profile {
+                    // ✅ กรณีมี Profile แล้ว -> เช็คว่ากรอกครบไหม
+                    self.isDataComplete = profile.isComplete
+                    print("👤 Old User: \(profile.isComplete ? "Complete" : "Incomplete")")
+                } else {
+                    // 🆕 กรณีเป็น User ใหม่ (Profile เป็น nil) -> ให้ไปหน้ากรอกข้อมูล
                     self.isDataComplete = false
+                    print("🆕 New User: No profile found (Go to setup)")
                 }
             }
+        } catch {
+            print("❌ System Error: \(error)")
+            await MainActor.run {
+                self.isAuthenticated = true // ให้เข้าได้แต่ไปหน้า Setup
+                self.isDataComplete = false
+            }
         }
+    }
     
     // MARK: - Sign In with Apple
     func signInWithApple(idToken: String, nonce: String) async {
@@ -203,6 +217,7 @@ class AuthManager: ObservableObject {
         await MainActor.run {
             self.isAuthenticated = false
             self.currentUser = nil
+            self.isDataComplete = false
             UserDefaults.standard.set(false, forKey: "isProfileSetupCompleted")
         }
         
