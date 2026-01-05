@@ -1,126 +1,247 @@
 //
-//  PrivacyPolicyView.swift
+//  TermsView.swift
 //  Plantar
 //
-//  Created by Jeerapan Chirachanchai on 7/10/2568 BE.
+//  Created by Jeerapan Chirachanchai on 4/1/2569 BE.
 //
 
 import SwiftUI
 
 struct TermsView: View {
-    @State private var agreed = false
-    //    @State private var goNext = false
+    // --- Environment ---
+    @Environment(\.dismiss) private var dismiss
     
-    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+    // ✅ 1. เพิ่มตัวแปรนี้เพื่อให้สื่อสารกับ PlantarApp (ชื่อต้องตรงกันเป๊ะ)
+    @AppStorage("isTermsAccepted") var isTermsAccepted: Bool = false
+    
+    // --- State ---
+    @State private var isAccepted: Bool = false // เช็คว่าติ๊กถูกหรือยัง
+    @State private var showBounceAnimation: Bool = false // Animation เตือนถ้าไม่ติ๊ก
+    
+    // --- Theme Colors ---
+    let backgroundColor = Color(red: 248/255, green: 247/255, blue: 241/255) // ครีม
+    let primaryColor = Color(red: 94/255, green: 84/255, blue: 68/255)     // น้ำตาล
+    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)    // เขียว
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("ข้อจำกัดการใช้งาน")
-                .font(.title)
-                .fontWeight(.bold)
+        ZStack {
+            // Background
+            backgroundColor.ignoresSafeArea()
             
-            ScrollView {
-                Text("""
-                ข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัว
-                
-                แอปพลิเคชันนี้ให้ความสำคัญกับการคุ้มครองข้อมูลส่วนบุคคลและข้อมูลด้านสุขภาพของผู้ใช้งานเป็นอย่างยิ่ง เอกสารฉบับนี้จัดทำขึ้นเพื่อชี้แจงถึงการเก็บรวบรวม การใช้ การจัดเก็บ และการคุ้มครองข้อมูล ก่อนที่ผู้ใช้งานจะเริ่มใช้งานแอปพลิเคชัน กรุณาอ่านและทำความเข้าใจข้อกำหนดนี้อย่างละเอียด
-                
-                1. ประเภทของข้อมูลที่เก็บรวบรวม  
-                แอปพลิเคชันอาจมีการเก็บรวบรวมข้อมูลดังต่อไปนี้  
-                - ข้อมูลส่วนบุคคลทั่วไป ได้แก่ อายุ และเพศ  
-                - ข้อมูลด้านร่างกายและสุขภาพ ได้แก่ น้ำหนัก ส่วนสูง และข้อมูลที่ใช้ในการคำนวณค่า BMI  
-                - ข้อมูลภาพถ่าย ได้แก่ ภาพถ่ายฝ่าเท้าที่ได้จากการถ่ายภาพผ่านกล้องของอุปกรณ์  
-                - ข้อมูลการใช้งานที่เกี่ยวข้องกับการประเมินและการแสดงผลภายในแอปพลิเคชัน  
-                
-                2. วัตถุประสงค์ในการเก็บรวบรวมและใช้ข้อมูล  
-                ข้อมูลที่เก็บรวบรวมจะถูกนำไปใช้เพื่อวัตถุประสงค์ดังต่อไปนี้  
-                - เพื่อการประเมินสภาพฝ่าเท้าและสุขภาพในระดับเบื้องต้นเท่านั้น  
-                - เพื่อคำนวณ วิเคราะห์ และแสดงผลข้อมูลด้านสุขภาพ  
-                - เพื่อแนะนำแนวทางการดูแลสุขภาพหรือการออกกำลังกายที่เหมาะสมกับผู้ใช้งาน  
-                - เพื่อปรับปรุงประสิทธิภาพและประสบการณ์การใช้งานของแอปพลิเคชัน  
-                
-                3. ข้อจำกัดและการประเมินเบื้องต้น 
-                แอปพลิเคชันนี้จัดทำขึ้นเพื่อการประเมินข้อมูลด้านสุขภาพในเบื้องต้นเท่านั้น ข้อมูล ผลลัพธ์ และคำแนะนำที่แสดงในแอป ไม่ถือเป็นการวินิจฉัย การรักษา หรือคำแนะนำทางการแพทย์ และไม่สามารถใช้ทดแทนการตรวจหรือคำปรึกษาจากแพทย์หรือผู้เชี่ยวชาญทางการแพทย์ได้ หากผู้ใช้งานมีอาการผิดปกติหรือข้อสงสัยด้านสุขภาพ ควรปรึกษาแพทย์โดยตรง
-                
-                4. การใช้กล้องและข้อมูลภาพถ่าย  
-                แอปพลิเคชันจะขออนุญาตเข้าถึงกล้องของอุปกรณ์เฉพาะในกรณีที่จำเป็น เพื่อใช้ในการถ่ายภาพฝ่าเท้าสำหรับการประเมินเท่านั้น ภาพถ่ายดังกล่าวจะถูกใช้ตามวัตถุประสงค์ที่ระบุไว้ และจะไม่ถูกนำไปใช้เพื่อวัตถุประสงค์อื่นโดยไม่ได้รับความยินยอมจากผู้ใช้งาน
-                
-                5. ฐานทางกฎหมายในการประมวลผลข้อมูล  
-                การเก็บรวบรวมและประมวลผลข้อมูลส่วนบุคคลและข้อมูลด้านสุขภาพ ดำเนินการบนพื้นฐานของความยินยอมจากผู้ใช้งาน ผู้ใช้งานสามารถถอนความยินยอมได้ตลอดเวลา ทั้งนี้ การถอนความยินยอมอาจส่งผลต่อการใช้งานบางฟังก์ชันของแอปพลิเคชัน
-                
-                6. การจัดเก็บและการคุ้มครองข้อมูล
-                ข้อมูลของผู้ใช้งานจะถูกจัดเก็บด้วยมาตรการรักษาความปลอดภัยที่เหมาะสม เพื่อป้องกันการเข้าถึง การเปิดเผย หรือการใช้งานข้อมูลโดยไม่ได้รับอนุญาต และจะถูกจัดเก็บเฉพาะเท่าที่จำเป็นต่อการให้บริการของแอปพลิเคชัน
-                
-                7. ระยะเวลาในการเก็บรักษาข้อมูล
-                ข้อมูลส่วนบุคคลและข้อมูลด้านสุขภาพจะถูกจัดเก็บตลอดระยะเวลาที่ผู้ใช้งานยังคงใช้งานแอปพลิเคชัน หรือจนกว่าผู้ใช้งานจะร้องขอให้ลบข้อมูลหรือยุติการใช้งาน
-                
-                8. การเปิดเผยข้อมูลแก่บุคคลภายนอก
-                แอปพลิเคชันจะไม่เปิดเผยข้อมูลของผู้ใช้งานให้แก่บุคคลภายนอก เว้นแต่จะได้รับความยินยอมจากผู้ใช้งาน หรือเป็นไปตามข้อกำหนดของกฎหมาย
-                
-                9. การยอมรับข้อกำหนด 
-                เมื่อผู้ใช้งานกด “ยอมรับข้อกำหนดการใช้งาน” และเริ่มใช้งานแอปพลิเคชัน ถือว่าผู้ใช้งานได้อ่าน ทำความเข้าใจ และยินยอมให้แอปพลิเคชันเก็บรวบรวม ใช้ และจัดเก็บข้อมูลตามข้อกำหนดที่ระบุไว้ทั้งหมด
-                
-                ข้อตกลงและนโยบายการใช้งานแอป Plantar
-                                                
-                1. แอป Plantar พัฒนาเพื่อช่วยบรรเทาอาการรองช้ำเบื้องต้น ให้คำแนะนำด้านกายภาพที่เหมาะสม และช่วยลดค่าใช้จ่ายในการรักษา
-                2. แอปให้ข้อมูลเพื่อการดูแลตนเองหากเจ็บฝ่าเท้าเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัย หรือ การรักษาทางการแพทย์
-                3. คำแนะนำในแอปไม่สามารถใช้แทนคำแนะนำจากแพทย์ หรือ ผู้เชี่ยวชาญได้
-                4. ผู้พัฒนาไม่รับผิดชอบต่อผลกระทบที่อาจเกิดขึ้นจากการใช้งานแอป
-                5. แอปมีวัตถุประสงค์เพื่อลดค่าใช้จ่ายในการดูแลรักษาเบื้องต้นเท่านั้น
-                6. แอปอาจเก็บข้อมูลการใช้งานและความพึงพอใจเพื่อพัฒนาแอป
-                7. ผู้พัฒนาขอสงวนสิทธิ์ในการเปลี่ยนแปลงนโยบายโดยไม่ต้องแจ้งล่วงหน้า
-                """)
-                
-                
-            }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(30)
-            .shadow(radius: 3)
-            .padding(.horizontal)
-            
-            Spacer()
-            Button(action: {
-                agreed.toggle()
-            }) {
+            VStack(spacing: 0) {
+                // MARK: - Header
                 HStack {
-                    Image(systemName: agreed ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(agreed ? .black : .gray)
-                    Text("ฉันยอมรับข้อกำหนดการใช้งาน")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
+                    Text("ข้อกำหนดและนโยบาย")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(primaryColor)
+                    Spacer()
+                    Image(systemName: "doc.text.fill")
+                        .font(.title2)
+                        .foregroundColor(accentColor)
                 }
-            }
-            
-            Button(action: {
-                if agreed {
-                    // ✅ เมื่อกดยอมรับ ให้บันทึกว่าไม่ใช่ครั้งแรกอีกต่อไป
-                    // PlantarApp จะตรวจพบค่านี้ที่เปลี่ยนไป และสลับไปหน้า LoginView ทันที
-                    withAnimation {
-                        isFirstLaunch = false
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+                
+                // MARK: - Scrollable Content
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        
+                        // Intro Text
+                        Text("แอปพลิเคชันนี้ให้ความสำคัญกับการคุ้มครองข้อมูลส่วนบุคคลและข้อมูลด้านสุขภาพของผู้ใช้งานเป็นอย่างยิ่ง")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 24)
+                        
+                        // --- Section 1 ---
+                        TermCard(title: "1. ข้อมูลที่เก็บรวบรวม", content: """
+                        • ข้อมูลส่วนบุคคล (อายุ, เพศ)
+                        • ข้อมูลสุขภาพ (น้ำหนัก, ส่วนสูง, BMI)
+                        • ภาพถ่ายฝ่าเท้าจากการประเมิน
+                        • ข้อมูลการใช้งานภายในแอป
+                        """, icon: "folder.fill", color: primaryColor)
+                        
+                        // --- Section 2 ---
+                        TermCard(title: "2. วัตถุประสงค์การใช้งาน", content: """
+                        • เพื่อประเมินสภาพฝ่าเท้าเบื้องต้น
+                        • วิเคราะห์และแสดงผลข้อมูลสุขภาพ
+                        • แนะนำแนวทางการดูแลรักษา
+                        • พัฒนาประสิทธิภาพของแอป
+                        """, icon: "target", color: primaryColor)
+                        
+                        // --- Section 3: Warning ---
+                        WarningCard(content: "แอปนี้สำหรับการประเมินเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัยทางการแพทย์ หากมีอาการผิดปกติรุนแรง โปรดปรึกษาแพทย์โดยตรง")
+                        
+                        // --- Other Sections ---
+                        TermCard(title: "ข้อกำหนดอื่นๆ", content: """
+                        4. การใช้กล้อง: ใช้เพื่อประเมินฝ่าเท้าเท่านั้น
+                        5. ความยินยอม: ท่านสามารถถอนความยินยอมได้
+                        6. ความปลอดภัย: เก็บข้อมูลด้วยมาตรฐานความปลอดภัย
+                        7. การเก็บรักษา: เก็บตลอดระยะเวลาการใช้งาน
+                        8. การเปิดเผย: ไม่เปิดเผยแก่บุคคลภายนอก
+                        """, icon: "list.bullet.clipboard", color: primaryColor)
+                        
+                        // --- Plantar Specific Terms ---
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("ข้อตกลงเฉพาะสำหรับแอป Plantar")
+                                .font(.headline)
+                                .foregroundColor(primaryColor)
+                                .padding(.bottom, 4)
+                            
+                            ForEach(plantarTerms, id: \.self) { term in
+                                HStack(alignment: .top, spacing: 10) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(accentColor)
+                                        .font(.subheadline)
+                                        .padding(.top, 2)
+                                    Text(term)
+                                        .font(.subheadline)
+                                        .foregroundColor(.black.opacity(0.7))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                        .padding(20)
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .padding(.horizontal, 24)
+                        
+                        Spacer(minLength: 100) // เว้นที่ให้ปุ่มด้านล่าง
                     }
+                    .padding(.top, 10)
                 }
-            }) {
-                Text("Next")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(agreed ? Color.black : Color.gray)
-                    .cornerRadius(20)
-                    .shadow(radius: 4)
+                
+                // MARK: - Bottom Action Bar
+                VStack(spacing: 16) {
+                    Divider()
+                    
+                    // Checkbox
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            isAccepted.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: isAccepted ? "checkmark.square.fill" : "square")
+                                .font(.title3)
+                                .foregroundColor(isAccepted ? accentColor : .gray)
+                            
+                            Text("ฉันได้อ่านและยอมรับข้อกำหนดทั้งหมด")
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                    .scaleEffect(showBounceAnimation ? 1.1 : 1.0)
+                    .animation(.spring(dampingFraction: 0.5), value: showBounceAnimation)
+                    
+                    // Accept Button
+                    Button(action: {
+                        if isAccepted {
+                            // ✅ 2. สั่งเปลี่ยนค่า AppStorage
+                            // PlantarApp จะรู้ทันทีและสลับหน้าไป Profile() ให้
+                            withAnimation {
+                                isTermsAccepted = true
+                            }
+                        } else {
+                            // แจ้งเตือนให้กด Checkbox
+                            showBounceAnimation = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                showBounceAnimation = false
+                            }
+                        }
+                    }) {
+                        Text("ยอมรับและเริ่มใช้งาน")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(isAccepted ? primaryColor : Color.gray.opacity(0.5))
+                            .cornerRadius(15)
+                            .shadow(color: isAccepted ? primaryColor.opacity(0.3) : .clear, radius: 5, x: 0, y: 5)
+                    }
+                    .disabled(!isAccepted)
+                }
+                .padding(24)
+                .background(Color.white.ignoresSafeArea(edges: .bottom))
+                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: -5)
             }
-            .disabled(!agreed)
-            
-            Spacer()
         }
-        .padding()
-        .background(Color(red: 1.0, green: 0.99, blue: 0.9))
-        .transition(.opacity)
+        .navigationBarHidden(true)
+    }
+    
+    // ข้อมูลข้อตกลงเฉพาะ
+    private let plantarTerms = [
+        "พัฒนาเพื่อช่วยบรรเทาอาการรองช้ำเบื้องต้น",
+        "เป็นข้อมูลดูแลตนเอง ไม่ใช่การรักษาทางการแพทย์",
+        "ไม่สามารถทดแทนคำแนะนำจากแพทย์ได้",
+        "มุ่งเน้นลดค่าใช้จ่ายในการดูแลรักษาเบื้องต้น"
+    ]
+}
+
+// MARK: - Components (เหมือนเดิม)
+
+struct TermCard: View {
+    let title: String
+    let content: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(color)
+            }
+            
+            Text(content)
+                .font(.body)
+                .foregroundColor(.black.opacity(0.7))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(4)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
+        .padding(.horizontal, 24)
     }
 }
 
+struct WarningCard: View {
+    let content: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title2)
+                .foregroundColor(.orange)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("ข้อจำกัดสำคัญ")
+                    .font(.headline)
+                    .foregroundColor(.orange)
+                Text(content)
+                    .font(.subheadline)
+                    .foregroundColor(.black.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.1))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
+    }
+}
 
 #Preview {
     TermsView()

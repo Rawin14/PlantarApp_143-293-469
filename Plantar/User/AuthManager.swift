@@ -19,6 +19,7 @@ class AuthManager: ObservableObject {
     @State private var isLoading = false
     @Published var isDataComplete: Bool = false
     
+    
     // ใช้ Client เดิมที่มีอยู่แล้วในโปรเจกต์
     private let supabase = UserProfile.supabase
     

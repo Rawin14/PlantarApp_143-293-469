@@ -36,14 +36,44 @@ struct ProfileData: Codable {
     let updated_at: String?
 }
 
-// ⚠️ ลบ struct DiaryEntryModel ออกแล้ว
+struct DiaryEntryModel: Codable, Identifiable {
+    let id: UUID
+    let user_id: UUID
+    let entry_date: String // แก้จาก date เป็น entry_date
+    let feeling_level: Int
+    let note: String?
+    let created_at: String?
+}
 
 struct FootScanModel: Codable {
     let id: String
     let pf_severity: String?
     let pf_score: Double?
-    let image_url: String?
+    let images_url: [String]? // แก้จาก image_url (String) เป็น images_url ([String])
     let created_at: String?
+    
+    // Helper: ดึงรูปแรกมาโชว์ (ถ้ามี)
+    var firstImage: String? {
+        return images_url?.first
+    }
+}
+
+// MARK: - Shared Models (Video & Exercise)
+
+struct VideoExercise: Identifiable, Codable {
+    var id: String { videoUrl }
+    let thumbnail: String
+    let title: String
+    let duration: String
+    let difficulty: String
+    let videoUrl: String
+}
+
+struct ExerciseStep: Identifiable {
+    let id = UUID()
+    let number: String
+    let title: String
+    let description: String
 }
 
 // MARK: - UserProfile Class
@@ -51,10 +81,8 @@ struct FootScanModel: Codable {
 @MainActor
 class UserProfile: ObservableObject {
     
-    // Singleton Access
     static let shared = UserProfile()
     
-    // Supabase Client
     static let supabase = SupabaseClient(
         supabaseURL: URL(string: AppConfig.supabaseURL)!,
         supabaseKey: AppConfig.supabaseAnonKey,
@@ -77,20 +105,21 @@ class UserProfile: ObservableObject {
     @Published var evaluateScore: Double = 0.0
     
     // App Data
-    @Published var latestScan: FootScanModel? // เก็บผลสแกนล่าสุด
-    // ⚠️ ลบ diaryEntries ออกแล้ว (ใช้ DiaryService แทน)
+    @Published var latestScan: FootScanModel?
+    @Published var diaryEntries: [DiaryEntryModel] = []
+    @Published var watchedVideoIDs: Set<String> = []
     
-    // Loading States
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    // MARK: - Computed Properties (Risk Level)
+    
+    // MARK: - Computed Properties
     
     var bmiScore: Int {
         let bmi = calculateBMI()
-        if bmi < 25.0 { return 1 } // ต่ำ/ปกติ
-        else if bmi < 30.0 { return 2 } // เริ่มอ้วน
-        else { return 3 } // อ้วน
+        if bmi < 25.0 { return 1 }
+        else if bmi < 30.0 { return 2 }
+        else { return 3 }
     }
     
     var totalRiskScore: Double {
@@ -104,9 +133,145 @@ class UserProfile: ObservableObject {
         else { return "high" }
     }
     
-    // MARK: - Helper Functions
+    var videoProgress: Double {
+        let total = getRecommendedVideos().count
+        guard total > 0 else { return 0 }
+        return Double(watchedVideoIDs.count) / Double(total)
+    }
     
-    // ฟังก์ชันสำหรับ AuthManager เพื่อดึงข้อมูลมาเช็คสถานะ
+    func dbDateFormatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        return formatter
+    }
+    
+    // แก้ไขการคำนวณ Streak
+    var consecutiveDays: Int {
+        let formatter = dbDateFormatter() // เรียกใช้ตัวนี้
+        
+        let sortedDates = diaryEntries
+        // ✅ ใช้ formatter ตัวเดียวกันแปลงกลับ
+            .compactMap { formatter.date(from: $0.entry_date) }
+            .map { Calendar.current.startOfDay(for: $0) }
+            .sorted(by: >)
+        
+        // ... (Logic นับวันเหมือนเดิม) ...
+        let uniqueDates = Array(Set(sortedDates)).sorted(by: >)
+        var streak = 0
+        var currentDate = Calendar.current.startOfDay(for: Date())
+        
+        if !uniqueDates.contains(currentDate) {
+            currentDate = Calendar.current.date(byAdding: .day, value: -1, to: currentDate)!
+        }
+        
+        for date in uniqueDates {
+            if Calendar.current.isDate(date, inSameDayAs: currentDate) {
+                streak += 1
+                currentDate = Calendar.current.date(byAdding: .day, value: -1, to: currentDate)!
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+    
+    var averageMoodScore: Double {
+        guard !diaryEntries.isEmpty else { return 0.5 }
+        let total = diaryEntries.reduce(0) { $0 + $1.feeling_level }
+        return Double(total) / Double(diaryEntries.count) / 5.0
+    }
+    
+    var feelingBetterPercentage: Double {
+        guard !diaryEntries.isEmpty else { return 0.0 }
+        let goodDays = diaryEntries.filter { $0.feeling_level >= 4 }.count
+        return Double(goodDays) / Double(diaryEntries.count)
+    }
+    
+    // Formatter Helper
+    func dateFormatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = Calendar(identifier: .gregorian)
+        return formatter
+    }
+    
+    // MARK: - Init
+    init() {
+        loadWatchedVideos()
+    }
+    
+    // MARK: - Video Logic
+    func markVideoAsWatched(id: String) {
+        if !watchedVideoIDs.contains(id) {
+            watchedVideoIDs.insert(id)
+            saveWatchedVideos()
+            objectWillChange.send()
+        }
+    }
+    
+    private func saveWatchedVideos() {
+        let array = Array(watchedVideoIDs)
+        UserDefaults.standard.set(array, forKey: "watchedVideoIDs_\(userId)")
+    }
+    
+    private func loadWatchedVideos() {
+        if let saved = UserDefaults.standard.array(forKey: "watchedVideoIDs_\(userId)") as? [String] {
+            self.watchedVideoIDs = Set(saved)
+        }
+    }
+    
+    // MARK: - Video Data
+    func getRecommendedVideos() -> [VideoExercise] {
+        switch riskSeverity {
+        case "high":
+            return [
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "1:56", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4"),
+                VideoExercise(thumbnail: "video_m1", title: "ยืดกล้ามเนื้อน่อง", duration: "3:22", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/3.mp4"),
+                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "0:38", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
+                VideoExercise(thumbnail: "video_m3", title: "นวดกดจุดฝ่าเท้า", duration: "4:33", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/5.mp4")
+            ]
+        case "medium":
+            return [
+                VideoExercise(thumbnail: "video_m1", title: "ยืดกล้ามเนื้อน่อง", duration: "3:22", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/3.mp4"),
+                VideoExercise(thumbnail: "video_m2", title: "เขย่งปลายเท้า", duration: "1:56", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/4.mp4"),
+                VideoExercise(thumbnail: "video_m3", title: "นวดกดจุดฝ่าเท้า", duration: "4:33", difficulty: "Medium", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/5.mp4")
+            ]
+        default:
+            return [
+                VideoExercise(thumbnail: "video_e1", title: "ยืดเหยียดเอ็นฝ่าเท้า", duration: "1:56", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/1.mp4"),
+                VideoExercise(thumbnail: "video_e2", title: "บริหารข้อเท้า", duration: "0:42", difficulty: "Easy", videoUrl: "https://wwdvyjvziujyaymwmrcr.supabase.co/storage/v1/object/public/videos/2.mp4")
+            ]
+        }
+    }
+    
+    func getRecommendedExercises() -> [ExerciseStep] {
+        switch riskSeverity {
+        case "high":
+            return [
+                ExerciseStep(number: "1", title: "ประคบเย็น", description: "ใช้น้ำแข็งประคบบริเวณส้นเท้า 15-20 นาที"),
+                ExerciseStep(number: "2", title: "ยืดผ้าขนหนู", description: "ใช้ผ้าขนหนูคล้องปลายเท้าแล้วดึงเข้าหาตัว"),
+                ExerciseStep(number: "3", title: "พักการใช้งาน", description: "หลีกเลี่ยงการยืนนานๆ และใส่รองเท้านุ่มๆ")
+            ]
+        case "medium":
+            return [
+                ExerciseStep(number: "1", title: "ยืดน่องกับกำแพง", description: "ยืนดันกำแพง ขาหลังเหยียดตึง ส้นเท้าติดพื้น"),
+                ExerciseStep(number: "2", title: "คลึงลูกบอล", description: "ใช้ฝ่าเท้ากลิ้งลูกบอลเทนนิสไปมา"),
+                ExerciseStep(number: "3", title: "ฝึกขยำผ้า", description: "ใช้นิ้วเท้าจิกผ้าขนหนูเข้าหาตัว")
+            ]
+        default:
+            return [
+                ExerciseStep(number: "1", title: "ยืดฝ่าเท้า", description: "ใช้มือดึงนิ้วเท้าเข้าหาตัวช้าๆ"),
+                ExerciseStep(number: "2", title: "หมุนข้อเท้า", description: "หมุนข้อเท้าเป็นวงกลมทั้งสองข้าง"),
+                ExerciseStep(number: "3", title: "นวดผ่อนคลาย", description: "นวดบริเวณฝ่าเท้าเบาๆ")
+            ]
+        }
+    }
+    
+    // MARK: - Fetch Profile
     func fetchCurrentProfile() async throws -> ProfileData? {
         let session = try await Self.supabase.auth.session
         let uid = session.user.id.uuidString
@@ -118,7 +283,7 @@ class UserProfile: ObservableObject {
             .limit(1)
             .execute()
             .value
-            
+        
         let profile = response.first
         
         if let profile = profile {
@@ -130,73 +295,61 @@ class UserProfile: ObservableObject {
                 self.weight = profile.weight ?? 0.0
                 self.gender = profile.gender ?? "female"
                 self.evaluateScore = profile.evaluate_score ?? 0.0
+                
+                self.loadWatchedVideos()
             }
         }
         return profile
     }
     
+    func updateNickname(_ newName: String) async {
+        self.nickname = newName
+        await saveToSupabase()
+    }
+    
+    func setEmail(_ email: String) { self.email = email }
+    
     func calculateBMI() -> Double {
         guard height > 0, weight > 0 else { return 0 }
-        let heightInMeters = height / 100
-        return weight / (heightInMeters * heightInMeters)
+        let h = height / 100
+        return weight / (h * h)
     }
     
-    func setEmail(_ email: String) {
-        self.email = email
-    }
-
-    // MARK: - Save/Load Profile
-    
+    // MARK: - Save/Load
     func saveToSupabase() async {
         isLoading = true
         errorMessage = nil
-        
         do {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
-            
             let currentBMI = calculateBMI()
-            
             let profileData = ProfileInsert(
-                id: userId,
-                nickname: nickname,
-                age: age > 0 ? age : nil,
-                height: height > 0 ? height : nil,
-                weight: weight > 0 ? weight : nil,
-                gender: gender.isEmpty ? nil : gender,
-                birthdate: ISO8601DateFormatter().string(from: birthdate),
-                bmi: currentBMI > 0 ? currentBMI : nil,
-                evaluate_score: self.evaluateScore,
-                risk_level: self.riskSeverity
+                id: userId, nickname: nickname, age: age > 0 ? age : nil, height: height > 0 ? height : nil,
+                weight: weight > 0 ? weight : nil, gender: gender.isEmpty ? nil : gender,
+                birthdate: ISO8601DateFormatter().string(from: birthdate), bmi: currentBMI > 0 ? currentBMI : nil,
+                evaluate_score: self.evaluateScore, risk_level: self.riskSeverity
             )
-            
-            try await Self.supabase
-                .from("profiles")
-                .upsert(profileData)
-                .execute()
-            
-            print("✅ Profile saved to Supabase")
-            
+            try await Self.supabase.from("profiles").upsert(profileData).execute()
+            print("✅ Profile saved")
         } catch {
             errorMessage = "บันทึกข้อมูลล้มเหลว: \(error.localizedDescription)"
             print("❌ Error saving: \(error)")
         }
-        
         isLoading = false
     }
     
     func loadFromSupabase() async {
         isLoading = true
         errorMessage = nil
-        
         do {
             let _ = try await fetchCurrentProfile()
-            print("✅ Profile loaded via fetchCurrentProfile")
+            await fetchDiaryEntries()
+            await fetchLatestScan()
+            print("✅ Profile & Data loaded")
         } catch {
             errorMessage = "โหลดข้อมูลล้มเหลว: \(error.localizedDescription)"
             print("❌ Error loading: \(error)")
         }
-        
         isLoading = false
     }
     
@@ -204,22 +357,14 @@ class UserProfile: ObservableObject {
         do {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
-            
-            try await Self.supabase
-                .from("profiles")
-                .delete()
-                .eq("id", value: userId)
-                .execute()
-            
+            try await Self.supabase.from("profiles").delete().eq("id", value: userId).execute()
             print("✅ Profile deleted")
-            
         } catch {
             errorMessage = "ลบข้อมูลล้มเหลว: \(error.localizedDescription)"
         }
     }
     
-    // MARK: - Foot Scan (ยังเก็บไว้ที่นี่ได้)
-    
+    // MARK: - Foot Scan
     func fetchLatestScan() async {
         do {
             let session = try await Self.supabase.auth.session
@@ -227,7 +372,7 @@ class UserProfile: ObservableObject {
             
             let response: [FootScanModel] = try await Self.supabase
                 .from("foot_scans")
-                .select("id, pf_severity, pf_score, created_at")
+                .select("id, pf_severity, pf_score, images_url, created_at")
                 .eq("user_id", value: userId)
                 .order("created_at", ascending: false)
                 .limit(1)
@@ -235,19 +380,36 @@ class UserProfile: ObservableObject {
                 .value
             
             if let scan = response.first {
-                self.latestScan = scan
+                await MainActor.run {
+                    self.latestScan = scan
+                }
             }
         } catch {
             print("❌ Error fetching latest scan: \(error)")
         }
     }
     
-    func updateNickname(_ newName: String) async {
-            self.nickname = newName
-            await saveToSupabase()
+    // MARK: - Diary
+    func fetchDiaryEntries() async {
+        do {
+            let session = try await Self.supabase.auth.session
+            let userId = session.user.id.uuidString
+            
+            let response: [DiaryEntryModel] = try await Self.supabase
+                .from("diary_entries")
+                .select()
+                .eq("user_id", value: userId)
+                .order("entry_date", ascending: false)
+                .execute()
+                .value
+            
+            await MainActor.run {
+                self.diaryEntries = response
+            }
+        } catch {
+            print("ℹ️ Diary fetch info: \(error.localizedDescription)")
         }
-    // ⚠️ ลบฟังก์ชัน fetchDiaryEntries และ saveDiaryEntry ออกแล้ว
-    // ให้เรียกใช้จาก DiaryService แทน
+    }
 }
 
 // MARK: - Extension Check Profile
@@ -269,10 +431,6 @@ extension UserProfile {
         profile.gender = "male"
         return profile
     }
-    
-    static var previewEmpty: UserProfile {
-        return UserProfile()
-    }
+    static var previewEmpty: UserProfile { return UserProfile() }
 }
 #endif
-

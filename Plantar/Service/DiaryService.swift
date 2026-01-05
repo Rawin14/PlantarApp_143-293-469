@@ -33,12 +33,13 @@ class DiaryService {
     
     
     private var dbDateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.calendar = Calendar(identifier: .gregorian) // บังคับ ค.ศ.
-        formatter.locale = Locale(identifier: "en_US_POSIX")  // บังคับสากล
-        return formatter
-    }
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.calendar = Calendar(identifier: .gregorian)
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone.current
+            return formatter
+        }
     
     // MARK: - Helper: Get Current User ID
     // ฟังก์ชันช่วยดึง User ID จาก Supabase Auth Session
@@ -53,7 +54,7 @@ class DiaryService {
     
     // MARK: - Save Diary Entry
     func saveDiaryEntry(date: Date, feelingLevel: Int, note: String?) async throws {
-        let userId = try await getCurrentUserId() // ✅ ดึง ID จริง
+        let userId = try await getCurrentUserId() 
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
