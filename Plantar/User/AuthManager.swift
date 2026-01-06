@@ -63,7 +63,11 @@ class AuthManager: ObservableObject {
             )
             
             if let session = response.session {
-                // ... (โค้ด Insert Profile เดิม) ...
+                let profileData: [String: String] = [
+                    "id": session.user.id.uuidString,
+                    "nickname": nickname
+                ]
+                try await supabase.from("profiles").insert(profileData).execute()
                 
                 await MainActor.run {
                     self.currentUser = session.user
@@ -105,11 +109,10 @@ class AuthManager: ObservableObject {
         
         do {
             let session = try await supabase.auth.signIn(email: email, password: password)
-            
             await MainActor.run {
                 self.currentUser = session.user
-                self.isAuthenticated = true
             }
+            await checkUserStatus()
             print("✅ Login successful -> Switching View")
         } catch {
             print("❌ Error: \(error)")
@@ -214,6 +217,7 @@ class AuthManager: ObservableObject {
     
     // MARK: - Sign Out
     func signOut() async {
+        
         await MainActor.run {
             self.isAuthenticated = false
             self.currentUser = nil

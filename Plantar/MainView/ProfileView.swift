@@ -222,7 +222,10 @@ struct ProfileView: View {
                             
                             // Logout Button
                             Button {
-                                logout()
+                                Task {
+                                        await authManager.signOut()
+                                    
+                                    }
                             } label: {
                                 InfoRowCard(icon: "rectangle.portrait.and.arrow.right", title: "ออกจากระบบ", value: "", color: .red)
                             }
@@ -296,14 +299,6 @@ struct ProfileView: View {
         .onAppear {
             // โหลดข้อมูลล่าสุดเมื่อเปิดหน้า
             Task { await userProfile.loadFromSupabase() }
-        }
-    }
-    
-    // MARK: - Helper Functions
-    private func logout() {
-        Task {
-            await authManager.signOut()
-            dismiss()
         }
     }
 }

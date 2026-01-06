@@ -202,8 +202,6 @@ struct RegisterView: View {
             // 1. เริ่มหมุน
             isLoading = true
             
-            // ✅ defer: คำสั่งนี้จะทำงานเสมอเมื่อจบฟังก์ชันนี้ (ไม่ว่าจะจบด้วยดี หรือ Error)
-            // ช่วยแก้ปัญหา isLoading ค้าง
             defer {
                 isLoading = false
             }

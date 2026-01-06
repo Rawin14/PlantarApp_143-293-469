@@ -38,6 +38,7 @@ struct PlantarApp: App {
                     LoginView()
                 }
             }
+            .id(authManager.isAuthenticated)
             .animation(.easeInOut, value: isFirstLaunch) // เพิ่ม Animation เปลี่ยนหน้า
             .animation(.easeInOut, value: isTermsAccepted)
             .environmentObject(userProfile)

@@ -26,7 +26,7 @@ struct PFResultView: View {
     @State private var errorMessage: String?
     
     // Image Enhancement State (สำหรับปรับรูปขาวดำ)
-    @State private var isEnhancedMode: Bool = false
+    @State private var isEnhancedMode: Bool = true
     
     // MARK: - Init (รองรับ Preview Mock Data)
     init(scanId: String, mockResult: FootScanResult? = nil) {
