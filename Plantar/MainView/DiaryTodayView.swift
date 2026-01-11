@@ -241,6 +241,328 @@
 //    }
 //}
 
+
+
+//
+//import SwiftUI
+//
+//struct DiaryTodayView: View {
+//    // --- Environment ---
+//    @Environment(\.dismiss) private var dismiss
+//    
+//    // --- State Variables ---
+//    @State private var selectedTab = 0
+//    @State private var currentFeelingIndex = 1
+//    @State private var selectedFeeling: Feeling?
+//    @State private var noteText = ""
+//    
+//    // ✅ เพิ่ม State สำหรับจัดการ UI
+//    @State private var isSaving = false
+//    @State private var showSuccessAlert = false
+//    @State private var showErrorAlert = false
+//    @State private var errorMessage = ""
+//    @State private var hasExistingEntry = false
+//    
+//    // ✅ เพิ่ม Service
+//    private let diaryService = DiaryService()
+//    
+//    // --- Custom Colors ---
+//    let backgroundColor = Color(red: 94/255, green: 84/255, blue: 68/255)
+//    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)
+//    let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255)
+//    
+//    // --- Feeling Data ---
+//    let feelings: [Feeling] = [
+//        Feeling(imageName: "Smile", title: "ดีขึ้น", level: 1),
+//        Feeling(imageName: "Normal", title: "เหมือนเดิม", level: 2),
+//        Feeling(imageName: "Sad", title: "ปวดมากขึ้น", level: 3)
+//    ]
+//    
+//    var body: some View {
+//        ZStack {
+//            backgroundColor.ignoresSafeArea()
+//            
+//            VStack(spacing: 0) {
+//                // MARK: - Top Navigation Bar
+//                HStack {
+//                    Spacer()
+//                    Text("Pain Diary")
+//                        .font(.headline)
+//                        .foregroundColor(.white)
+//                    Spacer()
+//                }
+//                .padding(.horizontal, 20)
+//                .padding(.top, 16)
+//                .padding(.bottom, 16)
+//                
+//                // MARK: - Tab Selector
+//                HStack(spacing: 0) {
+//                    Button(action: { withAnimation { selectedTab = 0 } }) {
+//                        Text("Today")
+//                            .font(.body)
+//                            .fontWeight(selectedTab == 0 ? .semibold : .regular)
+//                            .foregroundColor(selectedTab == 0 ? backgroundColor : .white.opacity(0.6))
+//                            .frame(maxWidth: .infinity)
+//                            .padding(.vertical, 12)
+//                            .background(selectedTab == 0 ? cardBackground : Color.clear)
+//                            .cornerRadius(12)
+//                    }
+//                    
+//                    Button(action: { withAnimation { selectedTab = 1 } }) {
+//                        Text("History")
+//                            .font(.body)
+//                            .fontWeight(selectedTab == 1 ? .semibold : .regular)
+//                            .foregroundColor(selectedTab == 1 ? backgroundColor : .white.opacity(0.6))
+//                            .frame(maxWidth: .infinity)
+//                            .padding(.vertical, 12)
+//                            .background(selectedTab == 1 ? cardBackground : Color.clear)
+//                            .cornerRadius(12)
+//                    }
+//                }
+//                .padding(.horizontal, 20)
+//                .padding(.bottom, 20)
+//                
+//                // MARK: - Content Area
+//                if selectedTab == 0 {
+//                    todayView
+//                } else {
+//                    DiaryHistoryView()
+//                }
+//            }
+//        }
+//        .navigationBarBackButtonHidden(true)
+//        .onAppear {
+//            Task {
+//                await checkExistingEntry()
+//            }
+//        }
+//        .alert("บันทึกสำเร็จ", isPresented: $showSuccessAlert) {
+//            Button("ตกลง") {
+//                // สามารถเพิ่ม action เช่น refresh data
+//            }
+//        } message: {
+//            Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
+//        }
+//        .alert("คุณบันทึกข้อมูลเรียบร้อยแล้ว", isPresented: $showErrorAlert) {
+//            Button("ตกลง", role: .cancel) {}
+//        } message: {
+//            // ✅ ดึงข้อมูลที่เลือกมาแสดง
+//            let selectedFeeling = feelings[currentFeelingIndex].title
+//            let note = noteText.isEmpty ? "-" : noteText
+//            
+//            Text("""
+//            บันทึกข้อมูลเรียบร้อยแล้ว
+//            
+//            ความรู้สึก: \(selectedFeeling)
+//            บันทึกเพิ่มเติม: \(note)
+//            """)
+//        }
+//    }
+//    
+//    // MARK: - Today View
+//    var todayView: some View {
+//        ScrollView(showsIndicators: false) {
+//            VStack(spacing: 20) {
+//                // Date Display
+//                Text(Date(), style: .date)
+//                    .font(.title2)
+//                    .fontWeight(.bold)
+//                    .foregroundColor(.white)
+//                    .padding(.top, 10)
+//                
+//                // ✅ แสดงสถานะว่ามีข้อมูลวันนี้แล้วหรือยัง
+//                if hasExistingEntry {
+//                    HStack {
+//                        Image(systemName: "checkmark.circle.fill")
+//                            .foregroundColor(.green)
+//                        Text("คุณบันทึกข้อมูลวันนี้แล้ว")
+//                            .font(.subheadline)
+//                            .foregroundColor(.white)
+//                    }
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 8)
+//                    .background(Color.white.opacity(0.2))
+//                    .cornerRadius(10)
+//                }
+//                
+//                // Feeling Carousel
+//                VStack(spacing: 16) {
+//                    Text("วันนี้คุณรู้สึกอย่างไร?")
+//                        .font(.headline)
+//                        .foregroundColor(.white)
+//                    
+//                    TabView(selection: $currentFeelingIndex) {
+//                        ForEach(feelings.indices, id: \.self) { index in
+//                            VStack(spacing: 12) {
+//                                if let _ = UIImage(named: feelings[index].imageName) {
+//                                    Image(feelings[index].imageName)
+//                                        .resizable()
+//                                        .scaledToFit()
+//                                        .frame(width: 180, height: 180)
+//                                        .clipShape(Circle())
+//                                } else {
+//                                    Circle()
+//                                        .fill(getFeelingColor(feelings[index].level))
+//                                        .frame(width: 180, height: 180)
+//                                        .overlay(
+//                                            VStack(spacing: 8) {
+//                                                Image(systemName: getFeelingIcon(feelings[index].level))
+//                                                    .font(.system(size: 50))
+//                                                    .foregroundColor(.white)
+//                                            }
+//                                        )
+//                                }
+//                                
+//                                Text(feelings[index].title)
+//                                    .font(.title3)
+//                                    .fontWeight(.semibold)
+//                                    .foregroundColor(.white)
+//                            }
+//                            .tag(index)
+//                        }
+//                    }
+//                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+//                    .frame(height: 250)
+//                    
+//                    HStack(spacing: 8) {
+//                        ForEach(feelings.indices, id: \.self) { index in
+//                            Circle()
+//                                .fill(currentFeelingIndex == index ? accentColor : Color.white.opacity(0.3))
+//                                .frame(width: 8, height: 8)
+//                        }
+//                    }
+//                    .padding(.top, 5)
+//                }
+//                .padding(.horizontal, 20)
+//                
+//                // ✅ Save Button with Loading State
+//                Button(action: {
+//                    Task {
+//                        await saveDiaryEntry()
+//                    }
+//                }) {
+//                    HStack {
+//                        if isSaving {
+//                            ProgressView()
+//                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+//                        } else {
+//                            Text(hasExistingEntry ? "อัพเดทข้อมูลวันนี้" : "บันทึกข้อมูลวันนี้")
+//                                .font(.headline)
+//                                .foregroundColor(.white)
+//                        }
+//                    }
+//                    .frame(maxWidth: .infinity)
+//                    .padding(.vertical, 16)
+//                    .background(isSaving ? Color.gray : accentColor)
+//                    .cornerRadius(12)
+//                }
+//                .disabled(isSaving)
+//                .padding(.horizontal, 20)
+//                
+//                // Note Section
+//                VStack(alignment: .leading, spacing: 12) {
+//                    Text("บันทึกเพิ่มเติม (ถ้ามี)")
+//                        .font(.headline)
+//                        .foregroundColor(.white)
+//                    
+//                    TextEditor(text: $noteText)
+//                        .frame(height: 100)
+//                        .padding(12)
+//                        .background(cardBackground)
+//                        .cornerRadius(12)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 12)
+//                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+//                        )
+//                }
+//                .padding(.horizontal, 20)
+//                .padding(.bottom, 40)
+//            }
+//        }
+//    }
+//    
+//    // MARK: - ✅ Check Existing Entry
+//    private func checkExistingEntry() async {
+//        do {
+//            hasExistingEntry = try await diaryService.entryExists(for: Date())
+//        } catch {
+//            print("Error checking existing entry: \(error)")
+//        }
+//    }
+//    
+//    // MARK: - ✅ Save Diary Entry
+//    private func saveDiaryEntry() async {
+//        isSaving = true
+//        
+//        do {
+//            let feelingLevel = feelings[currentFeelingIndex].level
+//            let note = noteText.trimmingCharacters(in: .whitespacesAndNewlines)
+//            
+//            if hasExistingEntry {
+//                // Update existing entry
+//                try await diaryService.updateDiaryEntry(
+//                    date: Date(),
+//                    feelingLevel: feelingLevel,
+//                    note: note.isEmpty ? nil : note
+//                )
+//            } else {
+//                // Insert new entry
+//                try await diaryService.saveDiaryEntry(
+//                    date: Date(),
+//                    feelingLevel: feelingLevel,
+//                    note: note.isEmpty ? nil : note
+//                )
+//            }
+//            
+//            showSuccessAlert = true
+//            hasExistingEntry = true
+//            
+//        } catch {
+//            errorMessage = error.localizedDescription
+//            showErrorAlert = true
+//        }
+//        
+//        isSaving = false
+//    }
+//    
+//    // Helper Functions
+//    func getFeelingColor(_ level: Int) -> Color {
+//        switch level {
+//        case 1: return Color.green.opacity(0.6)
+//        case 2: return Color.yellow.opacity(0.6)
+//        case 3: return Color.red.opacity(0.6)
+//        default: return Color.gray
+//        }
+//    }
+//    
+//    func getFeelingIcon(_ level: Int) -> String {
+//        switch level {
+//        case 1: return "Smile"
+//        case 2: return "Normal"
+//        case 3: return "Sad"
+//        default: return "Smile"
+//        }
+//    }
+//}
+//
+//// MARK: - Feeling Model
+//struct Feeling: Identifiable {
+//    let id = UUID()
+//    let imageName: String
+//    let title: String
+//    let level: Int
+//}
+//
+//#Preview {
+//    NavigationStack {
+//        DiaryTodayView()
+//    }
+//}
+
+
+
+
+
 import SwiftUI
 
 struct DiaryTodayView: View {
@@ -269,10 +591,11 @@ struct DiaryTodayView: View {
     let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255)
     
     // --- Feeling Data ---
+    // ✅ เปลี่ยนให้ตรงกับ FeelingComparison enum
     let feelings: [Feeling] = [
-        Feeling(imageName: "Smile", title: "ดีขึ้น", level: 1),
-        Feeling(imageName: "Normal", title: "เหมือนเดิม", level: 2),
-        Feeling(imageName: "Sad", title: "ปวดมากขึ้น", level: 3)
+        Feeling(imageName: "Smile", title: "ดีขึ้น", level: 5, comparison: .better),
+        Feeling(imageName: "Normal", title: "เหมือนเดิม", level: 3, comparison: .same),
+        Feeling(imageName: "Sad", title: "แย่ลง", level: 1, comparison: .worse)
     ]
     
     var body: some View {
@@ -340,19 +663,10 @@ struct DiaryTodayView: View {
         } message: {
             Text("บันทึกข้อมูลวันนี้เรียบร้อยแล้ว")
         }
-        .alert("คุณบันทึกข้อมูลเรียบร้อยแล้ว", isPresented: $showErrorAlert) {
+        .alert("เกิดข้อผิดพลาด", isPresented: $showErrorAlert) {
             Button("ตกลง", role: .cancel) {}
         } message: {
-            // ✅ ดึงข้อมูลที่เลือกมาแสดง
-            let selectedFeeling = feelings[currentFeelingIndex].title
-            let note = noteText.isEmpty ? "-" : noteText
-            
-            Text("""
-            บันทึกข้อมูลเรียบร้อยแล้ว
-            
-            ความรู้สึก: \(selectedFeeling)
-            บันทึกเพิ่มเติม: \(note)
-            """)
+            Text(errorMessage)
         }
     }
     
@@ -399,11 +713,11 @@ struct DiaryTodayView: View {
                                         .clipShape(Circle())
                                 } else {
                                     Circle()
-                                        .fill(getFeelingColor(feelings[index].level))
+                                        .fill(getFeelingColor(feelings[index].comparison))
                                         .frame(width: 180, height: 180)
                                         .overlay(
                                             VStack(spacing: 8) {
-                                                Image(systemName: getFeelingIcon(feelings[index].level))
+                                                Image(systemName: getFeelingIcon(feelings[index].comparison))
                                                     .font(.system(size: 50))
                                                     .foregroundColor(.white)
                                             }
@@ -492,7 +806,9 @@ struct DiaryTodayView: View {
         isSaving = true
         
         do {
-            let feelingLevel = feelings[currentFeelingIndex].level
+            let selectedFeeling = feelings[currentFeelingIndex]
+            let feelingLevel = selectedFeeling.level
+            let feelingComparison = selectedFeeling.comparison // ✅ เพิ่มบรรทัดนี้
             let note = noteText.trimmingCharacters(in: .whitespacesAndNewlines)
             
             if hasExistingEntry {
@@ -500,6 +816,7 @@ struct DiaryTodayView: View {
                 try await diaryService.updateDiaryEntry(
                     date: Date(),
                     feelingLevel: feelingLevel,
+                    feelingComparison: feelingComparison, // ✅ เพิ่ม parameter
                     note: note.isEmpty ? nil : note
                 )
             } else {
@@ -507,6 +824,7 @@ struct DiaryTodayView: View {
                 try await diaryService.saveDiaryEntry(
                     date: Date(),
                     feelingLevel: feelingLevel,
+                    feelingComparison: feelingComparison, // ✅ เพิ่ม parameter
                     note: note.isEmpty ? nil : note
                 )
             }
@@ -523,21 +841,19 @@ struct DiaryTodayView: View {
     }
     
     // Helper Functions
-    func getFeelingColor(_ level: Int) -> Color {
-        switch level {
-        case 1: return Color.green.opacity(0.6)
-        case 2: return Color.yellow.opacity(0.6)
-        case 3: return Color.red.opacity(0.6)
-        default: return Color.gray
+    func getFeelingColor(_ comparison: FeelingComparison) -> Color {
+        switch comparison {
+        case .better: return Color.green.opacity(0.6)
+        case .same: return Color.yellow.opacity(0.6)
+        case .worse: return Color.red.opacity(0.6)
         }
     }
     
-    func getFeelingIcon(_ level: Int) -> String {
-        switch level {
-        case 1: return "Smile"
-        case 2: return "Normal"
-        case 3: return "Sad"
-        default: return "Smile"
+    func getFeelingIcon(_ comparison: FeelingComparison) -> String {
+        switch comparison {
+        case .better: return "face.smiling"
+        case .same: return "face.dashed"
+        case .worse: return "face.dashed.fill"
         }
     }
 }
@@ -547,7 +863,8 @@ struct Feeling: Identifiable {
     let id = UUID()
     let imageName: String
     let title: String
-    let level: Int
+    let level: Int // 1-5 สำหรับคำนวณ statistics
+    let comparison: FeelingComparison // ✅ เพิ่มฟิลด์นี้
 }
 
 #Preview {

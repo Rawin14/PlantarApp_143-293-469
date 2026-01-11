@@ -109,7 +109,8 @@ class UserProfile: ObservableObject {
     
     // App Data
     @Published var latestScan: FootScanModel?
-    @Published var diaryEntries: [DiaryEntryModel] = []
+//    @Published var diaryEntries: [DiaryEntryModel] = []
+    @Published var diaryEntries: [DiaryEntry] = []
     @Published var watchedVideoIDs: Set<String> = []
     
     @Published var isLoading = false
@@ -157,7 +158,8 @@ class UserProfile: ObservableObject {
         
         let sortedDates = diaryEntries
         // ✅ ใช้ formatter ตัวเดียวกันแปลงกลับ
-            .compactMap { formatter.date(from: $0.entry_date) }
+//            .compactMap { formatter.date(from: $0.date) }
+            .map { Calendar.current.startOfDay(for: $0.date) }
             .map { Calendar.current.startOfDay(for: $0) }
             .sorted(by: >)
         
@@ -181,18 +183,137 @@ class UserProfile: ObservableObject {
         return streak
     }
     
+//    var averageMoodScore: Double {
+//        guard !diaryEntries.isEmpty else { return 0.5 }
+//        let total = diaryEntries.reduce(0) { $0 + $1.feeling_level }
+//        return Double(total) / Double(diaryEntries.count) / 5.0
+//    }
+    
     var averageMoodScore: Double {
-        guard !diaryEntries.isEmpty else { return 0.5 }
-        let total = diaryEntries.reduce(0) { $0 + $1.feeling_level }
-        return Double(total) / Double(diaryEntries.count) / 5.0
+        guard !diaryEntries.isEmpty else { return 0 }
+
+        let total = diaryEntries.reduce(0.0) { $0 + $1.normalizedScore }
+        return total / Double(diaryEntries.count)
     }
+
     
+//    var feelingBetterPercentage: Double {
+//        guard !diaryEntries.isEmpty else { return 0.0 }
+//        let goodDays = diaryEntries.filter { $0.feeling_level >= 4 }.count
+//        return Double(goodDays) / Double(diaryEntries.count)
+//    }
+    
+//    var feelingBetterPercentage: Double {
+//        guard diaryEntries.count > 1 else { return 0 }
+//
+//        let sorted = diaryEntries.sorted { $0.date < $1.date }
+//        var score = 0
+//
+//        for i in 1..<sorted.count {
+//            let diff = sorted[i].feelingLevel - sorted[i - 1].feelingLevel
+//            if diff > 0 {
+//                score += 1
+//            } else if diff < 0 {
+//                score -= 1
+//            }
+//        }
+//
+//        let maxScore = sorted.count - 1
+//        let normalized = Double(score + maxScore) / Double(maxScore * 2)
+//
+//        return max(0, normalized)
+//    }
+
     var feelingBetterPercentage: Double {
-        guard !diaryEntries.isEmpty else { return 0.0 }
-        let goodDays = diaryEntries.filter { $0.feeling_level >= 4 }.count
-        return Double(goodDays) / Double(diaryEntries.count)
+        guard diaryEntries.count > 1 else { return 0 }
+
+        let sorted = diaryEntries.sorted { $0.date < $1.date }
+        var improveCount = 0
+
+        for i in 1..<sorted.count {
+            if sorted[i].feelingLevel > sorted[i - 1].feelingLevel {
+                improveCount += 1
+            }
+        }
+
+        return Double(improveCount) / Double(sorted.count - 1)
     }
+
+
+//    var weeklyMoodScores: [Double] {
+//        var calendar = Calendar(identifier: .gregorian)
+//        calendar.timeZone = .current
+//
+//        let today = Date()
+//
+//        return (0..<7).reversed().map { offset in
+//            guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else {
+//                return 0
+//            }
+//
+//            if let entry = diaryEntries.first(where: {
+//                calendar.isDate($0.date, inSameDayAs: date)
+//            }) {
+//                return entry.normalizedScore
+//            } else {
+//                return 0
+//            }
+//        }
+//    }
     
+    
+//    var weeklyMoodData: [(date: Date, progress: Double?)] {
+//        var calendar = Calendar(identifier: .gregorian)
+//        calendar.timeZone = .current
+//
+//        let today = calendar.startOfDay(for: Date())
+//
+//        return (0..<7).reversed().map { offset in
+//            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+//
+//            if let entry = diaryEntries.first(where: {
+//                calendar.isDate($0.date, inSameDayAs: day)
+//            }) {
+//                return (day, entry.normalizedScore)   // ✅ ใช้ค่าเดียวกันทั้งระบบ
+//            } else {
+//                return (day, nil)                      // ❌ ไม่มีบันทึก
+//            }
+//        }
+//    }
+
+    var weeklyMoodData: [(date: Date, score: Double?)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        return (0..<7).reversed().map { offset in
+            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+
+            let entry = diaryEntries.first {
+                calendar.isDate($0.date, inSameDayAs: day)
+            }
+
+            return (day, entry?.normalizedScore)
+        }
+    }
+    var last7DaysEntries: [DiaryEntry] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        guard let start = calendar.date(byAdding: .day, value: -6, to: today) else {
+            return []
+        }
+
+        return diaryEntries
+            .filter {
+                let d = calendar.startOfDay(for: $0.date)
+                return d >= start && d <= today
+            }
+            .sorted { $0.date < $1.date }
+    }
+
+
+
+
     // Formatter Helper
     func dateFormatter() -> DateFormatter {
         let formatter = DateFormatter()
@@ -225,6 +346,7 @@ class UserProfile: ObservableObject {
             self.watchedVideoIDs = Set(saved)
         }
     }
+
     
     // MARK: - Video Data
     func getRecommendedVideos() -> [VideoExercise] {
@@ -399,16 +521,29 @@ class UserProfile: ObservableObject {
             let session = try await Self.supabase.auth.session
             let userId = session.user.id.uuidString
             
-            let response: [DiaryEntryModel] = try await Self.supabase
+//            let response: [DiaryEntryModel] = try await Self.supabase
+//                .from("diary_entries")
+//                .select()
+//                .eq("user_id", value: userId)
+//                .order("entry_date", ascending: false)
+//                .execute()
+//                .value
+//
+            
+            let response: [DiaryEntryDB] = try await Self.supabase
                 .from("diary_entries")
                 .select()
                 .eq("user_id", value: userId)
                 .order("entry_date", ascending: false)
                 .execute()
                 .value
-            
+
+            self.diaryEntries = response.map { DiaryEntry(from: $0) }
+
+//            await MainActor.run {
+//                self.diaryEntries = response
             await MainActor.run {
-                self.diaryEntries = response
+                self.diaryEntries = response.map { DiaryEntry(from: $0) }
             }
         } catch {
             print("ℹ️ Diary fetch info: \(error.localizedDescription)")
