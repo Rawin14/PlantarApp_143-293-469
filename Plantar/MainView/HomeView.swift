@@ -80,50 +80,6 @@ struct HomeView: View {
             }
             .accentColor(accentColor)
             
-            // MARK: - Sidebar Menu
-            if showSidebar {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture { withAnimation { showSidebar = false } }
-                    .zIndex(100)
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 0) {
-                        // User Info Header
-                        VStack(alignment: .center, spacing: 12) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.white)
-                            Text(userProfile.nickname.isEmpty ? "User" : userProfile.nickname)
-                                .font(.title3).fontWeight(.bold).foregroundColor(.white)
-                            Text(authManager.currentUser?.email ?? "No Email")
-                                .font(.caption).foregroundColor(Color.white.opacity(0.8))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 60).padding(.bottom, 30)
-                        
-                        Divider().background(Color.white.opacity(0.3))
-                        
-                        VStack(spacing: 0) {
-                            SidebarMenuItem(icon: "chart.bar.fill", title: "Dashboard", action: { showSidebar = false })
-                            SidebarMenuItem(icon: "gearshape.fill", title: "Settings", action: { showSidebar = false })
-                            Divider().background(Color.white.opacity(0.3)).padding(.vertical, 16)
-                            SidebarMenuItem(icon: "rectangle.portrait.and.arrow.right", title: "Logout", action: {
-                                showSidebar = false
-                                Task { await authManager.signOut() }
-                            })
-                        }
-                        .padding(.top, 20)
-                        Spacer()
-                    }
-                    .frame(width: 280)
-                    .background(sidebarColor)
-                    .transition(.move(edge: .leading))
-                    Spacer()
-                }
-                .zIndex(101)
-            }
-            
             // MARK: - Video Player Overlay
             if showVideoPlayer {
                 VideoPlayerView(isPresented: $showVideoPlayer)
@@ -145,14 +101,6 @@ struct HomeView: View {
         VStack(spacing: 0) {
             // 1. Header (ปรับปรุงใหม่ ใส่ Profile Icon)
             HStack {
-                Button(action: { withAnimation { showSidebar.toggle() } }) {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.title2)
-                        .foregroundColor(.black)
-                        .padding(8)
-                }
-                
-                Spacer()
                 
                 Text("Plantar")
                     .font(.title2)
@@ -169,7 +117,6 @@ struct HomeView: View {
                         .padding(8)
                 }
                 
-                // ✅ NEW: Profile Icon (ขวาบน)
                 Button(action: { selectedTab = 3 }) { // กดแล้วไป Tab Profile (Tab 3)
                     Image(systemName: "person.crop.circle.fill") // รูปไอคอนคนกลมๆ
                         .resizable()

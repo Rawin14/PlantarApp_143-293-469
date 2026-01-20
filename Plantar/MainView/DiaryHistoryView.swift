@@ -22,7 +22,6 @@ struct DiaryHistoryView: View {
     let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)
     let cardBackground = Color(red: 248/255, green: 247/255, blue: 241/255)
     
-    // ✅ 1. Calendar Setup: บังคับใช้ Gregorian และ Locale ไทย เพื่อความแม่นยำ
     private var calendar: Calendar {
         var cal = Calendar(identifier: .gregorian)
         cal.locale = Locale(identifier: "th_TH")
@@ -42,7 +41,6 @@ struct DiaryHistoryView: View {
             }
         }
         .task { await loadEntries() }
-        // ✅ 2. โหลดข้อมูลใหม่เมื่อเปลี่ยนเดือน
         .onChange(of: selectedMonth) {
             Task { await loadEntries() }
         }
@@ -132,10 +130,12 @@ struct DiaryHistoryView: View {
                     if let img = UIImage(named: getFeelingImageName(mostFeeling)) {
                         Image(uiImage: img)
                             .resizable().scaledToFit().frame(width: 60, height: 60)
+                            .clipShape(Circle())
                     } else {
                         Image(systemName: "face.smiling")
                             .resizable().scaledToFit().frame(width: 60, height: 60)
                             .foregroundColor(getFeelingColor(mostFeeling))
+                            .clipShape(Circle())
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
@@ -180,7 +180,6 @@ struct DiaryHistoryView: View {
         }
     }
     
-    // ✅ 3. คำนวณวันที่ในปฏิทิน (แก้ Bug วันที่เลื่อน)
     private func getDaysInMonth() -> [Date?] {
             guard let range = calendar.range(of: .day, in: .month, for: selectedMonth),
                   let firstDayOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth))
@@ -188,7 +187,6 @@ struct DiaryHistoryView: View {
             
             let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
             
-            // สูตร Offset สำหรับวันจันทร์ (Mon=2): (weekday - 2 + 7) % 7
             let offset = (firstWeekday - 2 + 7) % 7
             
             var days: [Date?] = Array(repeating: nil, count: offset)
@@ -201,7 +199,6 @@ struct DiaryHistoryView: View {
             return days
         }
     
-    // ✅ 4. ดึงข้อมูล Entry ของวันนั้น (เทียบวันต่อวัน ไม่สนเวลา)
     private func getEntry(for date: Date) -> DiaryEntry? {
         return entries.first { entry in
             calendar.isDate(entry.date, inSameDayAs: date)
@@ -211,7 +208,7 @@ struct DiaryHistoryView: View {
     private func monthYearString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
-        formatter.calendar = calendar // ใช้ปฏิทินเดียวกัน
+        formatter.calendar = calendar 
         formatter.locale = Locale(identifier: "th_TH")
         return formatter.string(from: date)
     }
