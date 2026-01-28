@@ -398,7 +398,7 @@ struct ProfileView: View {
     let textColor = Color(red: 100/255, green: 100/255, blue: 100/255)
     
     // Assets Images (ต้องมีชื่อรูปตามนี้ใน Assets)
-    let availableImages = ["Female", "Male", "profile1", "profile2", "profile3", "PlantarMan"]
+    let availableImages = ["Female", "Male", "profile1", "profile2", "profile3"]
     
     // MARK: - Computed Properties
     var bmiValue: Double { userProfile.calculateBMI() }

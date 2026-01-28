@@ -162,80 +162,80 @@ import Foundation
 //    }
 //}
 
-@MainActor
-final class DashboardViewModel: ObservableObject {
-
-    // MARK: - Video Progress
-    @Published var videoProgress: Double = 0
-    @Published var watchedVideos: Int = 0
-    @Published var totalVideos: Int = 0
-
-    // MARK: - Mood
-    @Published var averageMood: Double = 0
-    @Published var feelingBetterPercentage: Double = 0
-
-    // MARK: - Weekly Summary (0...1)
-    @Published var weeklyMood: [Double] = Array(repeating: 0, count: 7)
-
-    // MARK: - Load All Dashboard Data
-    func load(
-        diaryEntries: [DiaryEntry],
-        videos: [VideoExercise],
-        watchedVideoIDs: Set<String>
-    ) {
-        calculateVideoProgress(videos: videos, watchedIDs: watchedVideoIDs)
-        calculateMood(diaryEntries)
-        calculateWeekly(diaryEntries)
-    }
-
-    // MARK: - Video Logic (ของจริง)
-    private func calculateVideoProgress(
-        videos: [VideoExercise],
-        watchedIDs: Set<String>
-    ) {
-        totalVideos = videos.count
-        watchedVideos = videos.filter {watchedIDs.contains($0.id) }.count
-
-        if totalVideos == 0 {
-            videoProgress = 0
-        } else {
-            videoProgress = Double(watchedVideos) / Double(totalVideos)
-        }
-    }
-
-    // MARK: - Mood Logic
-    private func calculateMood(_ diary: [DiaryEntry]) {
-        guard !diary.isEmpty else {
-            averageMood = 0
-            feelingBetterPercentage = 0
-            return
-        }
-
-        let moods = diary.map { Double($0.feelingLevel) }
-        averageMood = moods.reduce(0, +) / Double(moods.count)
-
-        // feelingLevel: 1 = ดีขึ้น, 2 = เหมือนเดิม, 3 = แย่ลง
-        let betterCount = diary.filter { $0.feelingLevel == 1 }.count
-        feelingBetterPercentage = Double(betterCount) / Double(diary.count)
-    }
-
-    // MARK: - Weekly Summary
-    private func calculateWeekly(_ diary: [DiaryEntry]) {
-        let calendar = Calendar.current
-        let today = Date()
-
-        let last7Days = (0..<7).compactMap {
-            calendar.date(byAdding: .day, value: -$0, to: today)
-        }
-
-        weeklyMood = last7Days.map { date in
-            if let entry = diary.first(where: {
-                calendar.isDate($0.date, inSameDayAs: date)
-            }) {
-                return Double(entry.feelingLevel) / 3
-            } else {
-                return 0
-            }
-        }
-    }
-}
+//@MainActor
+//final class DashboardViewModel: ObservableObject {
+//
+//    // MARK: - Video Progress
+//    @Published var videoProgress: Double = 0
+//    @Published var watchedVideos: Int = 0
+//    @Published var totalVideos: Int = 0
+//
+//    // MARK: - Mood
+//    @Published var averageMood: Double = 0
+//    @Published var feelingBetterPercentage: Double = 0
+//
+//    // MARK: - Weekly Summary (0...1)
+//    @Published var weeklyMood: [Double] = Array(repeating: 0, count: 7)
+//
+//    // MARK: - Load All Dashboard Data
+//    func load(
+//        diaryEntries: [DiaryEntry],
+//        videos: [VideoExercise],
+//        watchedVideoIDs: Set<String>
+//    ) {
+//        calculateVideoProgress(videos: videos, watchedIDs: watchedVideoIDs)
+//        calculateMood(diaryEntries)
+//        calculateWeekly(diaryEntries)
+//    }
+//
+//    // MARK: - Video Logic (ของจริง)
+//    private func calculateVideoProgress(
+//        videos: [VideoExercise],
+//        watchedIDs: Set<String>
+//    ) {
+//        totalVideos = videos.count
+//        watchedVideos = videos.filter {watchedIDs.contains($0.id) }.count
+//
+//        if totalVideos == 0 {
+//            videoProgress = 0
+//        } else {
+//            videoProgress = Double(watchedVideos) / Double(totalVideos)
+//        }
+//    }
+//
+//    // MARK: - Mood Logic
+//    private func calculateMood(_ diary: [DiaryEntry]) {
+//        guard !diary.isEmpty else {
+//            averageMood = 0
+//            feelingBetterPercentage = 0
+//            return
+//        }
+//
+//        let moods = diary.map { Double($0.feelingLevel) }
+//        averageMood = moods.reduce(0, +) / Double(moods.count)
+//
+//        // feelingLevel: 1 = ดีขึ้น, 2 = เหมือนเดิม, 3 = แย่ลง
+//        let betterCount = diary.filter { $0.feelingLevel == 1 }.count
+//        feelingBetterPercentage = Double(betterCount) / Double(diary.count)
+//    }
+//
+//    // MARK: - Weekly Summary
+//    private func calculateWeekly(_ diary: [DiaryEntry]) {
+//        let calendar = Calendar.current
+//        let today = Date()
+//
+//        let last7Days = (0..<7).compactMap {
+//            calendar.date(byAdding: .day, value: -$0, to: today)
+//        }
+//
+//        weeklyMood = last7Days.map { date in
+//            if let entry = diary.first(where: {
+//                calendar.isDate($0.date, inSameDayAs: date)
+//            }) {
+//                return Double(entry.feelingLevel) / 3
+//            } else {
+//                return 0
+//            }
+//        }
+//    }
+//}

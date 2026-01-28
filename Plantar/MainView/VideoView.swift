@@ -59,6 +59,7 @@ struct VideoView: View {
                             playVideo(heroVideo) // เล่นและบันทึก
                         }
                         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        
                     }
                     
                     // MARK: 2. Status Banner
@@ -162,42 +163,50 @@ struct HeroVideoCard: View {
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
-                // Background Image
+                // 1. Background Image
                 if UIImage(named: video.thumbnail) != nil {
-                    Image(video.thumbnail)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 420)
-                        .clipped()
+                    GeometryReader { geometry in
+                        Image(video.thumbnail)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: geometry.size.height) //
+                            .clipped()
+                    }
+                    .frame(height: 400) // ✅ กำหนดความสูงที่ Container แทน
                 } else {
                     Rectangle()
                         .fill(Color(white: 0.9))
-                        .frame(height: 420)
+                        .frame(height: 400)
                         .overlay(Image(systemName: "figure.yoga").font(.system(size: 80)).foregroundColor(.gray))
                 }
                 
-                // Gradient Overlay
-                LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
+                // 2. Gradient Overlay (ปรับให้เข้มขึ้นและสูงขึ้นเพื่อให้ตัวหนังสือลอยเด่น)
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.4), .black.opacity(0.9)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 
-                // Content Info
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("FEATURED")
-                            .font(.caption).bold()
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(themeColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(4)
-                        Spacer()
-                    }
+                // 3. Content Info
+                VStack(alignment: .leading, spacing: 8) { // ลด spacing นิดหน่อยให้กระชับ
+                    // Badge
+                    Text("FEATURED")
+                        .font(.caption).bold()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(themeColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(4)
                     
+                    // Title
                     Text(video.title)
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.system(size: 28, weight: .bold)) // อาจลดเหลือ 24-26 ถ้าชื่อยาวมาก
                         .foregroundColor(.white)
                         .lineLimit(2)
                         .shadow(radius: 5)
+                        .padding(.bottom, 2)
                     
+                    // Stats
                     HStack(spacing: 16) {
                         Label(video.duration, systemImage: "clock")
                         Label(video.difficulty, systemImage: "chart.bar")
@@ -219,8 +228,9 @@ struct HeroVideoCard: View {
                     .padding(.top, 8)
                 }
                 .padding(24)
-                .padding(.bottom, 20)
+                .padding(.bottom, 10) // ขยับ padding ล่างขึ้นนิดนึง
             }
+            .cornerRadius(15) // ✅ เพิ่มความมนให้การ์ดดูทันสมัย (Optional)
         }
         .buttonStyle(PlainButtonStyle())
     }

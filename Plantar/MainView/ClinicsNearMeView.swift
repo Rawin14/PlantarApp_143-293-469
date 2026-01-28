@@ -429,14 +429,6 @@ struct ClinicsNearMeView: View {
                             .cornerRadius(16)
                         }
                         
-                        Button(action: { print("Share") }) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.headline)
-                                .foregroundColor(primaryColor)
-                                .padding()
-                                .background(primaryColor.opacity(0.1))
-                                .cornerRadius(16)
-                        }
                     }
                 }
                 .padding(24)
