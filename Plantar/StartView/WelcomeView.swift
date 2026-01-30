@@ -14,11 +14,8 @@ struct WelcomeView: View {
     var body: some View {
         ZStack {
             // พื้นหลังเป็นรูปภาพ
-            Image("welcome")
-                .resizable()
-                .scaledToFill()
+            Color(red: 0.98, green: 0.96, blue: 0.90)
                 .ignoresSafeArea()
-            
             // Overlay เนื้อหา
             VStack {
                 Spacer()
