@@ -68,7 +68,7 @@ struct WeightView: View {
                 .padding(.top, 10)
                 
                 // MARK: - Title
-                Text("What's your weight?")
+                Text("โปรดระบุน้ำหนัก ?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -140,7 +140,7 @@ struct WeightView: View {
                 Spacer()
                 
                 // MARK: - Info Box
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare .")
+                Text("ระบุน้ำหนักปัจจุบันเพื่อคำนวณค่า BMI และประเมินสุขภาพของคุณ")
                     .font(.body)
                     .foregroundColor(Color.Weight_SecondaryText)
                     .multilineTextAlignment(.center)
@@ -169,7 +169,7 @@ struct WeightView: View {
                             }
                         }
                 }) {
-                    Text("Next")
+                    Text("ถัดไป")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)

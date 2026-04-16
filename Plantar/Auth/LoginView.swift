@@ -352,16 +352,16 @@ struct LoginView: View {
                 // MARK: - Main Card
                 VStack(spacing: 20) {
                     
-                    Text("Sign in")
+                    Text("เข้าสู่ระบบ")
                         .font(.system(size: 26, weight: .medium))
                         .foregroundColor(.black)
                     
                     // Email
                     VStack(alignment: .leading, spacing: 5) {
-                        Text("Email")
+                        Text("อีเมล")
                             .font(.caption).fontWeight(.semibold)
                         
-                        TextField("Your email", text: $email)
+                        TextField("กรอกอีเมล@gmail.com", text: $email)
                             .padding(12)
                             .background(Color.white)
                             .cornerRadius(8)
@@ -386,7 +386,7 @@ struct LoginView: View {
                     // Password
                     VStack(alignment: .leading, spacing: 5) {
                         HStack {
-                            Text("Password")
+                            Text("รหัสผ่าน")
                                 .font(.caption).fontWeight(.semibold)
                             
                             Spacer()
@@ -403,7 +403,7 @@ struct LoginView: View {
                         
                         ZStack(alignment: .trailing) {
                             if isPasswordVisible {
-                                TextField("Enter your password", text: $password)
+                                TextField("กรอกรหัสผ่าน", text: $password)
                                     .padding(12)
                                     .background(Color.white)
                                     .cornerRadius(8)
@@ -413,7 +413,7 @@ struct LoginView: View {
                                     )
                                     .autocapitalization(.none)
                             } else {
-                                SecureField("Enter your password", text: $password)
+                                SecureField("กรอกรหัสผ่าน(อย่างน้อย 6 ตัวอักษร)", text: $password)
                                     .padding(12)
                                     .background(Color.white)
                                     .cornerRadius(8)
@@ -465,7 +465,7 @@ struct LoginView: View {
                             if isLoading {
                                 ProgressView().tint(.white)
                             } else {
-                                Text("Sign in")
+                                Text("เข้าสู่ระบบ")
                                     .fontWeight(.semibold)
                             }
                         }
@@ -482,7 +482,7 @@ struct LoginView: View {
                     // MARK: - Divider
                     HStack {
                         Rectangle().fill(Color.gray.opacity(0.4)).frame(height: 1)
-                        Text("Or Sign in with")
+                        Text("หรือเข้าสู่ระบบด้วย")
                             .font(.footnote)
                             .foregroundColor(.gray)
                         Rectangle().fill(Color.gray.opacity(0.4)).frame(height: 1)
@@ -490,28 +490,40 @@ struct LoginView: View {
                     .padding(.vertical, 10)
                     
                     // MARK: - Social Buttons
-                    HStack(spacing: 16) {
-                        // Facebook (Placeholder)
-                        socialButton(image: "facebook", color: Color(hex: "1877F2")) {
-                            // Action
+                    VStack(spacing: 16) {
+                        // ปุ่ม Google แบบยาว
+                        Button(action: {
+                            Task { await authManager.signInWithGoogle() }
+                        }) {
+                            HStack(spacing: 12) {
+                                Image("google_logo") // ชื่อรูปภาพใน Assets
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                
+                                Text("ลงชื่อใช้งานด้วย Google")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                            }
+                            .frame(maxWidth: .infinity) //ทำให้ปุ่มยาวเต็มพื้นที่
+                            .padding(.vertical, 14)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                         }
-                        
-                        // Google (comment ออกถ้าไม่ใช้)
-                         socialButton(image: "google", color: Color.white) {
-                             Task { await authManager.signInWithGoogle() }
-                         }
+                        .padding(.horizontal, 24) // ปรับระยะห่างขอบซ้าย-ขวาตามความเหมาะสม
                     }
                     
                     // MARK: - Footer
                     HStack {
-                        Text("Don't have an account?")
+                        Text("คุณยังไม่มีบัญชีใช่ไหม?")
                             .font(.footnote)
                             .foregroundColor(.gray)
                         
                         Button(action: {
                             showRegister = true
                         }) {
-                            Text("Sign up")
+                            Text("ลงทะเบียนเช้าสู่ระบบ")
                                 .font(.footnote)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)

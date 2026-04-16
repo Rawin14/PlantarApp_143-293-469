@@ -68,12 +68,9 @@ struct VideoView: View {
                             .font(.title2)
                             .foregroundColor(.white)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Current Status: \(riskText(severity: userProfile.riskSeverity)) Risk")
+                            Text("ระดับความเสี่ยงปัจจุบัน: \(riskText(severity: userProfile.riskSeverity))")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                            Text("Recommended daily routine for you")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.9))
                         }
                         Spacer()
                     }
@@ -85,7 +82,7 @@ struct VideoView: View {
                     
                     // MARK: 3. Daily Routine (Steps)
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Your Routine Steps")
+                        Text("ขั้นตอนการดูแลตัวเอง")
                             .font(.title3).bold()
                             .foregroundColor(brownColor)
                             .padding(.horizontal)
@@ -103,7 +100,7 @@ struct VideoView: View {
                     
                     // MARK: 4. Other Clips (Video Carousel)
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Other Clips")
+                        Text("วีดิโออื่นๆ")
                             .font(.title3).bold()
                             .foregroundColor(brownColor)
                             .padding(.horizontal)
@@ -217,7 +214,7 @@ struct HeroVideoCard: View {
                     // Play Button
                     HStack {
                         Image(systemName: "play.fill")
-                        Text("Play Now")
+                        Text("เล่น")
                     }
                     .font(.headline)
                     .foregroundColor(.black)
@@ -370,9 +367,9 @@ struct OnlineVideoPlayer: View {
 
 func riskText(severity: String?) -> String {
     switch severity {
-    case "high": return "High"
-    case "medium": return "Medium"
-    case "low": return "Low"
+    case "high": return "ความเสี่ยงสูง"
+    case "medium": return "ตวามเสี่ยงปานกลาง"
+    case "low": return "ความเสี่ยงต่ำ"
     default: return "No Data"
     }
 }

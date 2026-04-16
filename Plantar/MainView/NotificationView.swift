@@ -43,7 +43,7 @@ struct NotificationView: View {
                 
                 // Title
                 HStack(alignment: .top, spacing: 12) {
-                    Text("Notifications")
+                    Text("การแจ้งเตือน")
                         .font(.system(size: 36, weight: .bold))
                         .foregroundColor(.black)
                 }

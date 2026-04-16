@@ -141,7 +141,7 @@ struct AgeView: View {
                 Spacer()
                 
                 // MARK: - Info Box
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare.")
+                Text("ระบุน้ำหนักปัจจุบันเพื่อคำนวณค่า BMI และประเมินสุขภาพของคุณ")
                     .font(.body)
                     .foregroundColor(Color.Age_SecondaryText)
                     .multilineTextAlignment(.center)

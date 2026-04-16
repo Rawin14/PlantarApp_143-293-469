@@ -70,7 +70,7 @@ struct HeightView: View {
                 .padding(.top, 10)
                 
                 // MARK: - Title
-                Text("What's your Height?")
+                Text("โปรดระบุส่วนสูง ?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -142,7 +142,7 @@ struct HeightView: View {
                 Spacer()
                 
                 // MARK: - Info Box
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ornare .")
+                Text("ระบุส่วนสูงปัจจุบันเพื่อคำนวณค่า BMI และประเมินสุขภาพของคุณ")
                     .font(.body)
                     .foregroundColor(Color.Height_SecondaryText)
                     .multilineTextAlignment(.center)
@@ -162,7 +162,7 @@ struct HeightView: View {
                     }
                     navigateToWeight = true
                 }) {
-                    Text("Next")
+                    Text("ถัดไป")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)

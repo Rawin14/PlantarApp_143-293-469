@@ -84,7 +84,7 @@ struct BMIView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     // MARK: - Header
-                    Text("Your BMI Result")
+                    Text("ผลลัพธ์ค่า BMI ของคุณ")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.top, 60)
@@ -282,7 +282,7 @@ struct BMIView: View {
                                     .padding(.trailing, 8)
                             }
                             
-                            Text(showSaveAnimation ? "Saving..." : "Continue")
+                            Text(showSaveAnimation ? "Saving..." : "ถัดไป")
                                 .font(.system(size: 18, weight: .bold))
                         }
                         .foregroundColor(.white)

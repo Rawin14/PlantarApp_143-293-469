@@ -196,7 +196,7 @@ struct ScanView: View {
                         
                         ScrollView {
                             VStack(alignment: .leading, spacing: 20) {
-                                Text("Wet Footprint Test")
+                                Text("การประเมินลักษณะเท้า")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
                                     .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
@@ -209,7 +209,7 @@ struct ScanView: View {
                                 VStack(alignment: .leading, spacing: 16) {
                                     InstructionRow(icon: "drop.fill", text: "1. นำฝ่าเท้าไปชุบน้ำให้เปียกพอหมาดๆ")
                                     Divider()
-                                    InstructionRow(icon: "doc.fill", text: "2. เหยียบลงบนกระดาษขาว หรือถุงกระดาษสีน้ำตาล ให้เกิดรอยชัดเจน")
+                                    InstructionRow(icon: "doc.fill", text: "2. เหยียบลงบนกระดาษขาวให้เกิดรอยชัดเจน")
                                     Divider()
                                     InstructionRow(icon: "camera.viewfinder", text: "3. ยกเท้าออก แล้วกดปุ่มถ่ายภาพรอยเท้าที่ปรากฏ")
                                 }
@@ -471,40 +471,49 @@ struct ScanView: View {
     
     // รอผลลัพธ์ (Polling)
     func waitForResults(scanId: String) async throws {
-        let maxAttempts = 30 // รอสูงสุด 60 วินาที (2 วิ * 30 ครั้ง)
-        
-        for attempt in 0..<maxAttempts {
-            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 วินาที
+            let maxAttempts = 30 // รอสูงสุด 60 วินาที (2 วิ * 30 ครั้ง)
             
-            print("⏳ Checking status... (\(attempt + 1)/\(maxAttempts))")
-            
-            // ดึงสถานะล่าสุด
-            struct ScanStatus: Codable {
-                let status: String
-                let error_message: String?
+            for attempt in 0..<maxAttempts {
+                try await Task.sleep(nanoseconds: 2_000_000_000) // 2 วินาที
+                
+                print("⏳ Checking status... (\(attempt + 1)/\(maxAttempts))")
+                
+                // ✅ 1. เพิ่ม arch_type เข้ามาใน Struct เพื่อเช็คผลลัพธ์
+                struct ScanStatus: Codable {
+                    let status: String
+                    let error_message: String?
+                    let arch_type: String?
+                }
+                
+                // ✅ 2. ดึงค่า arch_type มาจาก Supabase ด้วย
+                let response: [ScanStatus] = try await UserProfile.supabase
+                    .from("foot_scans")
+                    .select("status, error_message, arch_type")
+                    .eq("id", value: scanId)
+                    .execute()
+                    .value
+                
+                guard let scan = response.first else { continue }
+                
+                if scan.status == "completed" {
+                    // ✅ 3. ดักจับเคสรูปขยะ/รูปมืด (arch_type == "unknown")
+                    if scan.arch_type?.lowercased() == "unknown" {
+                        throw NSError(domain: "Scan", code: -3, userInfo: [
+                            NSLocalizedDescriptionKey: "เกิดข้อผิดพลาด รูปภาพไม่ถูกต้อง หรือรูปไม่ชัดเจน กรุณาถ่ายใหม่อีกครั้ง"
+                        ])
+                    }
+                    
+                    print("✅ Processing completed!")
+                    return
+                } else if scan.status == "failed" {
+                    throw NSError(domain: "Scan", code: -1, userInfo: [
+                        NSLocalizedDescriptionKey: scan.error_message ?? "การวิเคราะห์ล้มเหลวโดยไม่ทราบสาเหตุ"
+                    ])
+                }
             }
             
-            let response: [ScanStatus] = try await UserProfile.supabase
-                .from("foot_scans")
-                .select("status, error_message")
-                .eq("id", value: scanId)
-                .execute()
-                .value
-            
-            guard let scan = response.first else { continue }
-            
-            if scan.status == "completed" {
-                print("✅ Processing completed!")
-                return
-            } else if scan.status == "failed" {
-                throw NSError(domain: "Scan", code: -1, userInfo: [
-                    NSLocalizedDescriptionKey: scan.error_message ?? "การวิเคราะห์ล้มเหลวโดยไม่ทราบสาเหตุ"
-                ])
-            }
+            throw NSError(domain: "Scan", code: -2, userInfo: [NSLocalizedDescriptionKey: "หมดเวลาการเชื่อมต่อ (Timeout)"])
         }
-        
-        throw NSError(domain: "Scan", code: -2, userInfo: [NSLocalizedDescriptionKey: "หมดเวลาการเชื่อมต่อ (Timeout)"])
-    }
 }
 
 // Helper Component สำหรับแถวคำแนะนำ

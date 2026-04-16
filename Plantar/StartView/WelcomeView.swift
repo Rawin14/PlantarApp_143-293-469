@@ -36,7 +36,7 @@ struct WelcomeView: View {
                         isFirstLaunch = false
                     }
                 }) {
-                    Text("Get Started")
+                    Text("เริ่มต้น")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: 250)
@@ -46,7 +46,8 @@ struct WelcomeView: View {
                         .padding(.horizontal, 40)
                         .shadow(radius: 5) // เพิ่มเงาให้ปุ่มดูนูนขึ้น
                 }
-                .padding(.bottom, 40)
+                Text("เวอร์ชัน iOS 15 ขึ้นไป")
+                    .padding(.bottom, 20)
             }
         }
     }

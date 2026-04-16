@@ -348,8 +348,9 @@ struct RegisterView: View {
     @Environment(\.dismiss) var dismiss
     
     // Form Fields
-    @State private var firstName = ""
-    @State private var lastName = ""
+//    @State private var firstName = ""
+//    @State private var lastName = ""
+    @State private var nickname = ""
     @State private var email = ""
     @State private var password = ""
     
@@ -362,9 +363,12 @@ struct RegisterView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
+    @State private var showTerms = false
+    
     var isFormValid: Bool {
-        !firstName.isEmpty &&
-        !lastName.isEmpty &&
+//        !firstName.isEmpty &&
+//        !lastName.isEmpty &&
+        !nickname.isEmpty &&
         !email.isEmpty &&
         password.count >= 6
     }
@@ -388,59 +392,63 @@ struct RegisterView: View {
                             .frame(width: 130, height: 130)
                             .clipShape(Circle())
                     }
-                    .padding(.top, 40)
+                    .padding(.top, 10)
                     
                     // MARK: - Main Card
                     VStack(spacing: 20) {
-                        Text("Create an account")
+                        Text("ลงทะเบียนสร้างบัญชี")
                             .font(.system(size: 24, weight: .medium))
                             .foregroundColor(.black)
                         
                         // MARK: - Social Buttons
-                        HStack(spacing: 16) {
-                            // Facebook (Dummy action)
-                            socialButton(image: "facebook", color: Color(hex: "1877F2")) {
-                                // Action for FB
-                            }
-                            // Google
-                            socialButton(image: "google", color: Color.white) {
+                        VStack(spacing: 16) {
+                            // ปุ่ม Google แบบยาว
+                            Button(action: {
                                 Task { await authManager.signInWithGoogle() }
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image("google_logo") // ชื่อรูปภาพใน Assets
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 24, height: 24)
+                                    
+                                    Text("ลงชื่อใช้งานด้วย Google")
+                                        .font(.headline)
+                                        .foregroundColor(.black)
+                                }
+                                .frame(maxWidth: .infinity) //ทำให้ปุ่มยาวเต็มพื้นที่
+                                .padding(.vertical, 14)
+                                .background(Color.white)
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
+                            .padding(.horizontal, 24) // ปรับระยะห่างขอบซ้าย-ขวาตามความเหมาะสม
                         }
                         
                         // Divider
                         HStack {
                             line
-                            Text("Or")
+                            Text("หรือ")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                             line
                         }
                         
                         // MARK: - Input Fields
-                        // Name Row
-                        HStack(spacing: 12) {
-                            VStack(alignment: .leading) {
-                                Text("First Name")
-                                    .font(.caption).fontWeight(.semibold)
-                                TextField("First Name", text: $firstName)
-                                    .textFieldStyle(CustomTextFieldStyle())
-                                    .autocapitalization(.words)
-                            }
-                            VStack(alignment: .leading) {
-                                Text("Last Name")
-                                    .font(.caption).fontWeight(.semibold)
-                                TextField("Last Name", text: $lastName)
-                                    .textFieldStyle(CustomTextFieldStyle())
-                                    .autocapitalization(.words)
-                            }
+                        // Nickname Row
+                        VStack(alignment: .leading) {
+                            Text("ชื่อ")
+                                .font(.caption).fontWeight(.semibold)
+                            TextField("กรอกนามแฝงของคุณ", text: $nickname)
+                                .textFieldStyle(CustomTextFieldStyle())
+                                .autocapitalization(.words)
                         }
                         
                         // Email
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Email")
+                            Text("อีเมล")
                                 .font(.caption).fontWeight(.semibold)
-                            TextField("Enter your email", text: $email)
+                            TextField("กรอกอีเมล@gmail.com", text: $email)
                                 .textFieldStyle(CustomTextFieldStyle())
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
@@ -458,7 +466,7 @@ struct RegisterView: View {
                         
                         // Password - แก้ไขให้มีปุ่มแสดง/ซ่อนรหัสผ่าน
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Password")
+                            Text("รหัสผ่าน")
                                 .font(.caption).fontWeight(.semibold)
                             
                             // ใช้ ZStack เพื่อวางปุ่มลูกตาทับ
@@ -466,12 +474,12 @@ struct RegisterView: View {
                                 // แสดง TextField หรือ SecureField ตามสถานะ
                                 if isPasswordVisible {
                                     // แสดงรหัสผ่านแบบเห็นตัวอักษร
-                                    TextField("Enter your password (min 6 chars)", text: $password)
+                                    TextField("กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)", text: $password)
                                         .textFieldStyle(CustomTextFieldStyle())
                                         .autocapitalization(.none)
                                 } else {
                                     // ซ่อนรหัสผ่าน
-                                    SecureField("Enter your password (min 6 chars)", text: $password)
+                                    SecureField("กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)", text: $password)
                                         .textFieldStyle(CustomTextFieldStyle())
                                 }
                                 
@@ -528,7 +536,7 @@ struct RegisterView: View {
                                 if isLoading {
                                     ProgressView().tint(.white)
                                 } else {
-                                    Text("Create account")
+                                    Text("สร้างบัญชี")
                                         .fontWeight(.semibold)
                                 }
                             }
@@ -543,12 +551,34 @@ struct RegisterView: View {
                         .padding(.top, 10)
                         
                         // MARK: - Privacy Policy Text
-                        VStack(spacing: 4) {
-                            Text("Signing up for an Application\naccount means you agree to the ")
-                                .foregroundColor(.gray) +
-                            Text("Privacy Policy").fontWeight(.semibold).foregroundColor(.black) +
-                            Text(" and ").foregroundColor(.gray) +
-                            Text("Terms of Service").fontWeight(.semibold).foregroundColor(.black)
+//                        VStack(spacing: 4) {
+//                            Text("การลงทะเบียนเข้าสู่ระบบถือเป็นการยอมรับนโยบายเงื่อนไขของแอปพลิเคชันทุกประการ")
+//                                .foregroundColor(.gray) +
+//                            Text("นโยบายส่วนตัว").fontWeight(.semibold).foregroundColor(.black) +
+//                            Text(" และ ").foregroundColor(.gray) +
+//                            Text("เงื่อนไขการให้บริการ").fontWeight(.semibold).foregroundColor(.black)
+//                        }
+                        
+                        HStack(spacing: 0) {
+                            Text("นโยบายส่วนตัว")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .onTapGesture {
+                                    showTerms = true
+                                }
+
+                            Text(" และ ")
+                                .foregroundColor(.gray)
+
+                            Text("เงื่อนไขการให้บริการ")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .onTapGesture {
+                                    showTerms = true
+                                }
+                        }
+                        .sheet(isPresented: $showTerms) {
+                            TermsView()
                         }
                         .font(.footnote)
                         .multilineTextAlignment(.center)
@@ -556,13 +586,13 @@ struct RegisterView: View {
                         
                         // MARK: - Sign In Link
                         HStack {
-                            Text("Already have an account?")
+                            Text("คุณมีบัญชีเรียบร้อยแล้ว?")
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                             Button(action: {
                                 dismiss()
                             }) {
-                                Text("Sign in")
+                                Text("เข้าสู่ระบบ")
                                     .font(.footnote)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.black)
@@ -603,8 +633,8 @@ struct RegisterView: View {
                 isLoading = false
             }
             
-            let combinedNickname = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
-            let finalNickname = combinedNickname.isEmpty ? firstName : combinedNickname
+            let combinedNickname = "\(nickname)".trimmingCharacters(in: .whitespaces)
+            let finalNickname = combinedNickname.isEmpty ? nickname : combinedNickname
             
             await authManager.signUp(
                 email: email,
@@ -631,20 +661,13 @@ struct RegisterView: View {
     /// ตรวจสอบความถูกต้องของฟอร์มทั้งหมด
     private func validateForm() -> Bool {
         // 1. ตรวจสอบชื่อ
-        if firstName.trimmingCharacters(in: .whitespaces).isEmpty {
+        if nickname.trimmingCharacters(in: .whitespaces).isEmpty {
             alertTitle = "ข้อมูลไม่ครบ"
             alertMessage = "กรุณากรอกชื่อจริง"
             showAlert = true
             return false
         }
         
-        // 2. ตรวจสอบนามสกุล
-        if lastName.trimmingCharacters(in: .whitespaces).isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกนามสกุล"
-            showAlert = true
-            return false
-        }
         
         // 3. ตรวจสอบอีเมล
         if email.trimmingCharacters(in: .whitespaces).isEmpty {

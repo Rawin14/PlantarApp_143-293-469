@@ -151,7 +151,7 @@ class AuthManager: ObservableObject {
         }
         print("⚠️ Google Sign In not implemented")
         
-        /* ถ้าต้องการใช้ Google Sign In ให้ uncomment โค้ดด้านล่าง
+        //ถ้าต้องการใช้ Google Sign In ให้ uncomment โค้ดด้านล่าง
         do {
             let authURL = try await supabase.auth.getOAuthSignInURL(
                 provider: .google,
@@ -196,7 +196,7 @@ class AuthManager: ObservableObject {
         } catch {
             errorMessage = "Google sign in failed: \(error.localizedDescription)"
         }
-        */
+        
     }
     
     // MARK: - Check User Status

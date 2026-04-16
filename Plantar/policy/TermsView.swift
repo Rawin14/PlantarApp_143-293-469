@@ -71,15 +71,15 @@ struct TermsView: View {
                         """, icon: "target", color: primaryColor)
                         
                         // --- Section 3: Warning ---
-                        WarningCard(content: "3. แอปนี้สำหรับการประเมินเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัยทางการแพทย์ หากมีอาการผิดปกติรุนแรง โปรดปรึกษาแพทย์โดยตรง")
+                        WarningCard(content: ". แอปนี้สำหรับการประเมินเบื้องต้นเท่านั้น ไม่ใช่การวินิจฉัยทางการแพทย์ หากมีอาการผิดปกติรุนแรง โปรดปรึกษาแพทย์โดยตรง")
                         
                         // --- Other Sections ---
                         TermCard(title: "ข้อกำหนดอื่นๆ", content: """
-                        4. การใช้กล้อง: ใช้เพื่อประเมินฝ่าเท้าเท่านั้น
-                        5. ความยินยอม: ท่านสามารถถอนความยินยอมได้
-                        6. ความปลอดภัย: เก็บข้อมูลด้วยมาตรฐานความปลอดภัย
-                        7. การเก็บรักษา: เก็บตลอดระยะเวลาการใช้งาน
-                        8. การเปิดเผย: ไม่เปิดเผยแก่บุคคลภายนอก
+                        การใช้กล้อง: ใช้เพื่อประเมินฝ่าเท้าเท่านั้น
+                        ความยินยอม: ท่านสามารถถอนความยินยอมได้
+                        ความปลอดภัย: เก็บข้อมูลด้วยมาตรฐานความปลอดภัย
+                        การเก็บรักษา: เก็บตลอดระยะเวลาการใช้งาน
+                        ุการเปิดเผย: ไม่เปิดเผยแก่บุคคลภายนอก
                         """, icon: "list.bullet.clipboard", color: primaryColor)
                         
                         // --- Plantar Specific Terms ---
@@ -139,12 +139,15 @@ struct TermsView: View {
                     Button(action: {
                         if isAccepted {
                             withAnimation {
-                                    isTermsAccepted = true
-                                }
+                                isTermsAccepted = true
+                            }
+                            
+                            dismiss()   // ✅ ปิด popup และกลับหน้าเดิม
+                            
                         } else {
-                            // ⚠️ แจ้งเตือนให้กด Checkbox (จะทำงานได้แล้วเพราะปุ่มไม่ Disable)
+                            // ⚠️ แจ้งเตือนให้กด Checkbox
                             let generator = UINotificationFeedbackGenerator()
-                            generator.notificationOccurred(.warning) // เพิ่มสั่นเตือนนิดนึง
+                            generator.notificationOccurred(.warning)
                             
                             showBounceAnimation = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {

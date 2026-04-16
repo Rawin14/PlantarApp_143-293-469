@@ -11,6 +11,7 @@ import SwiftUI
 struct PlantarApp: App {
     @StateObject var userProfile = UserProfile()
     @StateObject var authManager = AuthManager()
+    @StateObject var diaryViewModel = DiaryViewModel()
     
     // ✅ 1. ต้องประกาศ AppStorage ให้ครบทั้ง 2 ตัว (เพื่อให้แอปรู้เมื่อค่าเปลี่ยน)
     @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
@@ -43,6 +44,7 @@ struct PlantarApp: App {
             .animation(.easeInOut, value: isTermsAccepted)
             .environmentObject(userProfile)
             .environmentObject(authManager)
+            .environmentObject(diaryViewModel)
         }
     }
 }
