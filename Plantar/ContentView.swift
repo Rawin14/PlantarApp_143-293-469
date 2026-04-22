@@ -12,19 +12,29 @@ struct ContentView: View {
     @State private var opacity = 0.0 // ใช้ทำ effect จางๆ
     
     var body: some View {
-
-            
-            if isActive {
-                WelcomeView() // ✅ ไปหน้า welcome หลังจากโหลดเสร็จ
-            } else {
+        
+        if isActive {
+            WelcomeView() // ✅ ไปหน้า welcome หลังจากโหลดเสร็จ
+        } else {
+            ZStack {
+                Color(red: 94/255, green: 84/255, blue: 68/255)
+                    .ignoresSafeArea()
+                
                 VStack {
-                    Image(systemName: "circle.fill")
+                    Image("entrylogo")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 120, height: 120)
-                        .foregroundColor(.green)
+                        .frame(width: 200, height: 200)
                         .opacity(opacity)
+                    
+                    Text("Plantar")
+                        .font(.system(size: 35, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: 250)
+                        .padding()
+                    
                 }
+            }
                 .onAppear {
                     withAnimation(.easeIn(duration: 1.5)) {
                         opacity = 1.0
@@ -38,8 +48,8 @@ struct ContentView: View {
                     }
                 }
             }
+        }
     }
-}
 
 #Preview {
     ContentView()

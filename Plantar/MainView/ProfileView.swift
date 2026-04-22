@@ -792,35 +792,6 @@ struct ProfileView: View {
                             if !showChangePassword {
                                 // Settings Menu
                                 VStack(spacing: 12) {
-                                    // เปลี่ยนรหัสผ่าน
-                                    Button {
-                                        withAnimation { showChangePassword = true }
-                                    } label: {
-                                        HStack {
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(accentColor.opacity(0.15))
-                                                    .frame(width: 44, height: 44)
-                                                Image(systemName: "lock.rotation")
-                                                    .font(.title3)
-                                                    .foregroundColor(accentColor)
-                                            }
-                                            
-                                            Text("เปลี่ยนรหัสผ่าน")
-                                                .foregroundColor(buttonColor)
-                                                .fontWeight(.medium)
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                        .padding()
-                                        .background(Color.white)
-                                        .cornerRadius(12)
-                                        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-                                    }
                                     
                                     // ลืมรหัสผ่าน
                                     Button {

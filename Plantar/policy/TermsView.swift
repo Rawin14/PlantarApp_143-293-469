@@ -36,9 +36,6 @@ struct TermsView: View {
                         .fontWeight(.bold)
                         .foregroundColor(primaryColor)
                     Spacer()
-                    Image(systemName: "doc.text.fill")
-                        .font(.title2)
-                        .foregroundColor(accentColor)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 20)

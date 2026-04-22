@@ -156,7 +156,16 @@ struct ClinicsNearMeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // MARK: - Map View
-            Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: clinics) { clinic in
+            Map(
+                coordinateRegion: $region,
+                showsUserLocation: true,
+                annotationItems: clinics.filter {
+                    let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    return keyword.isEmpty ||
+                    $0.name.localizedCaseInsensitiveContains(keyword) ||
+                    $0.address.localizedCaseInsensitiveContains(keyword)
+                }
+            ) { clinic in
                 MapAnnotation(coordinate: clinic.coordinate) {
                     ClinicMapPin(
                         clinic: clinic,
@@ -267,17 +276,28 @@ struct ClinicsNearMeView: View {
     // MARK: - Search Bar
     private var searchBar: some View {
         HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
             
             TextField("ค้นหาคลินิก, โรงพยาบาล...", text: $searchText)
                 .foregroundColor(backgroundColor)
             
+            // ❌ ปุ่มลบ
             if !searchText.isEmpty {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.gray)
                 }
+            }
+            
+            // 🔍 ปุ่ม search (อยู่ขวาสุด)
+            Button(action: {
+                // trigger search (จริง ๆ SwiftUI filter อัตโนมัติอยู่แล้ว)
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.white)
+                    .padding(8)
+                    .background(accentColor)
+                    .cornerRadius(10)
             }
         }
         .padding(12)

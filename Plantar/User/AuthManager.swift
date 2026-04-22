@@ -27,6 +27,8 @@ class AuthManager: ObservableObject {
     @Published var isDataComplete: Bool = false
     @Published var isLoading = false
     
+    @Published var isResetPasswordFlow = false
+    
     // ใช้ Client เดิมที่มีอยู่แล้วในโปรเจกต์
     private let supabase = UserProfile.supabase
     
@@ -315,21 +317,29 @@ class AuthManager: ObservableObject {
         }
     }
     
-    /// ส่งอีเมลรีเซ็ตรหัสผ่าน
-    func sendPasswordResetEmail(email: String) async {
+//    func sendPasswordResetEmail(email: String) async -> Bool {
+//        do {
+//            try await supabase.auth.resetPasswordForEmail(email)
+//            print("✅ Reset email sent to \(email)")
+//            return true
+//        } catch {
+//            await MainActor.run {
+//                self.errorMessage = "ส่งอีเมลไม่สำเร็จ"
+//            }
+//            return false
+//        }
+//    }
+    
+    func sendPasswordResetEmail(email: String) async -> Bool {
         do {
-            try await supabase.auth.resetPasswordForEmail(email)
-            
-            print("✅ Password reset email sent to \(email)")
-            await MainActor.run {
-                self.errorMessage = nil
-            }
-            
+            try await supabase.auth.resetPasswordForEmail(
+                email,
+                redirectTo: URL(string: "plantarapp://reset-password")!
+            )
+            return true
         } catch {
-            print("❌ Reset password error: \(error.localizedDescription)")
-            await MainActor.run {
-                self.errorMessage = "ส่งอีเมลรีเซ็ตรหัสผ่านไม่สำเร็จ"
-            }
+            self.errorMessage = "ส่งอีเมลไม่สำเร็จ"
+            return false
         }
     }
     
@@ -352,6 +362,37 @@ class AuthManager: ObservableObject {
                 self.errorMessage = "รีเซ็ตรหัสผ่านไม่สำเร็จ"
             }
             return false
+        }
+    }
+    
+//    func handleIncomingURL(_ url: URL) async {
+//        do {
+//            try await supabase.auth.session(from: url)
+//            print("✅ Recovery session created")
+//            
+//            await MainActor.run {
+//                self.isResetPasswordFlow = true
+//            }
+//            
+//        } catch {
+//            print("❌ Failed to handle URL: \(error)")
+//            await MainActor.run {
+//                self.errorMessage = "ลิงก์ไม่ถูกต้องหรือหมดอายุ"
+//            }
+//        }
+//    }
+    func handleIncomingURL(_ url: URL) async {
+        do {
+            try await supabase.auth.session(from: url)
+            
+            print("✅ URL handled:", url)
+            
+            await MainActor.run {
+                self.isResetPasswordFlow = true // 👈 สำคัญสุด
+            }
+            
+        } catch {
+            print("❌ URL error:", error)
         }
     }
 }

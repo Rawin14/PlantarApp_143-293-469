@@ -327,7 +327,14 @@ struct LoginView: View {
     // States สำหรับ Forgot Password
     @State private var showForgotPasswordAlert = false
     
+    @State private var newPassword = ""
+    @State private var confirmPassword = ""
+    @State private var isResettingPassword = false
+    
+    @State private var forgotPasswordEmail = ""
+    
     var body: some View {
+        
         ZStack {
             // Background
             Color(red: 0.98, green: 0.97, blue: 0.91)
@@ -347,7 +354,10 @@ struct LoginView: View {
                         .frame(width: 130, height: 130)
                         .clipShape(Circle())
                 }
+                
                 .padding(.top, 40)
+                
+                
                 
                 // MARK: - Main Card
                 VStack(spacing: 20) {
@@ -381,6 +391,7 @@ struct LoginView: View {
                             .foregroundColor(.red)
                             .font(.caption2)
                         }
+                        
                     }
                     
                     // Password
@@ -541,6 +552,9 @@ struct LoginView: View {
                 Spacer()
             }
         }
+        .navigationDestination(isPresented: $authManager.isResetPasswordFlow) {
+            ResetPasswordView()
+        }
         .navigationDestination(isPresented: $navigateToProfile) {
             Profile()
         }
@@ -553,15 +567,18 @@ struct LoginView: View {
             Text(alertMessage)
         }
         .alert("ลืมรหัสผ่าน", isPresented: $showForgotPasswordAlert) {
-            Button("ยกเลิก", role: .cancel) { }
+            TextField("กรอกอีเมลของคุณ", text: $forgotPasswordEmail)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
             
-            Button("ส่งอีเมล") {
-                Task {
-                    await handleForgotPassword()
-                }
+            Button("ยกเลิก", role: .cancel) {
+                forgotPasswordEmail = ""
+            }
+            Button("ส่ง") {
+                Task { await handleForgotPassword() }
             }
         } message: {
-            Text("เราจะส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลที่คุณกรอกในช่อง Email ด้านบน\n\nกรุณาตรวจสอบให้แน่ใจว่าอีเมลถูกต้อง")
+            Text("กรอกอีเมลที่ใช้สมัครสมาชิก\nเพื่อตั้งรหัสผ่านใหม่")
         }
     }
     
@@ -593,26 +610,25 @@ struct LoginView: View {
             }
         }
     }
-    
     private func handleForgotPassword() async {
-        guard !email.isEmpty else {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกอีเมลในช่อง Email ก่อนกด 'ลืมรหัสผ่าน'"
-            showAlert = true
-            return
-        }
+        let targetEmail = forgotPasswordEmail.isEmpty ? email : forgotPasswordEmail
         
-        guard isValidEmail(email) else {
+        guard !targetEmail.isEmpty, isValidEmail(targetEmail) else {
             alertTitle = "อีเมลไม่ถูกต้อง"
             alertMessage = "กรุณากรอกอีเมลให้ถูกต้อง"
             showAlert = true
             return
         }
-        
-        await authManager.sendPasswordResetEmail(email: email)
-        
-        alertTitle = "ส่งอีเมลสำเร็จ ✅"
-        alertMessage = "เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปที่\n\(email)\n\nกรุณาตรวจสอบอีเมลของคุณ"
+
+        isLoading = true
+        let success = await authManager.sendPasswordResetEmail(email: targetEmail)
+        isLoading = false
+        forgotPasswordEmail = ""
+
+        alertTitle = success ? "ส่งอีเมลสำเร็จ ✅" : "ส่งอีเมลไม่สำเร็จ ❌"
+        alertMessage = success
+            ? "กรุณาตรวจสอบอีเมล \(targetEmail)\nแล้วกดลิงก์เพื่อตั้งรหัสผ่านใหม่"
+            : authManager.errorMessage ?? "กรุณาลองใหม่อีกครั้ง"
         showAlert = true
     }
     
@@ -714,35 +730,37 @@ struct LoginView: View {
         showAlert = true
     }
     
-    // MARK: - Subviews
     
-    private func socialButton(image: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(color)
-                    .frame(width: 80, height: 50)
-                    .shadow(radius: 1)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-                    )
-                
-                if image == "facebook" {
-                    Image("facebook_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                } else if image == "google" {
-                    Image("google_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
+    
+    // MARK: - Subviews
+        
+        private func socialButton(image: String, color: Color, action: @escaping () -> Void) -> some View {
+            Button(action: action) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(color)
+                        .frame(width: 80, height: 50)
+                        .shadow(radius: 1)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                        )
+                    
+                    if image == "facebook" {
+                        Image("facebook_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    } else if image == "google" {
+                        Image("google_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
         }
     }
-}
 
 #Preview {
     NavigationStack {
