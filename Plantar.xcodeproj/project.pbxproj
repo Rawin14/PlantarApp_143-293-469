@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -95,7 +95,6 @@
 /* Begin PBXFrameworksBuildPhase section */
 		394B81152E94F581004CB2AB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				397624522EAEB916007C7D99 /* Zip in Frameworks */,
 				391889D02ECCEFA00045549E /* PostgREST in Frameworks */,
@@ -106,7 +105,6 @@
 				39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */,
 				3992E7382F1D4D5900BE9220 /* GoogleSignIn in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -256,8 +254,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = Plantar;
 			packageProductDependencies = (
 				397624512EAEB916007C7D99 /* Zip */,
@@ -280,7 +276,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					394B81172E94F581004CB2AB = {
 						CreatedOnToolsVersion = 16.2;
@@ -301,7 +297,7 @@
 				391889CC2ECCEFA00045549E /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				3992E7362F1D4D5900BE9220 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 100;
 			productRefGroup = 394B810F2E94F581004CB2AB;
 			projectDirPath = "";
 			projectRoot = "";
@@ -314,19 +310,16 @@
 /* Begin PBXResourcesBuildPhase section */
 		394B81162E94F581004CB2AB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				394B815C2E96150E004CB2AB /* Preview Assets.xcassets in Resources */,
 				394B815D2E96150E004CB2AB /* Assets.xcassets in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		394B81142E94F581004CB2AB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				392797452EB3648B002C3E26 /* Profile.swift in Sources */,
 				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
@@ -361,12 +354,11 @@
 				392797492EB47873002C3E26 /* NotificationView.swift in Sources */,
 				392797432EB360E6002C3E26 /* EvaluateView.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		394B81242E94F583004CB2AB /* Debug */ = {
+		394B81242E94F583004CB2AB /* Debug configuration for PBXProject "Plantar" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -401,6 +393,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = M58MND63UU;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -424,12 +417,13 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		394B81252E94F583004CB2AB /* Release */ = {
+		394B81252E94F583004CB2AB /* Release configuration for PBXProject "Plantar" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -464,6 +458,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = M58MND63UU;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -480,12 +475,13 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		394B81272E94F583004CB2AB /* Debug */ = {
+		394B81272E94F583004CB2AB /* Debug configuration for PBXNativeTarget "Plantar" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -493,7 +489,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
-				DEVELOPMENT_TEAM = S57SPHWVTM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
@@ -504,12 +499,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.Plantar;
+				PRODUCT_BUNDLE_IDENTIFIER = PlantarApptest.Plantar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -517,7 +513,7 @@
 			};
 			name = Debug;
 		};
-		394B81282E94F583004CB2AB /* Release */ = {
+		394B81282E94F583004CB2AB /* Release configuration for PBXNativeTarget "Plantar" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -525,7 +521,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
-				DEVELOPMENT_TEAM = S57SPHWVTM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
@@ -536,12 +531,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = PlantarApp.Plantar;
+				PRODUCT_BUNDLE_IDENTIFIER = PlantarApptest.Plantar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -555,19 +551,17 @@
 		394B81132E94F581004CB2AB /* Build configuration list for PBXProject "Plantar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				394B81242E94F583004CB2AB /* Debug */,
-				394B81252E94F583004CB2AB /* Release */,
+				394B81242E94F583004CB2AB /* Debug configuration for PBXProject "Plantar" */,
+				394B81252E94F583004CB2AB /* Release configuration for PBXProject "Plantar" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		394B81262E94F583004CB2AB /* Build configuration list for PBXNativeTarget "Plantar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				394B81272E94F583004CB2AB /* Debug */,
-				394B81282E94F583004CB2AB /* Release */,
+				394B81272E94F583004CB2AB /* Debug configuration for PBXNativeTarget "Plantar" */,
+				394B81282E94F583004CB2AB /* Release configuration for PBXNativeTarget "Plantar" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
