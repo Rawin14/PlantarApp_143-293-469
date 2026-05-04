@@ -23,7 +23,7 @@ extension Color {
 // MARK: - WeightView Main View
 struct WeightView: View {
     // น้ำหนักเริ่มต้น
-    @State private var currentWeight: Double = 55.0
+    @State private var currentWeight: Int = 55
     // สำหรับ Page Indicator ด้านล่าง
     @State private var currentPage: Int = 2
     
@@ -79,11 +79,11 @@ struct WeightView: View {
                 
                 // MARK: - Current Weight Display
                 HStack(alignment: .bottom, spacing: 5) {
-                    Text("\(Int(currentWeight.rounded()))")
+                    Text("\(currentWeight)")
                         .font(.system(size: 80, weight: .bold))
                         .foregroundColor(Color.Weight_Primary)
                     
-                    Text("KG")
+                    Text("กก.")
                         .font(.system(size: 30, weight: .semibold))
                         .foregroundColor(Color.Weight_Primary.opacity(0.8))
                         .offset(y: -10)
@@ -91,7 +91,7 @@ struct WeightView: View {
                 .padding(.vertical, 30)
 
                 // MARK: - Ruler/Slider (แถบไม้บรรทัดที่เลื่อนได้)
-                WeightRuler(currentValue: $currentWeight, min: minWeight, max: maxWeight, step: weightStep)
+                WeightRuler(selectedWeight: $currentWeight)
                     .frame(height: 100)
                     .padding(.vertical, 20)
                 
@@ -100,40 +100,40 @@ struct WeightView: View {
                     // ปุ่มลด (-)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if currentWeight > minWeight {
-                                currentWeight -= weightStep
+                            if currentWeight > Int(minWeight) {
+                                currentWeight -= Int(weightStep)
                             }
                         }
                     }) {
                         Image(systemName: "minus")
                             .font(.title2)
                             .fontWeight(.semibold)
-                            .foregroundColor(currentWeight <= minWeight ? Color.Weight_SecondaryText.opacity(0.3) : Color.Weight_Primary)
+                            .foregroundColor(currentWeight <= Int(minWeight) ? Color.Weight_SecondaryText.opacity(0.3) : Color.Weight_Primary)
                             .frame(width: 60, height: 60)
                             .background(Color.Weight_ButtonBackground)
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
-                    .disabled(currentWeight <= minWeight)
+                    .disabled(currentWeight <= Int(minWeight))
                     
                     // ปุ่มเพิ่ม (+)
                     Button(action: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if currentWeight < maxWeight {
-                                currentWeight += weightStep
+                            if currentWeight < Int(maxWeight) {
+                                currentWeight += Int(weightStep)
                             }
                         }
                     }) {
                         Image(systemName: "plus")
                             .font(.title2)
                             .fontWeight(.semibold)
-                            .foregroundColor(currentWeight >= maxWeight ? Color.Weight_SecondaryText.opacity(0.3) : Color.Weight_Primary)
+                            .foregroundColor(currentWeight >= Int(maxWeight) ? Color.Weight_SecondaryText.opacity(0.3) : Color.Weight_Primary)
                             .frame(width: 60, height: 60)
                             .background(Color.Weight_ButtonBackground)
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
-                    .disabled(currentWeight >= maxWeight)
+                    .disabled(currentWeight >= Int(maxWeight))
                 }
                 .padding(.top, 10)
 
@@ -155,7 +155,7 @@ struct WeightView: View {
                 Button(action: {
                     Task {
                         // 1. อัปเดตค่า local
-                        userProfile.weight = currentWeight
+                        userProfile.weight = Double(currentWeight)
                             
                         // 2. สั่งบันทึกและ "รอ" จนกว่าจะเสร็จ (await)
                         await userProfile.saveToSupabase()
@@ -199,108 +199,44 @@ struct WeightView: View {
                 .onAppear {
                     // โหลดค่าจาก UserProfile (ถ้ามี)
                     if userProfile.weight > 0 {
-                        currentWeight = userProfile.weight
+                        currentWeight = Int(userProfile.weight)
                     }
                 }
     }
 }
 
 // MARK: - Custom Views for WeightView
-// Custom Ruler/Slider
 struct WeightRuler: View {
-    @Binding var currentValue: Double
-    let min: Double
-    let max: Double
-    let step: Double
-
-    // State สำหรับการลาก
-    @State private var dragOffset: CGFloat = 0
-    
-    // ค่าคงที่
-    let pixelsPerUnit: CGFloat = 20 // เพิ่มจาก 8 เป็น 20 (ยิ่งมากยิ่งช้า)
-    let dragSensitivity: CGFloat = 0.5 // ค่า 0.5 = ช้าลง 50%
+    @Binding var selectedWeight: Int
+    let range = Array(30...200)
 
     var body: some View {
-        GeometryReader { geometry in
-            let rulerWidth = geometry.size.width
-            let centerOffset = rulerWidth / 2
-            
-            ZStack(alignment: .leading) {
-                // Current Value Indicator (Triangle) - วางไว้กึ่งกลางเสมอ
-                VStack {
-                    WTriangle()
-                        .fill(Color.Weight_Primary)
-                        .frame(width: 15, height: 10)
-                        .rotationEffect(.degrees(180))
-                        .offset(y: 40)
-                }
-                .frame(width: rulerWidth)
-                
-                // Ruler Line
-                Rectangle()
-                    .fill(Color.Weight_Primary.opacity(0.3))
-                    .frame(height: 2)
-                    .padding(.horizontal, 20)
-                    .offset(y: 10)
+        VStack(spacing: 0) {
+            Image(systemName: "arrowtriangle.down.fill")
+                .font(.system(size: 20))
+                .foregroundColor(Color.Weight_Primary)
+                .offset(y: -10)
+                .zIndex(1)
 
-                // Markings
-                HStack(spacing: 0) {
-                    ForEach(Int(min)...Int(max), id: \.self) { value in
-                        let isMajor = value % 10 == 0 // ทุก 10 KG เป็นขีดยาว
-                        let isMedium = value % 5 == 0 && value % 10 != 0 // ทุก 5 KG เป็นขีดกลาง
-                        
-                        VStack(spacing: 0) {
-                            // ขีดหลัก (ยาว/กลาง)
-                            Rectangle()
-                                .fill(Color.Weight_Primary.opacity(0.8))
-                                .frame(width: 2, height: isMajor ? 25 : (isMedium ? 20 : 15))
-                            
-                            // ตัวเลข
-                            if isMajor {
-                                Text("\(value)")
-                                    .font(.caption)
-                                    .foregroundColor(.Weight_SecondaryText)
-                                    .offset(y: 5)
-                            }
-                        }
-                        .frame(width: pixelsPerUnit)
-                    }
-                }
-                .offset(x: centerOffset - ((currentValue - min) * pixelsPerUnit) + dragOffset)
-                .gesture(
-                    DragGesture()
-                        .onChanged { gesture in
-                            // ใช้ dragSensitivity เพื่อลดความไวในการลาก
-                            dragOffset = gesture.translation.width * dragSensitivity
-                            
-                            let deltaValue = -dragOffset / pixelsPerUnit
-                            let newValue = currentValue + deltaValue
-                            
-                            // ปัดเศษให้ตรงกับ step และจำกัดค่า
-                            let snappedValue = (newValue / step).rounded() * step
-                            currentValue = Swift.max(min, Swift.min(max, snappedValue))
-                        }
-                        .onEnded { _ in
-                            // รีเซ็ต dragOffset พร้อมแอนิเมชั่นแบบ smooth
-                            withAnimation(.interpolatingSpring(stiffness: 300, damping: 30)) {
-                                dragOffset = 0
-                            }
-                        }
+            RulerScrollView(
+                selectedRuler: $selectedWeight,
+                range: range,
+                themeColor: Color.Weight_Primary
+            )
+            .frame(height: 110)
+            .mask(
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0.0),
+                        .init(color: .black, location: 0.28),
+                        .init(color: .black, location: 0.72),
+                        .init(color: .clear, location: 1.0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
                 )
-            }
+            )
         }
-    }
-}
-
-// Custom Shape for Triangle (Indicator)
-struct WTriangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
-        return path
     }
 }
 
