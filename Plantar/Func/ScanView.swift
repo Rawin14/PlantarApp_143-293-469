@@ -227,8 +227,10 @@ struct ScanView: View {
                                         .background(Color.white.opacity(0.5))
                                     
                                     VStack {
-                                        Image(systemName: "shoe.fill")
-                                            .font(.system(size: 60))
+                                        Image("Exemplefoot")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 200, height: 150)
                                             .foregroundColor(.gray.opacity(0.5))
                                         Text("ตัวอย่าง: รอยเท้าบนกระดาษ")
                                             .font(.caption)

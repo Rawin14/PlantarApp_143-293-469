@@ -46,6 +46,8 @@
 		39A608642EA3A1B10070B69C /* HeightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608632EA3A1B10070B69C /* HeightView.swift */; };
 		39A608662EA3A1C20070B69C /* AgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608652EA3A1C20070B69C /* AgeView.swift */; };
 		39A6086A2EAA1EE60070B69C /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A608692EAA1EE60070B69C /* ScanView.swift */; };
+		39A673182FA9F069001A3424 /* RulerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A673172FA9F04B001A3424 /* RulerConfig.swift */; };
+		39A6731A2FA9F09B001A3424 /* GenericRuler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A673192FA9F08E001A3424 /* GenericRuler.swift */; };
 		39F4D0F52EAA3B70009FEBDD /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39F4D0F02EAA3918009FEBDD /* ModelIO.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		39F7F9A92EEAA30D00FDB353 /* DiarychartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */; };
 		39F7F9AD2EEAA6C300FDB353 /* DiaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F7F9AC2EEAA6C300FDB353 /* DiaryService.swift */; };
@@ -86,6 +88,8 @@
 		39A608652EA3A1C20070B69C /* AgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeView.swift; sourceTree = "<group>"; };
 		39A608692EAA1EE60070B69C /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
 		39A6086D2EAA28530070B69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		39A673172FA9F04B001A3424 /* RulerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulerConfig.swift; sourceTree = "<group>"; };
+		39A673192FA9F08E001A3424 /* GenericRuler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericRuler.swift; sourceTree = "<group>"; };
 		39F4D0F02EAA3918009FEBDD /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
 		39F7F9A82EEAA30D00FDB353 /* DiarychartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarychartView.swift; sourceTree = "<group>"; };
 		39F7F9AA2EEAA34A00FDB353 /* DiaryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModels.swift; sourceTree = "<group>"; };
@@ -187,13 +191,15 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		3976244C2EAA45A8007C7D99 /* CameraFunc */ = {
+		3976244C2EAA45A8007C7D99 /* Func */ = {
 			isa = PBXGroup;
 			children = (
+				39A673192FA9F08E001A3424 /* GenericRuler.swift */,
+				39A673172FA9F04B001A3424 /* RulerConfig.swift */,
 				397624482EAA3DF8007C7D99 /* CameraCaptureView.swift */,
 				39A608692EAA1EE60070B69C /* ScanView.swift */,
 			);
-			path = CameraFunc;
+			path = Func;
 			sourceTree = "<group>";
 		};
 		39A608542E961A7F0070B69C /* Auth */ = {
@@ -222,7 +228,7 @@
 				3927975E2EB88F37002C3E26 /* MainView */,
 				3927975D2EB7C46A002C3E26 /* StartView */,
 				39A608562E961AD90070B69C /* policy */,
-				3976244C2EAA45A8007C7D99 /* CameraFunc */,
+				3976244C2EAA45A8007C7D99 /* Func */,
 				39A608542E961A7F0070B69C /* Auth */,
 				39A6086D2EAA28530070B69C /* Info.plist */,
 				394B814D2E96150E004CB2AB /* Preview Content */,
@@ -325,6 +331,7 @@
 				394B81562E96150E004CB2AB /* WelcomeView.swift in Sources */,
 				392797592EB50AE8002C3E26 /* BMIView.swift in Sources */,
 				394F792E2F95589B009D3F69 /* ResetPasswordView.swift in Sources */,
+				39A6731A2FA9F09B001A3424 /* GenericRuler.swift in Sources */,
 				3927974B2EB48277002C3E26 /* VideoView.swift in Sources */,
 				392797512EB4B363002C3E26 /* DiaryTodayView.swift in Sources */,
 				394B81572E96150E004CB2AB /* LoginView.swift in Sources */,
@@ -336,6 +343,7 @@
 				39A608642EA3A1B10070B69C /* HeightView.swift in Sources */,
 				394B81582E96150E004CB2AB /* TermsView.swift in Sources */,
 				3927975B2EB50D2F002C3E26 /* ProfileView.swift in Sources */,
+				39A673182FA9F069001A3424 /* RulerConfig.swift in Sources */,
 				392797572EB4E952002C3E26 /* ClinicsNearMeView.swift in Sources */,
 				394B81592E96150E004CB2AB /* PlantarApp.swift in Sources */,
 				391889DA2ECCF10B0045549E /* Config.swift in Sources */,

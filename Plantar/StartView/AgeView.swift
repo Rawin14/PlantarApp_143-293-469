@@ -84,7 +84,7 @@ struct AgeView: View {
                         .font(.system(size: 80, weight: .bold))
                         .foregroundColor(Color.Age_Primary)
                     
-                    Text("Years")
+                    Text("ปี")
                         .font(.system(size: 30, weight: .semibold))
                         .foregroundColor(Color.Age_Primary.opacity(0.8))
                         .offset(y: -10)
@@ -92,10 +92,11 @@ struct AgeView: View {
                 .padding(.vertical, 30)
                 
                 // MARK: - Ruler/Slider
-                AgeRuler(selectedAge: $currentAge)
-                    .frame(height: 100)
-                    .padding(.vertical, 20)
-                
+                GenericRuler(
+                            selectedValue: $currentAge,
+                            config: AgeRulerConfig(),  // label ทุก 5 ปีแทน 10
+                            themeColor: Color.Age_Primary
+                        )
                 // MARK: - Plus/Minus Buttons
                 HStack(spacing: 40) {
                     // ปุ่มลด (-)
@@ -197,40 +198,6 @@ struct AgeView: View {
     }
 }
 
-// MARK: - Custom Views for AgeView
-struct AgeRuler: View {
-    @Binding var selectedAge: Int
-    let range = Array(1...100)
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Image(systemName: "arrowtriangle.down.fill")
-                .font(.system(size: 20))
-                .foregroundColor(Color.Age_Primary)
-                .offset(y: -10)
-                .zIndex(1)
-
-            RulerScrollView(
-                selectedRuler: $selectedAge,
-                range: range,
-                themeColor: Color.Age_Primary
-            )
-            .frame(height: 110)
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0.0),
-                        .init(color: .black, location: 0.28),
-                        .init(color: .black, location: 0.72),
-                        .init(color: .clear, location: 1.0)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-        }
-    }
-}
 
 // MARK: - Preview
 #Preview {

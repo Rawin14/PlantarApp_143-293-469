@@ -91,9 +91,11 @@ struct WeightView: View {
                 .padding(.vertical, 30)
 
                 // MARK: - Ruler/Slider (แถบไม้บรรทัดที่เลื่อนได้)
-                WeightRuler(selectedWeight: $currentWeight)
-                    .frame(height: 100)
-                    .padding(.vertical, 20)
+                GenericRuler(
+                            selectedValue: $currentWeight,
+                            config: WeightRulerConfig(),
+                            themeColor: Color.Weight_Primary // สีของ WeightView
+                        )
                 
                 // MARK: - Plus/Minus Buttons
                 HStack(spacing: 40) {
@@ -205,40 +207,7 @@ struct WeightView: View {
     }
 }
 
-// MARK: - Custom Views for WeightView
-struct WeightRuler: View {
-    @Binding var selectedWeight: Int
-    let range = Array(30...200)
 
-    var body: some View {
-        VStack(spacing: 0) {
-            Image(systemName: "arrowtriangle.down.fill")
-                .font(.system(size: 20))
-                .foregroundColor(Color.Weight_Primary)
-                .offset(y: -10)
-                .zIndex(1)
-
-            RulerScrollView(
-                selectedRuler: $selectedWeight,
-                range: range,
-                themeColor: Color.Weight_Primary
-            )
-            .frame(height: 110)
-            .mask(
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0.0),
-                        .init(color: .black, location: 0.28),
-                        .init(color: .black, location: 0.72),
-                        .init(color: .clear, location: 1.0)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-        }
-    }
-}
 
 // MARK: - Preview ✔ (แก้แล้วเฉพาะ Preview)
 struct WeightView_Previews: PreviewProvider {
