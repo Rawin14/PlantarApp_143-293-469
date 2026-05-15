@@ -292,10 +292,11 @@
 				};
 			};
 			buildConfigurationList = 394B81132E94F581004CB2AB /* Build configuration list for PBXProject "Plantar" */;
-			developmentRegion = en;
+			developmentRegion = th;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				th,
 				Base,
 			);
 			mainGroup = 394B810F2E94F581004CB2AB;
@@ -498,11 +499,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Plantar/Plantar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Plantar;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องสำหรับการถ่ายรูปรอยเท้า";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "แอปต้องการตำแหน่งของคุณเพื่อค้นหาคลินิกที่ใกล้ที่สุด";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -515,12 +518,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = PlantarApptest.Plantar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -531,11 +538,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Plantar/Plantar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"Plantar/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Plantar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Plantar;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "ขออนุญาตใช้กล้องสำหรับการถ่ายรูปรอยเท้า";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "แอปต้องการตำแหน่งของคุณเพื่อค้นหาคลินิกที่ใกล้ที่สุด";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -548,12 +557,16 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = PlantarApptest.Plantar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

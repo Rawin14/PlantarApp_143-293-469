@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AuthenticationServices
+import CryptoKit
 
 struct LoginView: View {
     
@@ -38,6 +39,7 @@ struct LoginView: View {
     @State private var isResettingPassword = false
     
     @State private var forgotPasswordEmail = ""
+    @State private var currentNonce: String?
     
     var body: some View {
         
@@ -229,15 +231,21 @@ struct LoginView: View {
                             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                         }
                         .padding(.horizontal, 24) // ปรับระยะห่างขอบซ้าย-ขวาตามความเหมาะสม
-                        SignInWithAppleButton(.signIn) { request in
-                                request.requestedScopes = [.email, .fullName]
-                            } onCompletion: { result in
-                                handleAppleSignIn(result)
-                            }
-                            .signInWithAppleButtonStyle(.black) // ใช้ธีมสีดำของ Apple
-                            .frame(height: 52) // ความสูงให้พอดีกับปุ่ม Google
-                            .cornerRadius(12)
-                            .padding(.horizontal, 24)
+                        SignInWithAppleButton(.signIn) { request in // ถ้าเป็นหน้า RegisterView ให้เปลี่ยน .signIn เป็น .signUp
+                            request.requestedScopes = [.email, .fullName]
+                            
+                            // สร้าง Nonce และเข้ารหัสส่งให้ Apple
+                            let nonce = randomNonceString()
+                            currentNonce = nonce
+                            request.nonce = sha256(nonce)
+                            
+                        } onCompletion: { result in
+                            handleAppleSignIn(result)
+                        }
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(height: 52)
+                        .cornerRadius(12)
+                        .padding(.horizontal, 24)
                     }
                     
                     // MARK: - Footer
@@ -334,16 +342,16 @@ struct LoginView: View {
             showAlert = true
             return
         }
-
+        
         isLoading = true
         let success = await authManager.sendPasswordResetEmail(email: targetEmail)
         isLoading = false
         forgotPasswordEmail = ""
-
+        
         alertTitle = success ? "ส่งอีเมลสำเร็จ ✅" : "ส่งอีเมลไม่สำเร็จ ❌"
         alertMessage = success
-            ? "กรุณาตรวจสอบอีเมล \(targetEmail)\nแล้วกดลิงก์เพื่อตั้งรหัสผ่านใหม่"
-            : authManager.errorMessage ?? "กรุณาลองใหม่อีกครั้ง"
+        ? "กรุณาตรวจสอบอีเมล \(targetEmail)\nแล้วกดลิงก์เพื่อตั้งรหัสผ่านใหม่"
+        : authManager.errorMessage ?? "กรุณาลองใหม่อีกครั้ง"
         showAlert = true
     }
     
@@ -353,28 +361,35 @@ struct LoginView: View {
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
                 guard let identityToken = appleIDCredential.identityToken,
                       let idTokenString = String(data: identityToken, encoding: .utf8) else {
-                    authManager.errorMessage = "Failed to get Apple ID token"
                     alertTitle = "เกิดข้อผิดพลาด"
-                    alertMessage = "ไม่สามารถเข้าสู่ระบบด้วย Apple ID ได้\nกรุณาลองใหม่อีกครั้ง"
+                    alertMessage = "ไม่สามารถอ่านข้อมูลจาก Apple ได้"
                     showAlert = true
                     return
                 }
                 
-                let nonce = UUID().uuidString
+                // ⚠️ ใช้ Nonce ที่เราสร้างไว้ตอนกดปุ่ม
+                guard let nonce = currentNonce else {
+                    alertTitle = "เกิดข้อผิดพลาด"
+                    alertMessage = "ระบบความปลอดภัย Nonce ล้มเหลว"
+                    showAlert = true
+                    return
+                }
                 
                 Task {
                     await authManager.signInWithApple(idToken: idTokenString, nonce: nonce)
                     if authManager.isAuthenticated {
-                        navigateToProfile = true
+                        // ... ล็อกอินสำเร็จ เปลี่ยนหน้า ...
+                        print("ล็อกอิน Apple สำเร็จ!")
                     } else {
-                        handleLoginError()
+                        alertTitle = "เกิดข้อผิดพลาด"
+                        alertMessage = authManager.errorMessage ?? "ไม่สามารถเข้าสู่ระบบได้"
+                        showAlert = true
                     }
                 }
             }
         case .failure(let error):
-            authManager.errorMessage = error.localizedDescription
             alertTitle = "เกิดข้อผิดพลาด"
-            alertMessage = "การเข้าสู่ระบบด้วย Apple ไม่สมบูรณ์\n โปรดลองใหม่อีกครั้ง"
+            alertMessage = "ยกเลิกการเข้าระบบ: \(error.localizedDescription)"
             showAlert = true
         }
     }
@@ -448,34 +463,54 @@ struct LoginView: View {
     
     
     // MARK: - Subviews
+    // ⚠️ วาง 2 ฟังก์ชันนี้ไว้ล่างสุดของไฟล์ นอกวงเล็บของ View
+    func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        }
         
-        private func socialButton(image: String, color: Color, action: @escaping () -> Void) -> some View {
-            Button(action: action) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(color)
-                        .frame(width: 80, height: 50)
-                        .shadow(radius: 1)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-                        )
-                    
-                    if image == "facebook" {
-                        Image("facebook_logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    } else if image == "google" {
-                        Image("google_logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    }
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        let nonce = randomBytes.map { byte in charset[Int(byte) % charset.count] }
+        
+        return String(nonce)
+    }
+    
+    func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+    }
+    
+    private func socialButton(image: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(color)
+                    .frame(width: 80, height: 50)
+                    .shadow(radius: 1)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                    )
+                
+                if image == "facebook" {
+                    Image("facebook_logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else if image == "google" {
+                    Image("google_logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
                 }
             }
         }
     }
+}
 
 #Preview {
     NavigationStack {

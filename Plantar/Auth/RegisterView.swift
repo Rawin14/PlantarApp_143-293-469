@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AuthenticationServices
+import CryptoKit
 
 struct RegisterView: View {
     
@@ -15,8 +16,6 @@ struct RegisterView: View {
     @Environment(\.dismiss) var dismiss
     
     // Form Fields
-//    @State private var firstName = ""
-//    @State private var lastName = ""
     @State private var nickname = ""
     @State private var email = ""
     @State private var password = ""
@@ -31,6 +30,7 @@ struct RegisterView: View {
     @State private var alertMessage = ""
     
     @State private var showTerms = false
+    @State private var currentNonce: String?
     
     var isFormValid: Bool {
 //        !firstName.isEmpty &&
@@ -91,14 +91,20 @@ struct RegisterView: View {
                             }
                             .padding(.horizontal, 24) // ปรับระยะห่างขอบซ้าย-ขวาตามความเหมาะสม
                             SignInWithAppleButton(.signUp) { request in
-                                    request.requestedScopes = [.email, .fullName]
-                                } onCompletion: { result in
-                                    handleAppleSignIn(result)
-                                }
-                                .signInWithAppleButtonStyle(.black)
-                                .frame(height: 52)
-                                .cornerRadius(12)
-                                .padding(.horizontal, 24)
+                                request.requestedScopes = [.email, .fullName]
+                                
+                                // สร้าง Nonce
+                                let nonce = randomNonceString()
+                                currentNonce = nonce
+                                request.nonce = sha256(nonce)
+                                
+                            } onCompletion: { result in
+                                handleAppleSignIn(result)
+                            }
+                            .signInWithAppleButtonStyle(.black)
+                            .frame(height: 52)
+                            .cornerRadius(12)
+                            .padding(.horizontal, 24)
                         }
                         
                         // Divider
@@ -432,10 +438,15 @@ struct RegisterView: View {
                     return
                 }
                 
-                let nonce = UUID().uuidString
+                // ⚠️ ดึง Nonce ที่สร้างไว้มาใช้งาน
+                guard let nonce = currentNonce else {
+                    alertTitle = "เกิดข้อผิดพลาด"
+                    alertMessage = "ระบบความปลอดภัย Nonce ล้มเหลว"
+                    showAlert = true
+                    return
+                }
                 
                 Task {
-                    // เรียกใช้ AuthManager เพื่อล็อกอินด้วย Apple
                     await authManager.signInWithApple(idToken: idTokenString, nonce: nonce)
                     if authManager.isAuthenticated {
                         alertTitle = "สำเร็จ! ✅"
@@ -455,7 +466,7 @@ struct RegisterView: View {
         case .failure(let error):
             authManager.errorMessage = error.localizedDescription
             alertTitle = "เกิดข้อผิดพลาด"
-            alertMessage = "การลงทะเบียนด้วย Apple ไม่สมบูรณ์\n โปรดลองใหม่อีกครั้ง"
+            alertMessage = "ยกเลิกการลงทะเบียน: \(error.localizedDescription)"
             showAlert = true
         }
     }
@@ -499,6 +510,26 @@ struct RegisterView: View {
 }
 
 // MARK: - Styling Helper
+
+func randomNonceString(length: Int = 32) -> String {
+    precondition(length > 0)
+    var randomBytes = [UInt8](repeating: 0, count: length)
+    let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+    if errorCode != errSecSuccess {
+        fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+    }
+    
+    let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+    let nonce = randomBytes.map { byte in charset[Int(byte) % charset.count] }
+    
+    return String(nonce)
+}
+
+func sha256(_ input: String) -> String {
+    let inputData = Data(input.utf8)
+    let hashedData = SHA256.hash(data: inputData)
+    return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+}
 
 struct CustomTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
