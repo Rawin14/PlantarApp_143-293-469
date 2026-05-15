@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Charts
+
 struct DiarychartView: View {
     // รับข้อมูลที่กรองแล้วและเดือนที่เลือกจาก DiaryHistoryView
     let entries: [DiaryEntry]

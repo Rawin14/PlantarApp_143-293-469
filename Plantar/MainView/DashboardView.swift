@@ -1273,13 +1273,3 @@ struct DashboardView: View {
         }
     }
 }
-//// MARK: - Preview
-//struct DashboardView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationStack {
-//            DashboardView()
-//                .environmentObject(UserProfile.preview)
-//        }
-//    }
-//}
-

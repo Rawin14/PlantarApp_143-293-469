@@ -386,9 +386,7 @@ class UserProfile: ObservableObject {
                 self.gender = profile.gender ?? "female"
                 self.evaluateScore = profile.evaluate_score ?? 0.0
                 self.hasCompletedScan = profile.has_completed_scan ?? false
-                
-                // ✅ ไม่ต้องเรียก loadWatchedVideos() ที่นี่
-                // เพราะ didSet ของ userId จะเรียกให้อัตโนมัติแล้ว
+
             }
         }
         return profile

@@ -10,9 +10,9 @@ import SwiftUI
 struct DiaryHistoryView: View {
     // --- State Variables ---
     @State private var selectedMonth = Date()
-    @State private var selectedDate: Date? = nil
-    @State private var selectedEntry: DiaryEntry? = nil
-    @State private var showDetailSheet: Bool = false
+    @State private var selectedDateForDetail: Date? = nil
+    @State private var selectedEntryForDetail: DiaryEntry? = nil
+    @State private var showDiaryDetailSheet: Bool = false
     
     // ✅ ดึงข้อมูลและสถานะทั้งหมดมาจาก ViewModel
     @EnvironmentObject var diaryViewModel: DiaryViewModel
@@ -49,84 +49,85 @@ struct DiaryHistoryView: View {
     }
     
     var contentView: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                
-                // MARK: - Month Selector
-                HStack {
-                    Button(action: { changeMonth(-1) }) {
-                        Image(systemName: "chevron.left").font(.title3).foregroundColor(.white)
-                    }
-                    Spacer()
-                    Text(monthYearString(from: selectedMonth))
-                        .font(.title3).fontWeight(.semibold).foregroundColor(.white)
-                    Spacer()
-                    Button(action: { changeMonth(1) }) {
-                        Image(systemName: "chevron.right").font(.title3).foregroundColor(.white)
-                    }
-                }
-                .padding(.horizontal, 40)
-                .padding(.vertical, 12)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                
-                // MARK: - Calendar Grid
-                VStack(alignment: .leading, spacing: 12) {
-                    // หัวตาราง
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    
+                    // MARK: - Month Selector
                     HStack {
-                        ForEach(["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."], id: \.self) { day in
-                            Text(day)
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity)
+                        Button(action: { changeMonth(-1) }) {
+                            Image(systemName: "chevron.left").font(.title3).foregroundColor(.white)
+                        }
+                        Spacer()
+                        Text(monthYearString(from: selectedMonth))
+                            .font(.title3).fontWeight(.semibold).foregroundColor(.white)
+                        Spacer()
+                        Button(action: { changeMonth(1) }) {
+                            Image(systemName: "chevron.right").font(.title3).foregroundColor(.white)
                         }
                     }
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                     
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
-                        let days = getDaysInMonth()
+                    // MARK: - Calendar Grid
+                    VStack(alignment: .leading, spacing: 12) {
+                        // หัวตาราง
+                        HStack {
+                            ForEach(["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."], id: \.self) { day in
+                                Text(day)
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.gray)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
                         
-                        ForEach(days.indices, id: \.self) { index in
-                            if let date = days[index] {
-                                let entryForDay = getEntry(for: date) // ดึงข้อมูลของวันนั้นๆ
-                                
-                                DayCell(date: date, entry: entryForDay)
-                                    .onTapGesture {
-                                        // เมื่อกดที่เซลล์ ให้เก็บข้อมูลและเปิด Sheet
-                                        self.selectedDate = date
-                                        self.selectedEntry = entryForDay
-                                        self.showDetailSheet = true
-                                    }
-                            } else {
-                                Color.clear.frame(height: 60)
+                        // ✅ ตารางวันที่ (แก้กลับมาเป็น LazyVGrid และทำให้กดได้)
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
+                            let days = getDaysInMonth()
+                            
+                            ForEach(days.indices, id: \.self) { index in
+                                if let date = days[index] {
+                                    let entry = getEntry(for: date)
+                                    
+                                    DayCell(date: date, entry: entry)
+                                        .onTapGesture {
+                                            // เมื่อกดที่วันที่ ให้ดึงข้อมูลและเปิด Sheet
+                                            selectedDateForDetail = date
+                                            selectedEntryForDetail = entry
+                                            showDiaryDetailSheet = true
+                                        }
+                                } else {
+                                    Color.clear.frame(height: 60)
+                                }
                             }
                         }
                     }
+                    .padding(20)
+                    .background(cardBackground)
+                    .cornerRadius(15)
+                    .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+                    .padding(.horizontal, 20)
+                    
+                    // Statistics
+                    if !diaryViewModel.monthEntries.isEmpty {
+                        statisticsSection
+                    }
                 }
-                .padding(20)
-                .background(cardBackground)
-                .cornerRadius(15)
-                .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
-                .padding(.horizontal, 20)
-                
-                // Statistics
-                if !diaryViewModel.monthEntries.isEmpty {
-                    statisticsSection
+                .padding(.bottom, 40)
+            }
+            // ✅ Sheet สำหรับเด้งขึ้นมาแสดงข้อมูล
+            .sheet(isPresented: $showDiaryDetailSheet) {
+                if let date = selectedDateForDetail {
+                    DiaryDetailSheet(date: date, entry: selectedEntryForDetail)
+                        .presentationDetents([.medium, .fraction(1)])
+                        .presentationDragIndicator(.visible)
                 }
             }
-            .padding(.bottom, 40)
         }
-        .sheet(isPresented: $showDetailSheet) {
-            // ดึง Sheet มาแสดงข้อมูล
-            if let date = selectedDate {
-                DiaryDetailSheet(date: date, entry: selectedEntry)
-                    .presentationDetents([.medium, .fraction(0.4)]) // ทำให้ Sheet เด้งขึ้นมาแค่ครึ่งจอ
-                    .presentationDragIndicator(.visible) // แสดงขีดด้านบนให้รู้ว่าปัดลงได้
-            }
-        }
-    }
     
     // MARK: - Statistics Section
     var statisticsSection: some View {
@@ -289,7 +290,7 @@ struct DiaryDetailSheet: View {
     let entry: DiaryEntry?
     @Environment(\.dismiss) var dismiss
     
-    // แปลงวันที่ให้เป็นข้อความสวยๆ
+    // แปลงวันที่ให้แสดงผลสวยงาม เช่น "23 ตุลาคม 2568"
     var dateString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "th_TH")
@@ -299,68 +300,89 @@ struct DiaryDetailSheet: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text(dateString)
-                .font(.headline)
-                .foregroundColor(.gray)
-                .padding(.top, 20)
-            
             if let entry = entry {
-                // กรณีที่วันนั้นมีข้อมูล
-                VStack(spacing: 15) {
-                    // แสดง Emoji หรือระดับความปวด
-                    Text(getEmoji(for: entry.feelingLevel))
-                        .font(.system(size: 60))
-                    
-                    Text("ระดับความปวด: \(entry.feelingLevel)")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    if let note = entry.note, !note.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("บันทึกอาการ:")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            
-                            Text(note)
-                                .font(.body)
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                        }
-                        .padding(.horizontal, 20)
-                    }
+                // ดึงค่าการเปรียบเทียบอารมณ์
+                let comparison = entry.feelingComparison ?? fallbackComparison(entry.feelingLevel)
+                
+                // 1. รูปอิโมจิ
+                if let _ = UIImage(named: comparisonImageName(comparison)) {
+                    Image(comparisonImageName(comparison))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .padding(.top, 10)
                 }
+                
+                // 2. ข้อความแสดงความรู้สึก (เช่น รู้สึกดีขึ้น, แย่ลง)
+                Text(comparisonTitle(comparison))
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                // 3. วันที่บันทึก
+                Text("บันทึกเมื่อ: \(dateString)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                Divider()
+                
+                // 4. กล่องบันทึกเพิ่มเติม (Note)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("บันทึกเพิ่มเติม:")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    
+                    // เช็คว่ามีข้อความไหม ถ้าเป็น nil หรือปล่อยว่างเปล่า ให้แสดง "ไม่มีบันทึกเพิ่มเติม"
+                    let noteText = (entry.note != nil && !entry.note!.isEmpty) ? entry.note! : "ไม่มีบันทึกเพิ่มเติม"
+                    
+                    Text(noteText)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(12)
+                
             } else {
-                // กรณีที่วันนั้นไม่มีข้อมูล
-                VStack(spacing: 15) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 50))
-                        .foregroundColor(.gray.opacity(0.5))
-                    Text("ไม่มีบันทึกอาการในวันนี้")
-                        .foregroundColor(.gray)
-                }
-                .padding(.top, 20)
+                // ❌ กรณีไม่มีข้อมูลของวันนั้น (กันเหนียวไว้)
+                Spacer()
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 50))
+                    .foregroundColor(.gray.opacity(0.5))
+                Text("ไม่มีบันทึกอาการในวันนี้")
+                    .foregroundColor(.gray)
             }
             
             Spacer()
-            
-            Button("ปิด") {
-                dismiss()
-            }
-            .padding(.bottom, 20)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.white)
+        .padding(24)
+        // ✅ เด้งครึ่งจอและมีขีดให้เลื่อนปิดได้ (ใส่ตรงนี้ได้เลย)
+        .presentationDetents([.medium, .fraction(0.55)])
+        .presentationDragIndicator(.visible)
     }
     
-    // ฟังก์ชันช่วยแปลงตัวเลขเป็น Emoji สื่ออารมณ์
-    func getEmoji(for level: Int) -> String {
-        switch level {
-        case 1...3: return "😫" // ปวดมาก
-        case 4...7: return "😐" // ปานกลาง
-        case 8...10: return "😄" // ดีขึ้นมาก
-        default: return "😶"
+    // MARK: - Helper Functions
+    private func fallbackComparison(_ level: Int) -> FeelingComparison {
+        if level >= 4 { return .better }
+        else if level == 3 { return .same }
+        else { return .worse }
+    }
+    
+    private func comparisonImageName(_ comparison: FeelingComparison) -> String {
+        switch comparison {
+        case .better: return "Smile"
+        case .same: return "Normal"
+        case .worse: return "Sad"
+        }
+    }
+    
+    private func comparisonTitle(_ comparison: FeelingComparison) -> String {
+        switch comparison {
+        case .better: return "รู้สึกดีขึ้น"
+        case .same: return "รู้สึกเหมือนเดิม"
+        case .worse: return "รู้สึกแย่ลง"
         }
     }
 }

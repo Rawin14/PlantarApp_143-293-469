@@ -365,22 +365,6 @@ class AuthManager: ObservableObject {
         }
     }
     
-//    func handleIncomingURL(_ url: URL) async {
-//        do {
-//            try await supabase.auth.session(from: url)
-//            print("✅ Recovery session created")
-//            
-//            await MainActor.run {
-//                self.isResetPasswordFlow = true
-//            }
-//            
-//        } catch {
-//            print("❌ Failed to handle URL: \(error)")
-//            await MainActor.run {
-//                self.errorMessage = "ลิงก์ไม่ถูกต้องหรือหมดอายุ"
-//            }
-//        }
-//    }
     func handleIncomingURL(_ url: URL) async {
         do {
             try await supabase.auth.session(from: url)
