@@ -121,9 +121,21 @@ struct VideoView: View {
                             .padding(.horizontal)
                             .padding(.bottom, 20)
                         }
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                            
+                            Text("คำเตือน: ท่าบริหารเหล่านี้เป็นเพียงการปฐมพยาบาลและฟื้นฟูเบื้องต้น หากท่านรู้สึกปวดหรือเจ็บแปลบขณะทำท่ากายภาพ กรุณาหยุดทำทันทีและควรปรึกษาแพทย์หรือนักกายภาพบำบัด")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding()
+                        .background(Color.orange.opacity(0.1))
+                        .cornerRadius(10)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
                     }
-                    
-                    Spacer(minLength: 120)
                 }
             }
             .ignoresSafeArea(edges: .top)
