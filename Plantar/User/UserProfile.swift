@@ -45,6 +45,7 @@ struct DiaryEntryModel: Codable, Identifiable {
 struct FootScanModel: Codable {
     let id: String
     let pf_severity: String?
+    let arch_type: String?
     let images_url: [String]? // แก้จาก image_url (String) เป็น images_url ([String])
     let created_at: String?
     
@@ -126,6 +127,26 @@ class UserProfile: ObservableObject {
         if bmi < 25.0 { return 1 }
         else if bmi < 30.0 { return 2 }
         else { return 3 }
+    }
+    
+    var archTypeDisplay: String {
+        // 1. เช็คก่อนว่ามีข้อมูล arch_type ไหม ถ้าไม่มีให้คืนค่า "ยังไม่ได้วิเคราะห์"
+        guard let rawArchType = latestScan?.arch_type?.lowercased() else {
+            return "ยังไม่ได้วิเคราะห์"
+        }
+        
+        // 2. แปลงคำศัพท์จากฐานข้อมูล (ภาษาอังกฤษ) เป็นภาษาไทย
+        switch rawArchType {
+        case "flat":
+            return "เท้าแบน (Flat Foot)"
+        case "normal":
+            return "เท้าปกติ (Normal)"
+        case "high":
+            return "อุ้งเท้าสูง (High Arch)"
+        default:
+            // ถ้าข้อมูลในฐานข้อมูลไม่ตรงกับ 3 แบบข้างบน ให้แสดงค่าเดิมที่ได้มาเลย
+            return rawArchType
+        }
     }
     
     var totalRiskScore: Double {
@@ -443,7 +464,7 @@ class UserProfile: ObservableObject {
             
             let response: [FootScanModel] = try await Self.supabase
                 .from("foot_scans")
-                .select("id, pf_severity, images_url, created_at")
+                .select("id, pf_severity, images_url, arch_type, created_at")
                 .eq("user_id", value: userId)
                 .order("created_at", ascending: false)
                 .limit(1)

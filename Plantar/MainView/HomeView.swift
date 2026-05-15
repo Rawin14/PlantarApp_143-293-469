@@ -193,45 +193,68 @@ struct HomeView: View {
                     
                     // 4. Status Snapshot
                     HStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("ระดับความเสี่ยงของคุณ")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.gray)
-                                .tracking(1)
+                        VStack(alignment: .leading, spacing: 12) { // ปรับ spacing หลักให้ห่างขึ้นนิดหน่อย
+                                
+                                // MARK: - 1. ส่วนความเสี่ยง (ของเดิม)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("ระดับความเสี่ยงของคุณ")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.gray)
+                                        .tracking(1)
+                                    
+                                    Text(riskText(severity: userProfile.riskSeverity))
+                                        .font(.title)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(riskColor(severity: userProfile.riskSeverity))
+                                    
+                                    Text("ผลการประเมินความเสี่ยงล่าสุด")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Divider() // เส้นคั่นบางๆ เพื่อความสวยงาม
+                                
+                                // MARK: - 2. ส่วนลักษณะเท้า (เพิ่มใหม่)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("ลักษณะอุ้งเท้าของคุณ")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.gray)
+                                        .tracking(1)
+                                    
+                                    Text(userProfile.archTypeDisplay)
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(Color(red: 139/255, green: 122/255, blue: 184/255)) // ใช้สีม่วงธีมแอป
+                                }
+                            }
                             
-                            Text(riskText(severity: userProfile.riskSeverity))
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(riskColor(severity: userProfile.riskSeverity))
+                            Spacer()
                             
-                            Text("ผลการประเมินความเสี่ยงล่าสุด")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            // MARK: - กราฟิกวงกลมด้านขวา (ของเดิม)
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.1), lineWidth: 8)
+                                    .frame(width: 70, height: 70)
+                                Circle()
+                                    .trim(from: 0, to: 0.75)
+                                    .stroke(
+                                        riskColor(severity: userProfile.riskSeverity),
+                                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                                    )
+                                    .rotationEffect(.degrees(-90))
+                                    .frame(width: 70, height: 70)
+                                Image(systemName: "shoeprints.fill")
+                                    .font(.title2)
+                                    .foregroundColor(riskColor(severity: userProfile.riskSeverity))
+                            }
                         }
-                        Spacer()
-                        ZStack {
-                            Circle()
-                                .stroke(Color.gray.opacity(0.1), lineWidth: 8)
-                                .frame(width: 70, height: 70)
-                            Circle()
-                                .trim(from: 0, to: 0.75)
-                                .stroke(
-                                    riskColor(severity: userProfile.riskSeverity),
-                                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                                )
-                                .rotationEffect(.degrees(-90))
-                                .frame(width: 70, height: 70)
-                            Image(systemName: "waveform.path.ecg")
-                                .font(.title2)
-                                .foregroundColor(riskColor(severity: userProfile.riskSeverity))
-                        }
-                    }
-                    .padding(20)
-                    .background(Color.white)
-                    .cornerRadius(20)
-                    .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                    .padding(.horizontal, 20)
+                        .padding(20)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                        .padding(.horizontal, 20)
                     
                     
                     // 5. App Features (Grid)

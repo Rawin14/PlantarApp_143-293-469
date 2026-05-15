@@ -362,7 +362,7 @@ struct ScanView: View {
             scanState = .completed
             
         } catch {
-            errorMessage = "การประมวลผลล้มเหลว: \(error.localizedDescription)"
+            errorMessage = "การประมวลผลล้มเหลว\n โปรดลองอีกครั้ง"
             scanState = .failed
             print("❌ Error: \(error)")
         }

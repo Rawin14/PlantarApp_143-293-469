@@ -10,6 +10,9 @@ import SwiftUI
 struct DiaryHistoryView: View {
     // --- State Variables ---
     @State private var selectedMonth = Date()
+    @State private var selectedDate: Date? = nil
+    @State private var selectedEntry: DiaryEntry? = nil
+    @State private var showDetailSheet: Bool = false
     
     // ✅ ดึงข้อมูลและสถานะทั้งหมดมาจาก ViewModel
     @EnvironmentObject var diaryViewModel: DiaryViewModel
@@ -82,13 +85,20 @@ struct DiaryHistoryView: View {
                         }
                     }
                     
-                    // ตารางวันที่
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                         let days = getDaysInMonth()
                         
                         ForEach(days.indices, id: \.self) { index in
                             if let date = days[index] {
-                                DayCell(date: date, entry: getEntry(for: date))
+                                let entryForDay = getEntry(for: date) // ดึงข้อมูลของวันนั้นๆ
+                                
+                                DayCell(date: date, entry: entryForDay)
+                                    .onTapGesture {
+                                        // เมื่อกดที่เซลล์ ให้เก็บข้อมูลและเปิด Sheet
+                                        self.selectedDate = date
+                                        self.selectedEntry = entryForDay
+                                        self.showDetailSheet = true
+                                    }
                             } else {
                                 Color.clear.frame(height: 60)
                             }
@@ -107,6 +117,14 @@ struct DiaryHistoryView: View {
                 }
             }
             .padding(.bottom, 40)
+        }
+        .sheet(isPresented: $showDetailSheet) {
+            // ดึง Sheet มาแสดงข้อมูล
+            if let date = selectedDate {
+                DiaryDetailSheet(date: date, entry: selectedEntry)
+                    .presentationDetents([.medium, .fraction(0.4)]) // ทำให้ Sheet เด้งขึ้นมาแค่ครึ่งจอ
+                    .presentationDragIndicator(.visible) // แสดงขีดด้านบนให้รู้ว่าปัดลงได้
+            }
         }
     }
     
@@ -162,8 +180,6 @@ struct DiaryHistoryView: View {
     }
     
     // MARK: - Logic Functions
-    
-    // ❌ ลบฟังก์ชัน loadEntries() ออกเพราะเราให้ ViewModel ทำแทนแล้ว
     
     private func changeMonth(_ value: Int) {
         if let newDate = calendar.date(byAdding: .month, value: value, to: selectedMonth) {
@@ -268,6 +284,87 @@ struct DiaryHistoryView: View {
 }
 
 // MARK: - Subviews
+struct DiaryDetailSheet: View {
+    let date: Date
+    let entry: DiaryEntry?
+    @Environment(\.dismiss) var dismiss
+    
+    // แปลงวันที่ให้เป็นข้อความสวยๆ
+    var dateString: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "th_TH")
+        formatter.dateFormat = "d MMMM yyyy"
+        return formatter.string(from: date)
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(dateString)
+                .font(.headline)
+                .foregroundColor(.gray)
+                .padding(.top, 20)
+            
+            if let entry = entry {
+                // กรณีที่วันนั้นมีข้อมูล
+                VStack(spacing: 15) {
+                    // แสดง Emoji หรือระดับความปวด
+                    Text(getEmoji(for: entry.feelingLevel))
+                        .font(.system(size: 60))
+                    
+                    Text("ระดับความปวด: \(entry.feelingLevel)")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    
+                    if let note = entry.note, !note.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("บันทึกอาการ:")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text(note)
+                                .font(.body)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                }
+            } else {
+                // กรณีที่วันนั้นไม่มีข้อมูล
+                VStack(spacing: 15) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray.opacity(0.5))
+                    Text("ไม่มีบันทึกอาการในวันนี้")
+                        .foregroundColor(.gray)
+                }
+                .padding(.top, 20)
+            }
+            
+            Spacer()
+            
+            Button("ปิด") {
+                dismiss()
+            }
+            .padding(.bottom, 20)
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+    }
+    
+    // ฟังก์ชันช่วยแปลงตัวเลขเป็น Emoji สื่ออารมณ์
+    func getEmoji(for level: Int) -> String {
+        switch level {
+        case 1...3: return "😫" // ปวดมาก
+        case 4...7: return "😐" // ปานกลาง
+        case 8...10: return "😄" // ดีขึ้นมาก
+        default: return "😶"
+        }
+    }
+}
+
 struct FeelingPercentageRow: View {
     let title: String
     let color: Color
