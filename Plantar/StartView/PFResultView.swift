@@ -68,7 +68,7 @@ struct PFResultView: View {
                             .padding(.top, 20)
                             .foregroundColor(Color(hex: "50463C"))
                         
-                        // 2. ส่วนแสดงรูปภาพ (Image) หรือ 3D Model
+                        // 2. ส่วนแสดงรูปภาพ (Image)
                         displayScanVisuals(result: result)
                         
                         // 3. ส่วนแสดงคะแนนความเสี่ยง (Total Risk Score)
@@ -80,8 +80,8 @@ struct PFResultView: View {
                         // 5. ข้อมูลลักษณะเท้า (Arch Type)
                         archTypeSection(result: result)
                         
-                        // 6. ปุ่มกลับ
-                        backButton // เพิ่มปุ่มกลับที่นี่
+                        // 6. ส่วนอ้างอิงและคำเตือนทางการแพทย์
+                        medicalDisclaimerAndReferencesSection
                         
                         // 7. ปุ่มเข้าสู่หน้าหลัก
                         homeButton
@@ -287,12 +287,7 @@ struct PFResultView: View {
                 )
                 .padding(.horizontal)
                 
-                RecommendationCard(
-                    icon: "exclamationmark.triangle",
-                    title: "คำเตือน: ผลการวิเคราะห์ที่เห็นเป็นเพียงแค่การวินิจฉัยรอยเท้าเบื้องต้นเท่านั้น โปรดปรึกษาแพทย์เพื่อการรักษาที่ถูกต้อง",
-                    color: .red
-                )
-                .padding(.horizontal)
+                
             }
         }
     }
@@ -389,6 +384,114 @@ struct PFResultView: View {
             print("✅ Updated user scan status to TRUE")
         } catch {
             print("⚠️ Failed to update scan status: \(error)")
+        }
+    }
+    
+    // MARK: - Medical Information Section
+    private var medicalDisclaimerAndReferencesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Divider()
+                .padding(.vertical, 8)
+            
+            // บัตรข้อความจัดกลุ่มความปลอดภัยและข้อมูลอ้างอิง
+            VStack(alignment: .leading, spacing: 16) {
+                
+                // 1. Disclaimer
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.shield.fill")
+                            .foregroundColor(.orange)
+                            .font(.footnote)
+                        Text("ข้อควรระวังทางการแพทย์ (Medical Disclaimer)")
+                            .font(.footnote)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Text("แอปพลิเคชันนี้ออกแบบมาเพื่อการประเมินความเสี่ยงเบื้องต้นเท่านั้น ไม่ใช่อุปกรณ์ทางการแพทย์และไม่สามารถแทนที่การวินิจฉัยจากแพทย์ได้ โปรดปรึกษาแพทย์ผู้เชี่ยวชาญก่อนเริ่มทำการรักษา")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineSpacing(4)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Divider()
+                    .opacity(0.5)
+                
+                // 2. Advisors
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "stethoscope")
+                            .foregroundColor(Color(red: 172/255, green: 187/255, blue: 98/255)) // สีเขียวธีมแอป Plantar
+                            .font(.footnote)
+                        Text("ที่ปรึกษาทางการแพทย์ (Medical Advisors)")
+                            .font(.footnote)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Text("นพ.สุรเมศวร์ ศิริจารุวงศ์, ผศ.ดร.ศรีรัฐ ภักดีรณชิต, ผศ.นพ.ชัชวาลย์ เจริญธรรมรักษา")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineSpacing(2)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Divider()
+                    .opacity(0.5)
+                
+                // 3. References (Links)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "doc.plaintext.fill")
+                            .foregroundColor(.gray)
+                            .font(.footnote)
+                        Text("แหล่งข้อมูลอ้างอิง (References)")
+                            .font(.footnote)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        referenceLinkRow(number: "1", text: "Lucas et al. (2018). Automated spatial pattern analysis for foot arch height.", url: "https://pubmed.ncbi.nlm.nih.gov/30233395/")
+                        
+                        referenceLinkRow(number: "2", text: "Boob et al. (2024). Physiotherapy rehabilitation protocol of plantar fasciitis.", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10835201/")
+                        
+                        referenceLinkRow(number: "3", text: "วรพงษ์ คงทอง และปรารถนา เนมีย์. (2568). โรครองช้ำ: บทความทบทวน.", url: "https://he02.tci-thaijo.org/index.php/spsc_journal/article/view/273414/186865")
+                    }
+                }
+            }
+            .padding(16)
+            .background(Color(.white)) // หรือปรับเป็นความต้องการ เช่น Color(.secondarySystemGroupedBackground)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 4) // ทำเงาฟุ้งละมุนๆ
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
+    }
+
+    // ฟังก์ชันตัวช่วยสร้างแถวลิงก์อ้างอิงให้มีไอคอนระบุการเปิดหน้าเว็บภายนอก
+    @ViewBuilder
+    private func referenceLinkRow(number: String, text: String, url: String) -> some View {
+        Link(destination: URL(string: url)!) {
+            HStack(alignment: .top, spacing: 6) {
+                Text("\(number).")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Text(text)
+                    .font(.system(size: 11))
+                    .foregroundColor(.blue)
+                    .multilineTextAlignment(.leading)
+                    .underline() // เพิ่มเส้นใต้เพื่อให้รู้ว่าเป็นข้อความคลิกได้
+                
+                Spacer()
+                
+                Image(systemName: "arrow.up.forward.app.fill")
+                    .font(.system(size: 11))
+                    .foregroundColor(.blue)
+                    .padding(.top, 2)
+            }
         }
     }
 }
