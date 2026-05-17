@@ -246,6 +246,26 @@ struct LoginView: View {
                         .frame(height: 52)
                         .cornerRadius(12)
                         .padding(.horizontal, 24)
+                        
+                        Button(action: {
+                            Task {
+                                await authManager.signInAsGuest()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "person.crop.circle.badge.questionmark")
+                                    .font(.title3)
+                                Text("เข้าใช้งานในฐานะผู้เยี่ยมชม")
+                                    .font(.headline)
+                            }
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 2)
                     }
                     
                     // MARK: - Footer

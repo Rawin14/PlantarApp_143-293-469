@@ -32,9 +32,6 @@ struct CameraCaptureView: View {
             VStack {
                 // --- Top Bar ---
                 HStack {
-                    // ปุ่ม Cancel ย้ายมาข้างบน (เหมือนแอปกล้องทั่วไป) หรือจะไว้ล่างก็ได้
-                    // ในที่นี้ขอเอาไว้ข้างล่างเพื่อให้กดมือเดียวง่าย แต่ข้างบนแสดงสถานะ
-                    
                     if !capturedImages.isEmpty {
                         HStack(spacing: 6) {
                             Image(systemName: "photo.stack")
@@ -66,14 +63,15 @@ struct CameraCaptureView: View {
                     .frame(height: 180)
                     .ignoresSafeArea()
                     
-                    HStack(alignment: .center, spacing: 40) {
+                    HStack(alignment: .center, spacing: 30) {
                         
                         // 1. Cancel / Back Button
                         Button(action: { dismiss() }) {
                             Text("ยกเลิก")
                                 .font(.callout)
+                                .fontWeight(.medium)
                                 .foregroundColor(.white)
-                                .frame(width: 70)
+                                .frame(width: 80) // กำหนดความกว้างให้สมดุลกับปุ่มขวา
                         }
                         
                         // 2. Shutter Button
@@ -91,40 +89,51 @@ struct CameraCaptureView: View {
                             ShutterButton(isPressed: isPressingShutter)
                         }
                         
-                        // 3. Thumbnail / Done Button
+                        // 3. Thumbnail / Submit Button (ปรับให้เข้าใจง่ายขึ้น)
                         Button(action: {
                             if !capturedImages.isEmpty {
                                 onComplete(capturedImages)
                                 dismiss()
                             }
                         }) {
-                            if let lastImage = capturedImages.last {
-                                // Show Thumbnail
-                                ZStack(alignment: .topTrailing) {
-                                    Image(uiImage: lastImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 60, height: 60)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.white, lineWidth: 2)
-                                        )
-                                    
-                                    // Badge checkmark
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                        .background(Circle().fill(.white).padding(2))
-                                        .offset(x: 5, y: -5)
-                                }
-                                .frame(width: 70) // Frame เพื่อจัด layout ให้เท่ากัน
-                            } else {
-                                // Placeholder (Disabled)
-                                Circle()
-                                    .fill(Color.gray.opacity(0.3))
+                            VStack(spacing: 8) {
+                                if let lastImage = capturedImages.last {
+                                    // Show Thumbnail & Badge
+                                    ZStack(alignment: .topTrailing) {
+                                        Image(uiImage: lastImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 60, height: 60)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(Color.white, lineWidth: 2)
+                                            )
+                                        
+                                        // Badge checkmark
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .background(Circle().fill(.white).padding(2))
+                                            .offset(x: 8, y: -8)
+                                    }
                                     .frame(width: 60, height: 60)
-                                    .frame(width: 70)
+                                    
+                                    // ✅ เพิ่มข้อความให้ชัดเจนว่าต้องกดส่ง
+                                    Text("วิเคราะห์รูป")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                } else {
+                                    // Placeholder (Disabled)
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: 60, height: 60)
+                                    
+                                    Text(" ")
+                                        .font(.caption)
+                                }
                             }
+                            .frame(width: 80) // กำหนดความกว้างให้สมดุลกับปุ่มซ้าย
                         }
                         .disabled(capturedImages.isEmpty)
                     }
@@ -137,21 +146,19 @@ struct CameraCaptureView: View {
 
 // MARK: - Components
 
-// ปุ่มชัตเตอร์สวยๆ
+// ปุ่มชัตเตอร์
 struct ShutterButton: View {
     var isPressed: Bool
     
     var body: some View {
         ZStack {
-            // วงแหวนนอก
             Circle()
                 .stroke(Color.white, lineWidth: 4)
                 .frame(width: 76, height: 76)
             
-            // วงกลมใน
             Circle()
                 .fill(Color.white)
-                .frame(width: isPressed ? 60 : 66, height: isPressed ? 60 : 66) // Animation ย่อขยาย
+                .frame(width: isPressed ? 60 : 66, height: isPressed ? 60 : 66)
         }
     }
 }
@@ -162,48 +169,50 @@ struct FootOverlayView: View {
         GeometryReader { geometry in
             ZStack {
                 // 1. พื้นหลังสีดำจางๆ เจาะรูตรงกลาง
-                Color.black.opacity(0.5)
+                Color.black.opacity(0.6)
                     .mask(
                         ZStack {
                             Rectangle().fill(Color.white)
                             
-                            // เจาะรูสี่เหลี่ยมมน
-                            RoundedRectangle(cornerRadius: 30)
+                            // ✅ ปรับสัดส่วนรูให้เป็นสี่เหลี่ยมแนวตั้ง เหมาะสำหรับรอยเท้า
+                            RoundedRectangle(cornerRadius: 40)
                                 .fill(Color.black)
-                                .frame(width: geometry.size.width * 0.75, height: geometry.size.height * 0.55)
+                                .frame(width: geometry.size.width * 0.55, height: geometry.size.height * 0.6)
                                 .blendMode(.destinationOut)
                         }
                         .compositingGroup()
                     )
                 
                 // 2. เส้นประขอบเขต
-                RoundedRectangle(cornerRadius: 30)
-                    .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [10, 10]))
-                    .foregroundColor(.white.opacity(0.8))
-                    .frame(width: geometry.size.width * 0.75, height: geometry.size.height * 0.55)
+                RoundedRectangle(cornerRadius: 40)
+                    .stroke(style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [12, 12]))
+                    .foregroundColor(Color(red: 172/255, green: 187/255, blue: 98/255)) // ใช้สีเขียวของแอปให้ชัดขึ้น
+                    .frame(width: geometry.size.width * 0.55, height: geometry.size.height * 0.6)
                 
-                // 3. ข้อความแนะนำ
+                // 3. ข้อความแนะนำ (ปรับปรุงใหม่ให้อ่านง่ายและชัดเจน)
                 VStack {
-                    Text("ถ่ายรอยเท้าให้ตรงกรอบ")
-                        .font(.title3)
+                    Text("วางรอยเท้าเปียกให้อยู่ในกรอบ")
+                        .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-                        .shadow(radius: 4)
-                        .padding(.top, geometry.size.height * 0.15)
+                        .shadow(color: .black, radius: 4, x: 0, y: 2)
+                        .padding(.top, geometry.size.height * 0.1)
                     
                     Spacer()
                     
-                    HStack(spacing: 6) {
-                        Image(systemName: "sun.max.fill")
-                        Text("หาสถานที่ที่มีแสงสว่างเพียงพอ")
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundColor(.yellow)
+                        Text("ถ่ายในที่สว่างเพื่อให้ AI วิเคราะห์ได้แม่นยำ")
+                            .fontWeight(.medium)
                     }
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.9))
+                    .font(.subheadline)
+                    .foregroundColor(.white)
                     .padding(.horizontal, 20)
-                    .padding(.vertical, 8)
-                    .background(.black.opacity(0.3))
-                    .cornerRadius(20)
-                    .padding(.bottom, geometry.size.height * 0.22)
+                    .padding(.vertical, 12)
+                    .background(Color.black.opacity(0.6))
+                    .clipShape(Capsule())
+                    .padding(.bottom, geometry.size.height * 0.25)
                 }
             }
         }
@@ -211,7 +220,7 @@ struct FootOverlayView: View {
     }
 }
 
-// MARK: - Notification & Preview Logic (คงเดิม)
+// MARK: - Notification & Preview Logic
 
 extension Notification.Name {
     static let takePhoto = Notification.Name("takePhotoNotification")
@@ -222,7 +231,7 @@ struct CameraPreview: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: UIScreen.main.bounds)
-        view.backgroundColor = .black // กันสีขาวแลบตอนโหลด
+        view.backgroundColor = .black
         
         context.coordinator.setupCaptureSession { previewLayer in
             previewLayer.frame = view.bounds
@@ -259,8 +268,18 @@ struct CameraPreview: UIViewRepresentable {
             let session = AVCaptureSession()
             session.sessionPreset = .photo
             
+            // ✅ เลือกระยะเลนส์ Wide ธรรมดา
             guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
                   let input = try? AVCaptureDeviceInput(device: device) else { return }
+            
+            // ✅ บังคับล็อคเลนส์เป็น 1.0x (1x) เสมอ เพื่อป้องกันกล้องสลับไป 0.5x หรือบิดเบี้ยว
+            do {
+                try device.lockForConfiguration()
+                device.videoZoomFactor = 1.0
+                device.unlockForConfiguration()
+            } catch {
+                print("Cannot lock device configuration")
+            }
             
             if session.canAddInput(input) { session.addInput(input) }
             if session.canAddOutput(output) { session.addOutput(output) }
@@ -279,8 +298,6 @@ struct CameraPreview: UIViewRepresentable {
         
         func takePhoto() {
             let settings = AVCapturePhotoSettings()
-            // เปิด High Resolution ถ้าต้องการภาพชัดๆ
-            // settings.isHighResolutionPhotoEnabled = true
             output.capturePhoto(with: settings, delegate: self)
         }
         
@@ -296,8 +313,6 @@ struct CameraPreview: UIViewRepresentable {
             // Haptic Feedback
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
-            
-            // Flash Animation Effect (Optional: ใส่เพิ่มใน View ได้ถ้าต้องการ)
             
             DispatchQueue.main.async {
                 withAnimation {

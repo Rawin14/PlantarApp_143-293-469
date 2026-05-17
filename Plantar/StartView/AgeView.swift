@@ -80,10 +80,10 @@ struct AgeView: View {
                 
                 // MARK: - Current Age Display
                 HStack(alignment: .bottom, spacing: 5) {
+                    // ✅ เปลี่ยนจาก userProfile.age เป็น currentAge เพื่อให้ตัวเลขวิ่งตามไม้บรรทัด
                     Text("\(currentAge)")
                         .font(.system(size: 80, weight: .bold))
                         .foregroundColor(Color.Age_Primary)
-                    
                     Text("ปี")
                         .font(.system(size: 30, weight: .semibold))
                         .foregroundColor(Color.Age_Primary.opacity(0.8))
@@ -93,10 +93,10 @@ struct AgeView: View {
                 
                 // MARK: - Ruler/Slider
                 GenericRuler(
-                            selectedValue: $currentAge,
-                            config: AgeRulerConfig(),  // label ทุก 5 ปีแทน 10
-                            themeColor: Color.Age_Primary
-                        )
+                    selectedValue: $currentAge,
+                    config: AgeRulerConfig(),  // label ทุก 5 ปีแทน 10
+                    themeColor: Color.Age_Primary
+                )
                 // MARK: - Plus/Minus Buttons
                 HStack(spacing: 40) {
                     // ปุ่มลด (-)
@@ -192,7 +192,7 @@ struct AgeView: View {
         .onAppear {
             // โหลดค่าจาก UserProfile (ถ้ามี)
             if userProfile.age > 0 {
-                currentAge = Int(Double(userProfile.age))
+                currentAge = userProfile.age
             }
         }
     }

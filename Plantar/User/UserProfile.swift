@@ -405,6 +405,14 @@ class UserProfile: ObservableObject {
         return weight / (h * h)
     }
     
+    func updateAgeFromBirthdate() {
+            let calendar = Calendar.current
+            let ageComponents = calendar.dateComponents([.year], from: birthdate, to: Date())
+            if let calculatedAge = ageComponents.year {
+                self.age = calculatedAge
+            }
+        }
+    
     // MARK: - Save/Load
     func saveToSupabase() async {
         isLoading = true

@@ -14,7 +14,6 @@ struct Profile: View {
     // --- State Variables ---
     @State private var selectedGender: Gender = .female
     @EnvironmentObject var userProfile: UserProfile
-    @State private var birthdate: Date = Date()
     @State private var navigateToAge = false
     
     // --- Gender Enum ---
@@ -119,11 +118,11 @@ struct Profile: View {
                     
                     // Nickname Field
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("ชื่อ - นามสกุล")
+                        Text("ชื่อ (นามแฝง)")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        TextField("", text: $userProfile.nickname)
+                        TextField("กรอกนามแฝงของคุณ", text: $userProfile.nickname)
                             .font(.system(size: 16))
                             .padding()
                             .background(
@@ -140,7 +139,7 @@ struct Profile: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        DatePicker("", selection: $birthdate, displayedComponents: .date)
+                        DatePicker("", selection: $userProfile.birthdate, displayedComponents: .date)
                             .datePickerStyle(.compact)
                             .labelsHidden()
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -149,7 +148,15 @@ struct Profile: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.gray.opacity(0.1))
                             )
-                        
+                            .onChange(of: userProfile.birthdate) { newValue in
+                                // 1. อัปเดตอายุใหม่
+                                userProfile.updateAgeFromBirthdate()
+                                
+                                // 2. เซฟข้อมูลขึ้น Supabase
+                                Task {
+                                    await userProfile.saveToSupabase()
+                                }
+                            }
                         Text("* โปรดระบุอายุจริงเพื่อให้ระบบคำนวนได้อย่างถูกต้อง")
                             .font(.caption)
                             .foregroundColor(.gray.opacity(0.7))
@@ -174,9 +181,9 @@ struct Profile: View {
                         Task {
                             print("Gender: \(selectedGender)")
                             print("Nickname: \(userProfile.nickname)")
-                            print("Birthday: \(birthdate)")
+                            print("Birthday: \(userProfile.birthdate)")
                             userProfile.gender = (selectedGender == .male) ? "male" : "female"
-                            userProfile.birthdate = birthdate
+                            userProfile.updateAgeFromBirthdate()
                             navigateToAge = true // 👈 Trigger navigation
                         }
                     }
@@ -209,8 +216,6 @@ struct Profile: View {
                             selectedGender = .female
                         }
                         
-                        // อัปเดตวันเกิดด้วย
-                        birthdate = userProfile.birthdate
                     }
                 }
             }

@@ -88,9 +88,14 @@ struct EvaluateView: View {
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(.black)
                             .multilineTextAlignment(.center)
+                        // ✅ 1. อนุญาตให้ขึ้นบรรทัดใหม่ได้ไม่จำกัด
+                            .lineLimit(nil)
+                        // ✅ 2. บังคับให้กล่องข้อความขยายแนวตั้งตามความยาวจริง ป้องกันการตัด ...
+                            .fixedSize(horizontal: false, vertical: true)
+                        // ✅ 3. ถ้ายาวเกินไปจริงๆ บนจอเล็ก จะยอมให้ฟอนต์เล็กลงได้ถึง 70%
+                            .minimumScaleFactor(0.7)
                             .padding(.horizontal, 30)
                             .padding(.top, 20)
-                            //.minimumScaleFactor(0.8) // เพิ่มบรรทัดนี้เผื่อข้อความยาว
                         
                         Text("(\(currentQuestion.score) คะแนน)")
                             .font(.system(size: 14, weight: .medium))

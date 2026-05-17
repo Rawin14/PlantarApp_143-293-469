@@ -16,11 +16,11 @@ struct ProfileView: View {
     
     // UI State
     @State private var showImageSelector = false
-    @State private var selectedImage: String = "Female" // ใช้เริ่มต้น (ควรเซฟลง UserProfile จริงๆ)
+    @State private var selectedImage: String = "Female"
     @State private var isEditingName = false
     @State private var editedName = ""
     
-    // Settings State ✅ ใหม่
+    // Settings State
     @State private var showSettings = false
     @State private var showChangePassword = false
     @State private var currentPassword = ""
@@ -29,16 +29,18 @@ struct ProfileView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var isLoading = false
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
     
     // MARK: - Colors
     let backgroundColor = Color(red: 247/255, green: 246/255, blue: 236/255) // Cream
     let cardBackground = Color.white
     let primaryColor = Color(red: 139/255, green: 122/255, blue: 184/255)    // Purple
-    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)     // Green
-    let buttonColor = Color(red: 94/255, green: 84/255, blue: 68/255)       // Brown
+    let accentColor = Color(red: 172/255, green: 187/255, blue: 98/255)      // Green
+    let buttonColor = Color(red: 94/255, green: 84/255, blue: 68/255)        // Brown
     let textColor = Color(red: 100/255, green: 100/255, blue: 100/255)
     
-    // Assets Images (ต้องมีชื่อรูปตามนี้ใน Assets)
+    // Assets Images
     let availableImages = ["Female", "Male", "profile1", "profile2", "profile3"]
     
     // MARK: - Computed Properties
@@ -70,7 +72,6 @@ struct ProfileView: View {
     }
     
     private func changePassword() async {
-        // Validate
         guard newPassword.count >= 6 else {
             alertMessage = "รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร"
             showAlert = true
@@ -90,10 +91,7 @@ struct ProfileView: View {
         }
         
         isLoading = true
-        
-        // เรียกใช้ AuthManager เพื่อเปลี่ยนรหัสผ่าน
         let success = await authManager.changePassword(current: currentPassword, new: newPassword)
-        
         isLoading = false
         
         if success {
@@ -121,10 +119,7 @@ struct ProfileView: View {
         }
         
         isLoading = true
-        
-        // เรียกใช้ AuthManager เพื่อส่งอีเมลรีเซ็ตรหัสผ่าน
         await authManager.sendPasswordResetEmail(email: email)
-        
         isLoading = false
         
         alertMessage = "ส่งลิงก์รีเซ็ตรหัสผ่านไปที่\n\(email) แล้ว\nกรุณาตรวจสอบอีเมล"
@@ -159,7 +154,6 @@ struct ProfileView: View {
                     VStack(spacing: 24) {
                         // --- Profile Header Section ---
                         VStack(spacing: 16) {
-                            // Profile Image & Edit Button
                             ZStack(alignment: .bottomTrailing) {
                                 Circle()
                                     .fill(LinearGradient(colors: [primaryColor.opacity(0.3), accentColor.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -248,7 +242,7 @@ struct ProfileView: View {
                         // --- BMI & Health Summary Card ---
                         VStack(alignment: .leading, spacing: 16) {
                             
-                            // 1. ส่วนแสดงผล BMI (ด้านบน)
+                            // 1. ส่วนแสดงผล BMI
                             HStack {
                                 ZStack {
                                     Circle().fill(bmiColor.opacity(0.15)).frame(width: 50, height: 50)
@@ -278,7 +272,7 @@ struct ProfileView: View {
                             
                             Divider()
                             
-                            // 2. ส่วนแถบ Bar แสดงช่วง BMI (ตรงกลาง)
+                            // 2. ส่วนแถบ Bar แสดงช่วง BMI
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("ช่วงค่ามาตรฐาน: 18.5 - 24.9").font(.caption2).foregroundColor(textColor)
                                 
@@ -302,9 +296,8 @@ struct ProfileView: View {
                             Divider()
                                 .padding(.vertical, 4)
                             
-                            // 3. ส่วนแสดงความเสี่ยงและลักษณะเท้า (เพิ่มใหม่ด้านล่างสุด)
+                            // 3. ส่วนแสดงความเสี่ยงและลักษณะเท้า
                             HStack {
-                                // ฝั่งซ้าย: ระดับความเสี่ยง
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("ความเสี่ยงรองช้ำ")
                                         .font(.caption)
@@ -313,7 +306,6 @@ struct ProfileView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: "exclamationmark.triangle.fill")
                                             .font(.caption)
-                                        // ⚠️ อ้างอิงฟังก์ชัน riskText และ riskColor จากโค้ดก่อนหน้าของคุณ
                                         Text(riskText(severity: userProfile.riskSeverity))
                                             .font(.subheadline)
                                             .fontWeight(.bold)
@@ -323,18 +315,16 @@ struct ProfileView: View {
                                 
                                 Spacer()
                                 
-                                // ฝั่งขวา: ลักษณะอุ้งเท้า
                                 VStack(alignment: .trailing, spacing: 4) {
                                     Text("ลักษณะอุ้งเท้า")
                                         .font(.caption)
                                         .foregroundColor(textColor)
                                     
                                     HStack(spacing: 4) {
-                                        // ⚠️ เรียกใช้ตัวแปร archTypeDisplay ที่เราสร้างไว้ใน UserProfile
                                         Text(userProfile.archTypeDisplay)
                                             .font(.subheadline)
                                             .fontWeight(.bold)
-                                            .foregroundColor(primaryColor) // หรือเปลี่ยนเป็นสีที่เข้ากับธีม
+                                            .foregroundColor(primaryColor)
                                         
                                         Image(systemName: "shoeprints.fill")
                                             .font(.caption)
@@ -348,21 +338,19 @@ struct ProfileView: View {
                         .cornerRadius(16)
                         .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
                         .padding(.horizontal, 20)
+                        
                         // --- Menu List ---
                         VStack(spacing: 12) {
-                            // Dashboard Link
                             NavigationLink(destination: DashboardView()) {
                                 InfoRowCard(icon: "chart.line.uptrend.xyaxis", title: "Dashboard", value: "ดูสถิติ", color: accentColor)
                             }
                             
-                            // Settings Button ✅ ใหม่
                             Button {
                                 withAnimation { showSettings = true }
                             } label: {
                                 InfoRowCard(icon: "gearshape.fill", title: "ตั้งค่า", value: "", color: primaryColor)
                             }
                             
-                            // Logout Button
                             Button {
                                 Task {
                                     await authManager.signOut()
@@ -391,13 +379,11 @@ struct ProfileView: View {
                         .foregroundColor(buttonColor)
                         .padding(.top, 10)
                     
-                    // ✅ ใช้ ScrollView เพื่อป้องกันรูปล้นจอ
                     ScrollView {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             ForEach(availableImages, id: \.self) { imageName in
                                 Button(action: {
                                     selectedImage = imageName
-                                    // TODO: Save to Supabase here if needed
                                     withAnimation { showImageSelector = false }
                                 }) {
                                     Image(imageName)
@@ -435,7 +421,7 @@ struct ProfileView: View {
                 .zIndex(2)
             }
             
-            // 4. Settings Overlay ✅ ใหม่
+            // 4. Settings Overlay
             if showSettings {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
@@ -535,12 +521,48 @@ struct ProfileView: View {
                                     .background(Color.white)
                                     .cornerRadius(12)
                                     .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+                                    
+                                    // ✅ ปุ่มลบบัญชีผู้ใช้งานที่เพิ่มเข้ามาใหม่
+                                    Button {
+                                        showDeleteConfirmation = true
+                                    } label: {
+                                        HStack {
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(Color.red.opacity(0.15))
+                                                    .frame(width: 44, height: 44)
+                                                
+                                                if isDeleting {
+                                                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .red))
+                                                } else {
+                                                    Image(systemName: "trash.fill")
+                                                        .font(.title3)
+                                                        .foregroundColor(.red)
+                                                }
+                                            }
+                                            
+                                            Text("ลบบัญชีผู้ใช้งาน")
+                                                .foregroundColor(.red)
+                                                .fontWeight(.medium)
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "chevron.right")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding()
+                                        .background(Color.white)
+                                        .cornerRadius(12)
+                                        .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+                                    }
+                                    .disabled(isDeleting)
+                                    
                                 }
                                 .padding(.top, 10)
                             } else {
                                 // Change Password Form
                                 VStack(spacing: 20) {
-                                    // Back Button
                                     HStack {
                                         Button {
                                             withAnimation {
@@ -563,55 +585,39 @@ struct ProfileView: View {
                                             .font(.headline)
                                             .foregroundColor(buttonColor)
                                         
-                                        // Current Password
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("รหัสผ่านปัจจุบัน")
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
-                                            
                                             SecureField("ใส่รหัสผ่านปัจจุบัน", text: $currentPassword)
                                                 .padding()
                                                 .background(Color.white)
                                                 .cornerRadius(10)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                                )
+                                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                         }
                                         
-                                        // New Password
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("รหัสผ่านใหม่ (ขั้นต่ำ 6 ตัวอักษร)")
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
-                                            
                                             SecureField("ใส่รหัสผ่านใหม่", text: $newPassword)
                                                 .padding()
                                                 .background(Color.white)
                                                 .cornerRadius(10)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                                )
+                                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                         }
                                         
-                                        // Confirm Password
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("ยืนยันรหัสผ่านใหม่")
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
-                                            
                                             SecureField("ใส่รหัสผ่านใหม่อีกครั้ง", text: $confirmPassword)
                                                 .padding()
                                                 .background(Color.white)
                                                 .cornerRadius(10)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                                )
+                                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.2), lineWidth: 1))
                                         }
                                         
-                                        // Change Button
                                         Button {
                                             Task { await changePassword() }
                                         } label: {
@@ -677,6 +683,26 @@ struct ProfileView: View {
         .alert(alertMessage, isPresented: $showAlert) {
             Button("ตกลง", role: .cancel) { }
         }
+        // ✅ Alert สำหรับยืนยันการลบบัญชี
+        .alert("ยืนยันการลบบัญชี", isPresented: $showDeleteConfirmation) {
+            Button("ยกเลิก", role: .cancel) { }
+            Button("ลบถาวร", role: .destructive) {
+                isDeleting = true
+                Task {
+                    let success = await authManager.deleteCurrentAccount()
+                    isDeleting = false
+                    
+                    if success {
+                        withAnimation { showSettings = false }
+                    } else {
+                        alertMessage = "ไม่สามารถลบบัญชีได้ กรุณาลองใหม่อีกครั้ง หรือเข้าสู่ระบบใหม่อีกครั้งเพื่อยืนยันตัวตน"
+                        showAlert = true
+                    }
+                }
+            }
+        } message: {
+            Text("คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้? ข้อมูลสุขภาพ ผลการสแกน และประวัติการบันทึกอาการทั้งหมดจะถูกลบออกจากระบบอย่างถาวรและไม่สามารถกู้คืนได้")
+        }
         .onAppear {
             Task { await userProfile.loadFromSupabase() }
         }
@@ -688,6 +714,16 @@ struct ProfileView: View {
         case "medium": return .orange
         case "low": return .green
         default: return .gray
+        }
+    }
+    
+    // (ฟังก์ชัน riskText ที่คุณเรียกใช้ในโค้ดแต่ไม่ได้ประกาศไว้ สมมติว่ามีอยู่ใน UserProfile หรือ Extensions นะครับ)
+    func riskText(severity: String?) -> String {
+        switch severity {
+        case "high": return "สูง"
+        case "medium": return "ปานกลาง"
+        case "low": return "ต่ำ"
+        default: return "ไม่ระบุ"
         }
     }
 }
@@ -735,7 +771,6 @@ struct InfoRowCard: View {
         .shadow(color: .black.opacity(0.05), radius: 6, y: 3)
     }
 }
-
 
 // MARK: - Preview
 #Preview {

@@ -379,6 +379,45 @@ class AuthManager: ObservableObject {
             print("❌ URL error:", error)
         }
     }
+    
+    /// ฟังก์ชันเข้าสู่ระบบแบบผู้เยี่ยมชม (Guest Mode)
+    func signInAsGuest() async {
+        do {
+            // เรียกคำสั่งเข้าสู่ระบบแบบไม่เปิดเผยตัวตนของ Supabase
+            _ = try await supabase.auth.signInAnonymously()
+            
+            // อัปเดตสถานะการล็อกอินในแอปพลิเคชันของคุณตามสไตล์โค้ดเดิม
+            await MainActor.run {
+                self.isAuthenticated = true
+                self.errorMessage = nil
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    /// ฟังก์ชันสั่งลบบัญชีผู้ใช้ปัจจุบันออกจากระบบ
+    func deleteCurrentAccount() async -> Bool {
+        do {
+            // 1. เรียกใช้ฟังก์ชัน RPC ที่เราสร้างไว้ใน Supabase SQL Editor
+            try await supabase.rpc("delete_user_account").execute()
+            
+            // 2. สั่ง Sign Out ออกจากระบบ (ต้องมี await เพราะเป็นฟังก์ชัน async)
+            try await supabase.auth.signOut()
+            
+            // 3. เคลียร์สถานะล็อกอินบนหน้าจอ (Main Thread)
+            await MainActor.run {
+                self.isAuthenticated = false
+            }
+            
+            return true
+        } catch {
+            print("Failed to delete account: \(error)")
+            return false
+        }
+    }
 }
 
 // MARK: - Helper Class

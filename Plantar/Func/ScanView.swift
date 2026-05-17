@@ -362,7 +362,7 @@ struct ScanView: View {
             scanState = .completed
             
         } catch {
-            errorMessage = "การประมวลผลล้มเหลว\n โปรดลองอีกครั้ง"
+            errorMessage = "เกิดข้อผิดพลาด รูปภาพไม่ถูกต้อง หรือรูปไม่ชัดเจน กรุณาถ่ายใหม่อีกครั้ง"
             scanState = .failed
             print("❌ Error: \(error)")
         }
