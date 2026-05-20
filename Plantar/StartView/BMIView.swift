@@ -210,6 +210,10 @@ struct BMIView: View {
                             .font(.system(size: 16))
                             .foregroundColor(textColor)
                             .lineSpacing(6)
+                        Text("* อ้างอิงเกณฑ์ดัชนีมวลกาย (BMI) ตามมาตรฐานองค์การอนามัยโลก (WHO)")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .padding(.top, 4)
                     }
                     .padding(24)
                     .frame(maxWidth: .infinity, alignment: .leading)

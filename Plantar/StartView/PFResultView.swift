@@ -66,7 +66,7 @@ struct PFResultView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top, 20)
-                            .foregroundColor(Color(hex: "50463C"))
+                            .foregroundColor(Color("50463C"))
                         
                         // 2. ส่วนแสดงรูปภาพ (Image)
                         displayScanVisuals(result: result)
@@ -270,27 +270,44 @@ struct PFResultView: View {
     }
     
     // ส่วนลักษณะเท้า
-    @ViewBuilder
-    func archTypeSection(result: FootScanResult) -> some View {
-        if let archType = result.arch_type {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("ลักษณะรูปเท้า (จากการสแกน)")
-                    .font(.headline)
-                    .foregroundColor(Color(hex: "50463C"))
+        @ViewBuilder
+        func archTypeSection(result: FootScanResult) -> some View {
+            if let archType = result.arch_type {
+                // กรณีมีข้อมูลส่งมา (แสดงผลปกติ)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("ลักษณะรูปเท้า (จากการสแกน)")
+                        .font(.headline)
+                        // ✅ แก้ไข: ใช้สีแบบ RGB แทน ป้องกันปัญหาสีโปร่งใส
+                        .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
+                        .padding(.horizontal)
+                    
+                    InfoCard(
+                        icon: "shoeprints.fill", // เปลี่ยนไอคอนให้สื่อถึงรอยเท้ามากขึ้น (ตัวเลือกเสริม)
+                        title: "ประเภทโค้งเท้า",
+                        value: archTypeText(archType),
+                        // ✅ แก้ไข: ใช้สีแบบ RGB แทน ป้องกันปัญหาสีโปร่งใส
+                        color: Color(red: 94/255, green: 84/255, blue: 68/255)
+                    )
                     .padding(.horizontal)
-                
-                InfoCard(
-                    icon: "figure.walk",
-                    title: "ประเภทโค้งเท้า",
-                    value: archTypeText(archType),
-                    color: Color(hex: "50463C")
-                )
-                .padding(.horizontal)
-                
-                
+                }
+            } else {
+                // กรณีไม่มีข้อมูล (เพื่อไม่ให้ UI หายไป)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("ลักษณะรูปเท้า (จากการสแกน)")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
+                    
+                    InfoCard(
+                        icon: "exclamationmark.triangle.fill",
+                        title: "ประเภทโค้งเท้า",
+                        value: "ไม่พบข้อมูล หรือกำลังประมวลผล",
+                        color: .gray
+                    )
+                    .padding(.horizontal)
+                }
             }
         }
-    }
     
     // ปุ่มเข้าสู่หน้าหลัก
     var homeButton: some View {
@@ -606,7 +623,7 @@ struct RecommendationCard: View {
             
             Text(title)
                 .font(.subheadline)
-                .foregroundColor(Color(hex: "50463C"))
+                .foregroundColor(Color("50463C"))
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()

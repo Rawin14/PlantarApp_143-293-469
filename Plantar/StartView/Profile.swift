@@ -118,17 +118,17 @@ struct Profile: View {
                     
                     // Nickname Field
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("ชื่อ (นามแฝง)")
+                        Text("ชื่อเล่น / นามแฝง (ไม่บังคับ)")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                         
-                        TextField("กรอกนามแฝงของคุณ", text: $userProfile.nickname)
-                            .font(.system(size: 16))
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.gray.opacity(0.1))
-                            )
+                        TextField("ข้ามได้ หรือกรอกนามแฝงของคุณ", text: $userProfile.nickname) // ✅ ปรับ Placeholder
+                                .font(.system(size: 16))
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.gray.opacity(0.1))
+                                )
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 20)
@@ -144,10 +144,6 @@ struct Profile: View {
                             .labelsHidden()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.gray.opacity(0.1))
-                            )
                             .onChange(of: userProfile.birthdate) { newValue in
                                 // 1. อัปเดตอายุใหม่
                                 userProfile.updateAgeFromBirthdate()

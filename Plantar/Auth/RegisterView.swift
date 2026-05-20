@@ -22,9 +22,10 @@ struct RegisterView: View {
     
     // UI States
     @State private var isLoading = false
-    @State private var isPasswordVisible = false // เพิ่มตัวแปรสำหรับแสดง/ซ่อนรหัสผ่าน
+    @State private var isPasswordVisible = false
+    @State private var errorMessage: String? // ✅ ตัวแปรเก็บ Error สำหรับโชว์ในกล่องแดง
     
-    // Alert States
+    // Alert States (ใช้สำหรับแจ้งเตือนตอนสำเร็จเท่านั้น)
     @State private var showAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -33,11 +34,31 @@ struct RegisterView: View {
     @State private var currentNonce: String?
     
     var isFormValid: Bool {
-//        !firstName.isEmpty &&
-//        !lastName.isEmpty &&
         !nickname.isEmpty &&
         !email.isEmpty &&
         password.count >= 6
+    }
+    
+    // ✅ แปลง Error Message เป็นภาษาไทยสำหรับหน้าสมัครสมาชิก
+    var localizedErrorMessage: String? {
+        guard let error = errorMessage ?? authManager.errorMessage else { return nil }
+        let errorStr = error.lowercased()
+        
+        if errorStr.contains("กรุณา") || errorStr.contains("รหัสผ่าน") || errorStr.contains("ข้อมูลไม่ครบ") {
+            return error // ถ้าเป็นภาษาไทยที่ตั้งไว้ใน Validate ฟอร์ม ให้โชว์เลย
+        } else if errorStr.contains("email-already-in-use") || errorStr.contains("user-already-exists") {
+            return "อีเมลนี้มีผู้ใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ"
+        } else if errorStr.contains("invalid-email") {
+            return "รูปแบบอีเมลไม่ถูกต้อง"
+        } else if errorStr.contains("weak-password") {
+            return "รหัสผ่านอ่อนแอเกินไป กรุณาตั้งให้ยากขึ้น"
+        } else if errorStr.contains("network") || errorStr.contains("connection") {
+            return "ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ"
+        } else if errorStr.contains("nonce") {
+            return "ระบบความปลอดภัยล้มเหลว กรุณาลองใหม่อีกครั้ง"
+        } else {
+            return "การลงทะเบียนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+        }
     }
     
     var body: some View {
@@ -46,7 +67,7 @@ struct RegisterView: View {
             Color(red: 0.98, green: 0.97, blue: 0.91)
                 .ignoresSafeArea()
             
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
                     // MARK: - Logo Header
                     ZStack {
@@ -69,12 +90,12 @@ struct RegisterView: View {
                         
                         // MARK: - Social Buttons
                         VStack(spacing: 16) {
-                            // ปุ่ม Google แบบยาว
+                            // ปุ่ม Google
                             Button(action: {
                                 Task { await authManager.signInWithGoogle() }
                             }) {
                                 HStack(spacing: 12) {
-                                    Image("google_logo") // ชื่อรูปภาพใน Assets
+                                    Image("google_logo")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 24, height: 24)
@@ -83,21 +104,20 @@ struct RegisterView: View {
                                         .font(.headline)
                                         .foregroundColor(.black)
                                 }
-                                .frame(maxWidth: .infinity) //ทำให้ปุ่มยาวเต็มพื้นที่
+                                .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
                                 .background(Color.white)
                                 .cornerRadius(12)
                                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
-                            .padding(.horizontal, 24) // ปรับระยะห่างขอบซ้าย-ขวาตามความเหมาะสม
+                            .padding(.horizontal, 24)
+                            
+                            // ปุ่ม Apple
                             SignInWithAppleButton(.signUp) { request in
                                 request.requestedScopes = [.email, .fullName]
-                                
-                                // สร้าง Nonce
                                 let nonce = randomNonceString()
                                 currentNonce = nonce
                                 request.nonce = sha256(nonce)
-                                
                             } onCompletion: { result in
                                 handleAppleSignIn(result)
                             }
@@ -117,6 +137,7 @@ struct RegisterView: View {
                         }
                         
                         // MARK: - Input Fields
+                        
                         // Nickname Row
                         VStack(alignment: .leading) {
                             Text("ชื่อ")
@@ -134,7 +155,7 @@ struct RegisterView: View {
                                 .textFieldStyle(CustomTextFieldStyle())
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
-                            // แสดงคำแนะนำถ้า Email ไม่ถูกต้อง
+                            
                             if !email.isEmpty && !isValidEmail(email) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "exclamationmark.circle.fill")
@@ -146,26 +167,21 @@ struct RegisterView: View {
                             }
                         }
                         
-                        // Password - แก้ไขให้มีปุ่มแสดง/ซ่อนรหัสผ่าน
+                        // Password
                         VStack(alignment: .leading, spacing: 4) {
                             Text("รหัสผ่าน")
                                 .font(.caption).fontWeight(.semibold)
                             
-                            // ใช้ ZStack เพื่อวางปุ่มลูกตาทับ
                             ZStack(alignment: .trailing) {
-                                // แสดง TextField หรือ SecureField ตามสถานะ
                                 if isPasswordVisible {
-                                    // แสดงรหัสผ่านแบบเห็นตัวอักษร
                                     TextField("กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)", text: $password)
                                         .textFieldStyle(CustomTextFieldStyle())
                                         .autocapitalization(.none)
                                 } else {
-                                    // ซ่อนรหัสผ่าน
                                     SecureField("กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)", text: $password)
                                         .textFieldStyle(CustomTextFieldStyle())
                                 }
                                 
-                                // ปุ่มลูกตาสำหรับแสดง/ซ่อนรหัสผ่าน
                                 Button(action: {
                                     isPasswordVisible.toggle()
                                 }) {
@@ -187,6 +203,7 @@ struct RegisterView: View {
                                 .foregroundColor(.red)
                                 .font(.caption2)
                             }
+                            
                             // แสดงความแข็งแกร่งของรหัสผ่าน
                             if password.count >= 6 {
                                 HStack(spacing: 4) {
@@ -199,15 +216,28 @@ struct RegisterView: View {
                             }
                         }
                         
-                        // Error Message from AuthManager
-                        if let error = authManager.errorMessage {
-                            HStack(spacing: 6) {
-                                Image(systemName: "xmark.circle.fill")
-                                Text(error)
+                        // MARK: - 🚨 Error Message Box 🚨
+                        if let errorText = localizedErrorMessage {
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.system(size: 16))
+                                    .padding(.top, 2)
+                                
+                                Text(errorText)
+                                    .font(.footnote)
+                                    .foregroundColor(.red)
+                                    .multilineTextAlignment(.leading)
+                                Spacer()
                             }
-                            .foregroundColor(.red)
-                            .font(.caption)
-                            .multilineTextAlignment(.center)
+                            .padding(12)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                            )
+                            .animation(.easeInOut, value: localizedErrorMessage)
                         }
                         
                         // MARK: - Submit Button
@@ -233,14 +263,6 @@ struct RegisterView: View {
                         .padding(.top, 10)
                         
                         // MARK: - Privacy Policy Text
-//                        VStack(spacing: 4) {
-//                            Text("การลงทะเบียนเข้าสู่ระบบถือเป็นการยอมรับนโยบายเงื่อนไขของแอปพลิเคชันทุกประการ")
-//                                .foregroundColor(.gray) +
-//                            Text("นโยบายส่วนตัว").fontWeight(.semibold).foregroundColor(.black) +
-//                            Text(" และ ").foregroundColor(.gray) +
-//                            Text("เงื่อนไขการให้บริการ").fontWeight(.semibold).foregroundColor(.black)
-//                        }
-                        
                         HStack(spacing: 0) {
                             Text("นโยบายส่วนตัว")
                                 .fontWeight(.semibold)
@@ -293,7 +315,7 @@ struct RegisterView: View {
                 }
             }
         }
-        // MARK: - Alert Modifier
+        // MARK: - Alert สำหรับแจ้งเตือนสมัครสำเร็จเท่านั้น
         .alert(alertTitle, isPresented: $showAlert) {
             Button("ตกลง", role: .cancel) { }
         } message: {
@@ -304,16 +326,17 @@ struct RegisterView: View {
     // MARK: - Functions
     
     private func handleSignUp() {
-        // ตรวจสอบข้อมูลก่อนส่ง
+        // รีเซ็ต Error ก่อนเริ่มทำงาน
+        errorMessage = nil
+        authManager.errorMessage = nil
+        
         if !validateForm() {
             return
         }
         
         Task {
             isLoading = true
-            defer {
-                isLoading = false
-            }
+            defer { isLoading = false }
             
             let combinedNickname = "\(nickname)".trimmingCharacters(in: .whitespaces)
             let finalNickname = combinedNickname.isEmpty ? nickname : combinedNickname
@@ -324,13 +347,12 @@ struct RegisterView: View {
                 nickname: finalNickname
             )
             
-            if authManager.errorMessage == nil {
-                // แสดง Alert สำเร็จก่อนปิด
+            // ถ้าสำเร็จ (ไม่มี Error) ให้เด้ง Alert ยินดีต้อนรับแล้วปิดหน้าต่าง
+            if authManager.isAuthenticated {
                 alertTitle = "สำเร็จ! ✅"
                 alertMessage = "สมัครสมาชิกเรียบร้อยแล้ว\nยินดีต้อนรับสู่ Plantar!"
                 showAlert = true
                 
-                // รอ Alert ปิดแล้วค่อย dismiss
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                     dismiss()
                 }
@@ -339,79 +361,53 @@ struct RegisterView: View {
     }
     
     // MARK: - Validation Functions
-    
-    /// ตรวจสอบความถูกต้องของฟอร์มทั้งหมด
     private func validateForm() -> Bool {
-        // 1. ตรวจสอบชื่อ
         if nickname.trimmingCharacters(in: .whitespaces).isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกชื่อจริง"
-            showAlert = true
+            errorMessage = "กรุณากรอกชื่อ (นามแฝง)"
             return false
         }
         
-        
-        // 3. ตรวจสอบอีเมล
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกอีเมล"
-            showAlert = true
+            errorMessage = "กรุณากรอกอีเมล"
             return false
         }
         
-        // 4. ตรวจสอบรูปแบบอีเมล
         if !isValidEmail(email) {
-            alertTitle = "อีเมลไม่ถูกต้อง"
-            alertMessage = "กรุณากรอกอีเมลให้ถูกต้อง\nตัวอย่าง: example@mail.com"
-            showAlert = true
+            errorMessage = "กรุณากรอกรูปแบบอีเมลให้ถูกต้อง (เช่น example@mail.com)"
             return false
         }
         
-        // 5. ตรวจสอบรหัสผ่าน
         if password.isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกรหัสผ่าน"
-            showAlert = true
+            errorMessage = "กรุณากรอกรหัสผ่าน"
             return false
         }
         
-        // 6. ตรวจสอบความยาวรหัสผ่าน
         if password.count < 6 {
-            alertTitle = "รหัสผ่านไม่ปลอดภัย"
-            alertMessage = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร\n(ปัจจุบันมี \(password.count) ตัว)"
-            showAlert = true
+            errorMessage = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
             return false
         }
         
-        // 7. ตรวจสอบรหัสผ่านแบบละเอียด
         if !isStrongPassword(password) {
-            alertTitle = "รหัสผ่านไม่ปลอดภัยพอ"
-            alertMessage = "แนะนำให้ใช้รหัสผ่านที่มี:\n• ตัวอักษรภาษาอังกฤษ (a-z, A-Z)\n• ตัวเลข (0-9)\n• ความยาวอย่างน้อย 8 ตัวอักษร"
-            showAlert = true
+            errorMessage = "รหัสผ่านไม่ปลอดภัย แนะนำให้ใช้ตัวอักษรภาษาอังกฤษผสมตัวเลข"
             return false
         }
         
         return true
     }
     
-    /// ตรวจสอบรูปแบบอีเมล
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
         return emailPredicate.evaluate(with: email)
     }
     
-    /// ตรวจสอบความแข็งแกร่งของรหัสผ่าน
     private func isStrongPassword(_ password: String) -> Bool {
-        // อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข
         let minLength = password.count >= 8
         let hasLetters = password.rangeOfCharacter(from: .letters) != nil
         let hasNumbers = password.rangeOfCharacter(from: .decimalDigits) != nil
-        
         return minLength && hasLetters && hasNumbers
     }
     
-    /// แสดงระดับความปลอดภัยของรหัสผ่าน
     private func passwordStrength() -> (text: String, color: Color, icon: String) {
         if password.count < 6 {
             return ("อ่อนแอ", .red, "xmark.shield.fill")
@@ -424,50 +420,47 @@ struct RegisterView: View {
         }
     }
     
-    // MARK: - Subviews
+    // MARK: - Apple Sign In
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
+        errorMessage = nil // รีเซ็ต error
+        
         switch result {
         case .success(let authorization):
             if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
                 guard let identityToken = appleIDCredential.identityToken,
                       let idTokenString = String(data: identityToken, encoding: .utf8) else {
-                    authManager.errorMessage = "Failed to get Apple ID token"
-                    alertTitle = "เกิดข้อผิดพลาด"
-                    alertMessage = "ไม่สามารถลงทะเบียนด้วย Apple ID ได้\nกรุณาลองใหม่อีกครั้ง"
-                    showAlert = true
+                    errorMessage = "ไม่สามารถอ่านข้อมูลจาก Apple ได้"
                     return
                 }
                 
-                // ⚠️ ดึง Nonce ที่สร้างไว้มาใช้งาน
                 guard let nonce = currentNonce else {
-                    alertTitle = "เกิดข้อผิดพลาด"
-                    alertMessage = "ระบบความปลอดภัย Nonce ล้มเหลว"
-                    showAlert = true
+                    errorMessage = "ระบบความปลอดภัย Nonce ล้มเหลว"
                     return
                 }
                 
                 Task {
+                    isLoading = true
                     await authManager.signInWithApple(idToken: idTokenString, nonce: nonce)
+                    isLoading = false
+                    
                     if authManager.isAuthenticated {
                         alertTitle = "สำเร็จ! ✅"
                         alertMessage = "ลงทะเบียนด้วย Apple เรียบร้อยแล้ว"
                         showAlert = true
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            dismiss() // กลับไปหน้าหลัก
+                            dismiss()
                         }
-                    } else {
-                        alertTitle = "เกิดข้อผิดพลาด"
-                        alertMessage = authManager.errorMessage ?? "ไม่สามารถเข้าสู่ระบบได้"
-                        showAlert = true
                     }
                 }
             }
         case .failure(let error):
-            authManager.errorMessage = error.localizedDescription
-            alertTitle = "เกิดข้อผิดพลาด"
-            alertMessage = "ยกเลิกการลงทะเบียน: \(error.localizedDescription)"
-            showAlert = true
+            // ถ้า User กดข้ามหรือปิดหน้าต่าง Apple Login เอง ไม่ต้องทำอะไร หรือโชว์ error
+            if let asError = error as? ASAuthorizationError, asError.code == .canceled {
+                // ผู้ใช้กดยกเลิกเอง ไม่ต้องแสดงข้อผิดพลาด
+            } else {
+                errorMessage = "ยกเลิกการลงทะเบียน: \(error.localizedDescription)"
+            }
         }
     }
     
@@ -475,37 +468,6 @@ struct RegisterView: View {
         Rectangle()
             .fill(Color.gray.opacity(0.2))
             .frame(height: 1)
-    }
-    
-    private func socialButton(image: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(color)
-                    .frame(width: 80, height: 50)
-                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray.opacity(0.1), lineWidth: 1)
-                    )
-                
-                if image == "facebook" {
-                    Image("facebook_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                } else if image == "google" {
-                    Image("google_logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                } else {
-                    Image(systemName: "applelogo")
-                        .foregroundColor(.white)
-                        .font(.system(size: 28))
-                }
-            }
-        }
     }
 }
 
@@ -541,33 +503,6 @@ struct CustomTextFieldStyle: TextFieldStyle {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)
             )
-    }
-}
-
-// Extension for Hex Color
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
     }
 }
 

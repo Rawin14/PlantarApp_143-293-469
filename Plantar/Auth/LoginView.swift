@@ -41,6 +41,28 @@ struct LoginView: View {
     @State private var forgotPasswordEmail = ""
     @State private var currentNonce: String?
     
+    // แปลง Error Message เป็นภาษาไทย
+    var localizedErrorMessage: String? {
+        guard let error = errorMessage ?? authManager.errorMessage else { return nil }
+        let errorStr = error.lowercased()
+        
+        if errorStr.contains("กรุณา") || errorStr.contains("รหัสผ่านต้อง") {
+            return error // ถ้าเป็นภาษาไทยที่เราตั้งไว้เอง (Validation) ให้โชว์ได้เลย
+        } else if errorStr.contains("wrong-password") || errorStr.contains("invalid-credential") {
+            return "รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง"
+        } else if errorStr.contains("user-not-found") || errorStr.contains("invalid-email") {
+            return "ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง"
+        } else if errorStr.contains("network") || errorStr.contains("connection") {
+            return "ไม่สามารถเชื่อมต่ออินเทอร์เน็ตได้ กรุณาตรวจสอบการเชื่อมต่อ"
+        } else if errorStr.contains("too-many-requests") {
+            return "พยายามเข้าสู่ระบบหลายครั้งเกินไป กรุณารอสักครู่"
+        } else if errorStr.contains("user-disabled") {
+            return "บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ"
+        } else {
+            return "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+        }
+    }
+    
     var body: some View {
         
         ZStack {
@@ -164,17 +186,31 @@ struct LoginView: View {
                         }
                     }
                     
-                    // Error Message
-                    if let error = authManager.errorMessage ?? errorMessage {
-                        HStack(spacing: 6) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.caption)
-                            Text(error)
+                    // MARK: - Error Message Box
+                    if let errorText = localizedErrorMessage {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                                .font(.system(size: 16))
+                                .padding(.top, 2)
+                            
+                            Text(errorText)
+                                .font(.footnote)
+                                .foregroundColor(.red)
+                                .multilineTextAlignment(.leading)
+                            Spacer()
                         }
-                        .foregroundColor(.red)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
+                        .padding(12)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                        )
+                        .animation(.easeInOut, value: localizedErrorMessage)
                     }
+                    
+                    // MARK: - Sign In Button
                     
                     // MARK: - Sign In Button
                     Button(action: {
@@ -247,24 +283,24 @@ struct LoginView: View {
                         .cornerRadius(12)
                         .padding(.horizontal, 24)
                         
-                        Button(action: {
-                            Task {
-                                await authManager.signInAsGuest()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "person.crop.circle.badge.questionmark")
-                                    .font(.title3)
-                                Text("เข้าใช้งานในฐานะผู้เยี่ยมชม")
-                                    .font(.headline)
-                            }
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal, 24)
+                        //                        Button(action: {
+                        //                            Task {
+                        //                                await authManager.signInAsGuest()
+                        //                            }
+                        //                        }) {
+                        //                            HStack {
+                        //                                Image(systemName: "person.crop.circle.badge.questionmark")
+                        //                                    .font(.title3)
+                        //                                Text("เข้าใช้งานในฐานะผู้เยี่ยมชม")
+                        //                                    .font(.headline)
+                        //                            }
+                        //                            .foregroundColor(.primary)
+                        //                            .frame(maxWidth: .infinity)
+                        //                            .padding()
+                        //                            .background(Color(.systemGray6))
+                        //                            .cornerRadius(12)
+                        //                        }
+                        //                        .padding(.horizontal, 24)
                         .padding(.top, 2)
                     }
                     
@@ -327,29 +363,31 @@ struct LoginView: View {
     
     // MARK: - Functions
     
+    // MARK: - Functions
+    
     private func handleSignIn() {
+        // รีเซ็ตข้อความแจ้งเตือนก่อนกดปุ่ม
+        errorMessage = nil
+        
         if !validateLoginForm() {
             return
         }
         
         Task {
             isLoading = true
-            errorMessage = nil
             
             await authManager.signIn(email: email, password: password)
             
             isLoading = false
             
             if authManager.isAuthenticated {
-                alertTitle = "เข้าสู่ระบบสำเร็จ! ✅"
-                alertMessage = "ยินดีต้อนรับกลับมา!"
-                showAlert = true
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                // ล็อกอินสำเร็จ ค่อยแสดง Pop-up ยินดีต้อนรับ หรือข้ามไปหน้าอื่นเลยก็ได้
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     navigateToProfile = true
                 }
             } else {
-                handleLoginError()
+                // ถ้าล้มเหลว authManager.errorMessage จะมีค่า และกล่องแดงจะโชว์อัตโนมัติ
+                // (ไม่ต้องเรียก handleLoginError() ที่เป็น Pop-up แล้ว)
             }
         }
     }
@@ -418,30 +456,22 @@ struct LoginView: View {
     
     private func validateLoginForm() -> Bool {
         if email.trimmingCharacters(in: .whitespaces).isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกอีเมล"
-            showAlert = true
+            errorMessage = "กรุณากรอกอีเมล"
             return false
         }
         
         if !isValidEmail(email) {
-            alertTitle = "อีเมลไม่ถูกต้อง"
-            alertMessage = "กรุณากรอกอีเมลให้ถูกต้อง\nตัวอย่าง: example@mail.com"
-            showAlert = true
+            errorMessage = "กรุณากรอกรูปแบบอีเมลให้ถูกต้อง (เช่น example@mail.com)"
             return false
         }
         
         if password.isEmpty {
-            alertTitle = "ข้อมูลไม่ครบ"
-            alertMessage = "กรุณากรอกรหัสผ่าน"
-            showAlert = true
+            errorMessage = "กรุณากรอกรหัสผ่าน"
             return false
         }
         
         if password.count < 6 {
-            alertTitle = "รหัสผ่านไม่ถูกต้อง"
-            alertMessage = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
-            showAlert = true
+            errorMessage = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
             return false
         }
         
