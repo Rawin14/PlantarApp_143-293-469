@@ -142,7 +142,7 @@ struct WeightView: View {
                 Spacer()
                 
                 // MARK: - Info Box
-                Text("ระบุน้ำหนักปัจจุบันเพื่อคำนวณค่า BMI และประเมินสุขภาพของคุณ")
+                Text("ระบุน้ำหนักปัจจุบันเพื่อคำนวณค่า BMI และวิเคราะห์โครงสร้างร่างกายเบื้องต้น")
                     .font(.body)
                     .foregroundColor(Color.Weight_SecondaryText)
                     .multilineTextAlignment(.center)

@@ -251,20 +251,25 @@ struct PFResultView: View {
     
     // ส่วนรายละเอียดคะแนน
     var scoreDetailsSection: some View {
-        HStack(spacing: 15) {
-            ScoreDetailCard(
-                title: "BMI Score",
-                score: "\(userProfile.bmiScore)",
-                max: "3",
-                color: .blue
-            )
-            
-            ScoreDetailCard(
-                title: "Evaluate",
-                score: "\(Int(userProfile.evaluateScore))",
-                max: "17",
-                color: riskColor(userProfile.riskSeverity)
-            )
+        VStack(alignment: .leading, spacing: 10) {
+            Text("ผลคะแนนการทำแบบประเมิน")
+                .font(.headline)
+                .foregroundColor(Color(red: 94/255, green: 84/255, blue: 68/255))
+            HStack(spacing: 15) {
+                ScoreDetailCard(
+                    title: "BMI",
+                    score: "\(userProfile.bmiScore)",
+                    max: "3",
+                    color: .blue
+                )
+                
+                ScoreDetailCard(
+                    title: "แบบประเมิน",
+                    score: "\(Int(userProfile.evaluateScore))",
+                    max: "17",
+                    color: riskColor(userProfile.riskSeverity)
+                )
+            }
         }
         .padding(.horizontal)
     }
@@ -381,9 +386,9 @@ struct PFResultView: View {
     
     func riskColor(_ severity: String) -> Color {
         switch severity.lowercased() {
-        case "low": return .green
-        case "medium": return .orange
-        case "high": return .red
+        case "แนวโน้มต่ำ": return .green
+        case "แนวโน้มปานกลาง": return .orange
+        case "แนวโน้มสูง": return .red
         default: return .gray
         }
     }

@@ -120,7 +120,7 @@ struct HeightView: View {
                 Spacer()
 
                 // Info Box
-                Text("ระบุส่วนสูงปัจจุบันเพื่อคำนวณค่า BMI และประเมินสุขภาพของคุณ")
+                Text("ระบุส่วนสูงปัจจุบันเพื่อคำนวณค่า BMI และวิเคราะห์โครงสร้างร่างกายเบื้องต้น")
                     .font(.body)
                     .foregroundColor(Color.Height_SecondaryText)
                     .multilineTextAlignment(.center)

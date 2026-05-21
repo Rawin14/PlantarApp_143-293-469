@@ -155,9 +155,9 @@ class UserProfile: ObservableObject {
     
     var riskSeverity: String {
         let score = totalRiskScore
-        if score <= 7 { return "low" }
-        else if score <= 13 { return "medium" }
-        else { return "high" }
+        if score <= 7 { return "แนวโน้มต่ำ" }
+        else if score <= 13 { return "แนวโน้มปานกลาง" }
+        else { return "แนวโน้มสูง" }
     }
     
     // ✅ แก้ไข: คำนวณ progress ถูกต้อง และรองรับกรณีไม่มีวิดีโอ

@@ -71,7 +71,7 @@ struct EvaluateView: View {
                 // MARK: - Main Card
                 VStack(spacing: 0) {
                     // Header Badge
-                    Text("การประเมินสุขภาพเท้าเบื้องต้น")
+                    Text("แบบสำรวจพฤติกรรมการใช้งานเท้าเบื้องต้น")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(Color.Evaluate_Secondary)
